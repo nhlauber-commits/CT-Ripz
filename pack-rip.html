@@ -1,0 +1,709 @@
+<title>Pack Rip</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: a card shop in three tabs. Wallet always in the header; Home shows progress and latest pulls, Store sells three pack tiers per theme, Inventory holds the 100-slot binders. Rips happen in a spotlight overlay. Single dark look so foil and rarity glows read. */
+:root{
+  color-scheme:dark;
+  --felt:#0e1318; --counter:#18202a; --raise:#212c38; --edge:#2e3b49; --ink:#eef2f5; --dim:#8f9daa; --coin:#f2c230; --coin-d:#a87808;
+  --common:#a9b3be; --uncommon:#47d08a; --rare:#4aa3ff; --epic:#b672ff; --legendary:#ffc233;
+  --display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--felt);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,56px);line-height:.95;margin:0;letter-spacing:-.02em}
+h1 span{color:var(--legendary)}
+h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0}
+.sub{color:var(--dim);margin:8px 0 0;max-width:48ch}
+.label{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.09em}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+section{display:flex;flex-direction:column;gap:16px}
+.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px}
+[data-r=common]{--rc:var(--common)}[data-r=uncommon]{--rc:var(--uncommon)}[data-r=rare]{--rc:var(--rare)}[data-r=epic]{--rc:var(--epic)}[data-r=legendary]{--rc:var(--legendary)}
+.coin{display:inline-block;width:.95em;height:.95em;border-radius:50%;vertical-align:-.12em;margin-right:.3em;
+  background:radial-gradient(circle at 35% 30%,#fff3b0,var(--coin) 45%,var(--coin-d));box-shadow:inset 0 0 0 .1em var(--coin-d)}
+
+/* header + wallet + tabs */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px}
+.wallet{display:flex;align-items:center;gap:16px;background:var(--counter);border:1px solid var(--edge);border-radius:14px;padding:10px 16px;font-variant-numeric:tabular-nums}
+.wallet .bal{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;color:var(--coin);white-space:nowrap}
+.wallet .next{display:flex;flex-direction:column;gap:5px;min-width:10em;color:var(--dim);font-size:12px}
+.wallet .next b{color:var(--ink);font-weight:700}
+.meter{height:5px;border-radius:3px;background:var(--edge);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--coin)}
+.nav{display:flex;gap:4px;border-bottom:1px solid var(--edge)}
+.nav button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:10px 16px;font-family:var(--display);font-weight:600;font-size:17px;color:var(--dim)}
+.nav button:hover{color:var(--ink)}
+.nav button[aria-current=page]{color:var(--ink);border-bottom-color:var(--legendary)}
+.view{display:flex;flex-direction:column;gap:34px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stats div{background:var(--counter);border:1px solid var(--edge);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;font-variant-numeric:tabular-nums}
+.stats b{font-family:var(--display);font-size:28px;line-height:1.1}
+.recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+.empty{background:var(--counter);border:1px dashed var(--edge);border-radius:12px;padding:18px 20px;color:var(--dim);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+/* theme rack */
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.rack button{background:var(--counter);border:1px solid var(--edge);border-radius:12px;padding:8px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.rack svg{width:64px;height:52px}
+.rack b{font-family:var(--display);font-weight:600;font-size:14px;text-align:center;line-height:1.1}
+.rack small{color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
+.rack .bar{width:100%;height:4px;border-radius:2px;background:var(--edge);overflow:hidden}
+.rack .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--a),var(--b))}
+.rack button[aria-pressed=true]{border-color:var(--ink);background:var(--raise);box-shadow:0 0 0 1px var(--ink)}
+
+/* pack offers */
+.offers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:640px}
+.offer{background:var(--counter);border:1px solid var(--edge);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;text-align:center}
+.offer .info{display:flex;flex-direction:column;gap:2px;flex:1}
+.offer .info b{font-family:var(--display);font-weight:600;font-size:16px}
+.offer .info span{color:var(--dim);font-size:12px;line-height:1.3}
+.buy{width:100%;background:var(--coin);color:#1a1300;border:0;border-radius:9px;padding:9px 6px;font-weight:700;font-variant-numeric:tabular-nums}
+.buy:disabled{background:var(--raise);color:var(--dim)}
+.pack{position:relative;aspect-ratio:5/7;width:100%;max-width:150px;border:0;padding:0;border-radius:7px;overflow:hidden;
+  background:linear-gradient(155deg,var(--a),var(--b));color:#fff;
+  box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .18s}
+.pack::before,.pack::after{content:"";position:absolute;left:0;right:0;height:8%;z-index:1;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 3px,rgba(0,0,0,.2) 3px 6px)}
+.pack::before{top:0}.pack::after{bottom:0}
+.pack .shine{position:absolute;inset:0;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.32) 47%,transparent 60%);pointer-events:none}
+.pack svg{width:78%;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+.pack .nm{font-family:var(--display);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.03em;text-shadow:0 2px 3px rgba(0,0,0,.5);padding:0 6px;line-height:1.05}
+.pack .tag{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:rgba(0,0,0,.45);border-radius:99px;padding:2px 8px;margin-top:4px}
+.pack.t1{filter:saturate(.85)}
+.pack.t2{box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 0 0 3px #dfe5ea}
+.pack.t2 .tag{background:#dfe5ea;color:#14181d}
+.pack.t3{box-shadow:0 0 26px rgba(255,194,51,.45),inset 0 0 0 4px var(--legendary)}
+.pack.t3 .tag{background:var(--legendary);color:#1a1300}
+.pack.t3 .shine{background:linear-gradient(115deg,transparent 20%,rgba(255,225,140,.5) 38%,transparent 50%,rgba(255,225,140,.4) 66%,transparent 80%)}
+button.pack:not(:disabled):hover{transform:translateY(-5px) rotate(-1.5deg)}
+
+.odds{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:0;list-style:none;font-size:13px;font-variant-numeric:tabular-nums;color:var(--dim)}
+.odds li{display:flex;align-items:center;gap:6px}
+.odds li>i:first-child{width:9px;height:9px;transform:rotate(45deg);background:var(--rc)}
+.odds b{color:var(--ink);font-weight:500}
+
+/* ---------- the card: metal frame, full-bleed art, name top-left, rarity tab notched into the top-right ---------- */
+.card{position:relative;aspect-ratio:5/7;width:100%;container-type:inline-size;border-radius:5%/3.6%;overflow:hidden;text-align:left;
+  --m1:color-mix(in srgb,var(--rc) 32%,#f6f8fa);--m2:color-mix(in srgb,var(--rc) 50%,#8a9199);
+  background:linear-gradient(135deg,var(--m1),var(--m2) 26%,var(--m1) 48%,var(--m2) 74%,var(--m1));
+  box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.card[data-r=common]{--m1:#f1f3f5;--m2:#a4a9b0}
+.card[data-r=epic],.card[data-r=legendary]{box-shadow:0 0 18px color-mix(in srgb,var(--rc) 50%,transparent)}
+.card[data-r=legendary]{background:linear-gradient(120deg,#ffe9a3,#ffc233,#ff8a3c,#ffe9a3,#b672ff,#4aa3ff,#ffe9a3,#ffc233);background-size:300% 300%;animation:frame 6s linear infinite}
+@keyframes frame{to{background-position:300% 0}}
+.card .in{position:absolute;inset:3.6cqw;border-radius:3.6cqw;overflow:hidden;background:#04060c;box-shadow:0 0 0 .5cqw rgba(0,0,0,.5)}
+.card .art{position:absolute;inset:0}
+.card .art svg{display:block;width:100%;height:100%}
+.card .in::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.6),transparent 24%,transparent 82%,rgba(0,0,0,.65));box-shadow:inset 0 0 5cqw rgba(0,0,0,.6)}
+.card .nm,.card .tab,.card .bl,.card .br{position:absolute;z-index:2}
+.card .nm{left:4cqw;top:3.4cqw;max-width:59cqw;font-family:var(--display);font-weight:800;font-size:9.4cqw;line-height:1;color:#fff;overflow-wrap:anywhere;text-shadow:0 .5cqw 1.4cqw #000,0 0 .8cqw #000}
+.card .tab{top:0;right:0;padding:1.4cqw 4cqw 2cqw 4.6cqw;border-bottom-left-radius:3.6cqw;background:linear-gradient(180deg,var(--m1),var(--m2));
+  font-weight:700;font-size:4.5cqw;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:#14181d;box-shadow:-.4cqw .4cqw 0 rgba(0,0,0,.45)}
+.card[data-r=legendary] .tab{background:linear-gradient(180deg,#ffe9a3,#ffc233)}
+.card .bl{left:4cqw;bottom:3.2cqw;font-weight:700;font-size:5.3cqw;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--rc) 45%,#fff);text-shadow:0 .3cqw 1cqw #000}
+.card .br{right:4cqw;bottom:3.4cqw;font-size:3.9cqw;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#c3ccd4;font-variant-numeric:tabular-nums;text-shadow:0 .3cqw 1cqw #000}
+.card.photo{background:#b9bec4}
+.card.photo img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:fill}
+.card.photo::after{content:"";position:absolute;left:20%;right:20%;bottom:.3%;height:2.4%;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.foil{position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.foil::before{content:"";position:absolute;inset:0;mix-blend-mode:color-dodge;opacity:var(--fo,0);
+  background:linear-gradient(115deg,transparent 12%,rgba(255,90,190,.75) 30%,rgba(90,210,255,.75) 43%,rgba(255,235,130,.75) 56%,rgba(120,255,170,.65) 67%,transparent 84%);
+  background-size:260% 260%;background-position:var(--mx,30%) var(--my,30%)}
+.card[data-r=rare]{--fo:.22}.card[data-r=epic]{--fo:.42}.card[data-r=legendary]{--fo:.6}
+.card[data-r=epic] .foil::before,.card[data-r=legendary] .foil::before{animation:foil 5s ease-in-out infinite alternate}
+@keyframes foil{from{background-position:0% 0%}to{background-position:100% 100%}}
+.foil::after{content:"";position:absolute;inset:0;opacity:0;transition:opacity .2s;background:radial-gradient(circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.3),transparent 55%)}
+.tilt .foil::after{opacity:1}
+.tilt .foil::before{animation:none!important}
+
+/* binder */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button{background:var(--counter);border:1px solid var(--edge);border-radius:999px;padding:6px 12px;font-size:13px;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.tabs button i{width:8px;height:8px;transform:rotate(45deg);background:var(--rc)}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--felt);border-color:var(--ink);font-weight:700}
+.binder{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+.cell{position:relative;display:block;width:100%;background:none;border:0;padding:0;border-radius:6px;transition:transform .15s}
+.cell:hover{transform:translateY(-4px)}
+.cell .cnt{position:absolute;top:-7px;right:-7px;z-index:2;background:var(--ink);color:var(--felt);font-weight:700;font-size:12px;border-radius:99px;padding:1px 7px;font-variant-numeric:tabular-nums;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.slotc{aspect-ratio:5/7;border-radius:4.6%/3.3%;border:1.5px dashed var(--edge);background:var(--counter);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
+.slotc b{font-family:var(--display);font-size:30px;line-height:1;color:var(--edge)}
+.slotc i{font-style:normal;color:var(--rc);text-transform:uppercase;letter-spacing:.1em;font-size:10px;font-weight:700}
+.ghost{background:none;border:1px solid var(--edge);border-radius:8px;padding:7px 12px;color:var(--dim);font-size:13px}
+.ghost:not(:disabled):hover{color:var(--ink);border-color:var(--dim)}
+.ghost:disabled{opacity:.5}
+.sell{background:var(--raise);border:1px solid var(--coin-d);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.sell:disabled{border-color:var(--edge);color:var(--dim);font-weight:400}
+.foot{display:flex;justify-content:flex-end}
+
+/* rip overlay */
+.stage{position:fixed;inset:0;z-index:20;background:rgba(6,9,12,.94);display:grid;place-items:center;overflow:auto;
+  padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.stage-in{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;max-width:980px}
+.slot{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;width:100%;perspective:1400px}
+.slot .pack{width:min(210px,58vw);max-width:none;animation:rip .9s ease-in forwards}
+.slot .pack .nm{font-size:19px}
+@keyframes rip{0%{transform:scale(.9)}15%,45%,75%{transform:rotate(-4deg)}30%,60%{transform:rotate(4deg)}88%{transform:scale(1.08);opacity:1}100%{transform:scale(1.25);opacity:0}}
+.flip{position:relative;aspect-ratio:5/7;width:min(260px,72vw);transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.slot.n3 .flip{width:min(220px,27vw)}
+.slot.n5 .flip{width:min(172px,27vw)}
+.flip.down{transform:rotateY(180deg)}
+.flip.up{transition-duration:.12s}
+.flip>.card,.flip>.back{position:absolute;inset:0;width:auto;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flip>.card{box-shadow:0 0 40px color-mix(in srgb,var(--rc) 55%,transparent)}
+.back{transform:rotateY(180deg);border-radius:4.6%/3.3%;border:3px solid var(--edge);display:grid;place-items:center;
+  background:radial-gradient(circle,var(--counter) 0 22%,transparent 23%),repeating-conic-gradient(from 0deg,#18202a 0 15deg,#263240 15deg 30deg)}
+.back span{font-family:var(--display);font-weight:800;font-size:20px;color:var(--legendary)}
+.new{position:absolute;top:-9px;left:50%;z-index:3;transform:translateX(-50%) translateZ(1px);background:var(--ink);color:var(--felt);font-size:11px;font-weight:700;letter-spacing:.1em;border-radius:99px;padding:2px 9px;opacity:0;transition:opacity .2s .5s}
+.flip.up .new{opacity:1}
+.result{min-height:3.4em;margin:0;text-align:center;color:var(--dim);font-variant-numeric:tabular-nums}
+.result b{display:block;font-family:var(--display);font-size:24px;color:var(--rc,var(--ink))}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.primary{background:var(--legendary);color:#1a1300;border:0;border-radius:8px;padding:11px 18px;font-weight:700;font-variant-numeric:tabular-nums}
+.primary:disabled{background:var(--raise);color:var(--dim)}
+.actions .ghost{padding:11px 18px;font-size:15px}
+@media (max-width:520px){.offers{gap:8px}.offer{padding:8px}.binder{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- shared by every card: shades the flat drawing as a lit, glossy surface and adds the gold rim glow -->
+  <filter id="lit" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+    <feColorMatrix in="SourceGraphic" type="luminanceToAlpha" result="lum"/>
+    <feComposite in="lum" in2="SourceAlpha" operator="arithmetic" k1="0" k2=".35" k3=".65" k4="0" result="h0"/>
+    <feGaussianBlur in="h0" stdDeviation="1.6" result="h"/>
+    <feDiffuseLighting in="h" surfaceScale="7" diffuseConstant="1.25" lighting-color="#fff" result="d"><feDistantLight azimuth="235" elevation="52"/></feDiffuseLighting>
+    <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="sh"/>
+    <feSpecularLighting in="h" surfaceScale="7" specularConstant=".9" specularExponent="26" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="52"/></feSpecularLighting>
+    <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+    <feComposite in="s2" in2="sh" operator="arithmetic" k1="0" k2=".8" k3="1" k4="0" result="lit"/>
+    <feMorphology in="SourceAlpha" operator="dilate" radius="1.1" result="dil"/>
+    <feFlood flood-color="#ffd76a"/><feComposite in2="dil" operator="in" result="rim"/>
+    <feGaussianBlur in="rim" stdDeviation="3.5" result="glow"/>
+    <feMerge><feMergeNode in="glow"/><feMergeNode in="rim"/><feMergeNode in="lit"/></feMerge>
+  </filter>
+  <linearGradient id="holo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7ac8"/><stop offset=".25" stop-color="#ffe27a"/><stop offset=".5" stop-color="#7dffb2"/><stop offset=".75" stop-color="#6fd6ff"/><stop offset="1" stop-color="#b68cff"/></linearGradient>
+</defs></svg>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Pack <span>Rip</span></h1>
+      <p class="sub">Buy packs, pull cards, sell your duplicates and fill all eight 100-card binders.</p>
+    </div>
+    <div class="wallet">
+      <div class="bal"><i class="coin"></i><span id="nCoins">0</span></div>
+      <div class="next"><span>+<b id="nPay"></b> coins in <b id="nNext">0:30</b></span><span class="meter"><i id="meter"></i></span></div>
+    </div>
+  </header>
+
+  <nav class="nav" id="nav" aria-label="Sections">
+    <button type="button" data-v="home">Home</button>
+    <button type="button" data-v="store">Store</button>
+    <button type="button" data-v="inv">Inventory</button>
+  </nav>
+
+  <div class="view" id="v-home">
+    <div class="stats">
+      <div><b id="nOpened">0</b><span class="label">Packs ripped</span></div>
+      <div><b id="nFound">0</b><span class="label">Cards found</span></div>
+      <div><b id="nDupes">0</b><span class="label">Duplicates worth</span></div>
+    </div>
+    <section>
+      <h2>Latest pulls</h2>
+      <div id="recent"></div>
+    </section>
+    <section>
+      <h2>Your collections</h2>
+      <div class="rack" id="rackH"></div>
+    </section>
+    <section>
+      <h2>Odds and sell prices</h2>
+      <ul class="odds" id="odds"></ul>
+      <div class="foot"><button class="ghost" id="reset" type="button">Start over</button></div>
+    </section>
+  </div>
+
+  <div class="view" id="v-store" hidden>
+    <section>
+      <h2>Pick a theme</h2>
+      <div class="rack" id="rackS"></div>
+    </section>
+    <section>
+      <h2 id="shelfTitle">Packs</h2>
+      <div class="offers" id="offers"></div>
+    </section>
+  </div>
+
+  <div class="view" id="v-inv" hidden>
+    <section>
+      <h2>Pick a binder</h2>
+      <div class="rack" id="rackI"></div>
+    </section>
+    <section>
+      <div class="head">
+        <h2 id="binderTitle">Binder</h2>
+        <button class="sell" id="sellAll" type="button">Sell all duplicates</button>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="binder" id="binder"></div>
+    </section>
+  </div>
+</div>
+
+<div class="stage" id="stage" hidden>
+  <div class="stage-in">
+    <div class="slot" id="slot"></div>
+    <p class="result" id="result" aria-live="polite"></p>
+    <div class="actions" id="actions" hidden></div>
+  </div>
+</div>
+
+<script>
+/* ================= data ================= */
+const R=[
+  {id:'common',name:'Common',w:55,sell:10},
+  {id:'uncommon',name:'Uncommon',w:25,sell:30},
+  {id:'rare',name:'Rare',w:12,sell:90},
+  {id:'epic',name:'Epic',w:6,sell:300},
+  {id:'legendary',name:'Legendary',w:2,sell:1500}
+];
+const TIERS=[
+  {name:'Single',n:1,cost:100,note:'1 card'},
+  {name:'Triple',n:3,cost:270,note:'3 cards, save 10%'},
+  {name:'Mega',n:5,cost:425,note:'5 cards, at least one Rare or better',min:2}
+];
+const START=1000,PAY=1000,WAIT=30000;
+// Each theme: d = one string per rarity (40 / 28 / 18 / 10 / 4 cards), written as "artKey:Name,Name;artKey:Name"
+const T=[
+{id:'monsters',name:'Monsters',a:'#e2452f',b:'#f2a922',h:[15,200,130,275,45],em:'Solardrake',
+ g:{fire:'Fire',water:'Water',leaf:'Grass',bug:'Bug',bolt:'Electric',ice:'Ice',rock:'Rock',ghost:'Ghost',wind:'Wind',dragon:'Dragon',star:'Cosmic'},d:[
+ "rock:Pebblit,Gravlet,Dustmite,Cobblepup,Mudlump,Clodder;leaf:Leaflet,Sproutle,Mossback,Twiglet,Budkin,Fernip;bug:Fizzbug,Nibblet,Skitterling,Silkit,Buzzlet,Grubble;water:Puddlet,Driplet,Tadpip,Minnowisp,Bubblub;fire:Sparklet,Cinderkit,Smoldit,Ashpup;wind:Breezlet,Fluffin,Chirplet,Gustling;bolt:Zaplet,Statick,Zipzap;ice:Chillip,Snowmote,Frostnip;ghost:Wisplet,Boolet,Shadekin",
+ "fire:Emberpup,Flarefox,Scorchling,Kindlecat;water:Tidefin,Coralisk,Splashotter,Brinecrab;leaf:Thornling,Bloomeer,Vinecoil,Shroomkin;bolt:Voltail,Sparkhare,Ampfin;ice:Glacipup,Sleetwing,Icicub;rock:Boulderon,Quartzle,Ironshell;ghost:Glowghast,Duskmoth,Spookit;wind:Gustwing,Cloudram,Zephyrat;bug:Stingfly",
+ "fire:Blazehound,Pyrolisk;water:Torrentoad,Reefwyrm;leaf:Thornback,Floradon;bolt:Thunderam,Stormlynx;ice:Frostlynx,Glaciark;rock:Cragmaul,Obsidiant;ghost:Phantomane,Dreadwisp;wind:Tempestork,Cyclowl;bug:Bladewing,Beetlord",
+ "fire:Magmaw,Infernox;water:Abyssquid,Leviatide;leaf:Eldergrove;bolt:Voltitan;ice:Cryoclasm;rock:Titanolith;ghost:Nightshroud;dragon:Wyvernox",
+ "dragon:Solardrake,Voidwyrm;star:Lunaveil,Prismare"]},
+{id:'drugs',name:'Drugs',a:'#7b2fd0',b:'#19b88a',h:[280,160,320,200],em:'Penicillin',
+ g:{cup:'Caffeine',pill:'Pharmacy',bottle:'Bottle',cig:'Nicotine',leaf:'Cannabis',herb:'Botanical',flask:'Lab',mush:'Psychedelic',crystal:'Crystal',syringe:'Injectable',blotter:'Psychedelic'},d:[
+ "cup:Coffee,Green Tea,Energy Drink,Espresso,Cola,Yerba Mate,Black Tea;pill:Aspirin,Ibuprofen,Paracetamol,Antacid,Vitamin C,Melatonin,Antihistamine,Cough Drop,Caffeine Pill,Multivitamin,Zinc Lozenge,Naproxen;bottle:Cough Syrup,Lager,Cider,House Wine,Hard Seltzer,Light Beer,Saline Spray,Eye Drops;cig:Cigarette,Nicotine Gum,Nicotine Patch,Chewing Tobacco,Cigarillo,Snus;leaf:Shake,Hemp;herb:Catnip,Chamomile,Peppermint,Kava,Valerian Root",
+ "bottle:Whiskey,Vodka,Tequila,Rum,Gin,Sake,Craft IPA,Champagne;leaf:Sativa,Indica,Hybrid,CBD Flower;herb:Kratom,Khat;pill:Amoxicillin,Prednisone,Metformin,Statin,Beta Blocker,Codeine,Muscle Relaxant,Sleeping Pill;cig:Cigar,Hookah,Pipe Tobacco;flask:Nitrous Oxide,Ether,Novocaine",
+ "leaf:Sour Diesel,Blue Dream,OG Kush,Hashish;herb:Coca Leaf,Salvia;mush:Magic Mushrooms,Peyote,San Pedro;pill:Adderall,Xanax,Valium,Ritalin,Oxycodone;bottle:Absinthe,Moonshine,Ayahuasca;crystal:Ketamine",
+ "crystal:Cocaine,Methamphetamine,MDMA,DMT;syringe:Morphine,Heroin,Fentanyl;blotter:LSD;herb:Opium Poppy;pill:Viagra",
+ "flask:Penicillin;syringe:Insulin,Polio Vaccine;pill:Antiretrovirals"]},
+{id:'sports',name:'Sports',a:'#1553b5',b:'#d8342c',h:[215,355,140,30],em:'Super Bowl Ring',
+ g:{fb:'Football',soc:'Soccer',base:'Baseball',bask:'Basketball'},d:[
+ "fb:Kickoff,First Down,Punt,Handoff,Snap,Huddle,Touchback,Fair Catch,Screen Pass,Field Goal;soc:Throw-In,Goal Kick,Corner Kick,Back Pass,Offside Flag,Shin Guards,Tap-In,Yellow Card,Wall Pass,Clearance;base:Base Hit,Ground Ball,Fly Out,Foul Ball,Walk,Bunt,Strike One,Pop Fly,Rosin Bag,Batting Glove;bask:Layup,Free Throw,Bounce Pass,Jump Ball,Rebound,Chest Pass,Box Out,Inbound Pass,Shot Clock,Dribble",
+ "fb:Touchdown,Sack,Interception,Two-Point Conversion,Play Action,Blitz,Onside Kick;soc:Free Kick,Clean Sheet,Penalty Kick,Nutmeg,Header,Slide Tackle,Captain’s Armband;base:Double,Stolen Base,Double Play,Strikeout,Curveball,Sacrifice Fly,Triple;bask:Three-Pointer,Slam Dunk,Steal,Block,Fast Break,Pick and Roll,Crossover",
+ "fb:Pick Six,Hail Mary,Pro Bowl,Goal-Line Stand,One-Handed Catch;soc:Hat-Trick,Bicycle Kick,Golden Glove,Derby Win;base:Home Run,Grand Slam,Gold Glove,Triple Play,Hit for the Cycle;bask:Alley-Oop,Triple-Double,Buzzer Beater,Poster Dunk",
+ "fb:Super Bowl MVP,Heisman Trophy,Perfect Passer Rating;soc:Golden Boot,MLS Cup;base:No-Hitter,Triple Crown,Cy Young Award;bask:Scoring Title,60-Point Game",
+ "fb:Super Bowl Ring;soc:World Cup Trophy;base:World Series Ring;bask:NBA Championship"]},
+{id:'tech',name:'Technology',a:'#2456d6',b:'#22c1e6',h:[215,190,250,170],em:'Quantum Computer',
+ g:{cable:'Accessory',disk:'Storage',screen:'Device',phone:'Handheld',gamepad:'Controls',chip:'Hardware',robot:'Robotics',rocket:'Space & Mobility',atom:'Frontier'},d:[
+ "cable:USB Cable,HDMI Cable,Ethernet Cable,Power Strip,Phone Charger,Aux Cord,Extension Lead,Dongle,AA Battery,Wall Adapter;disk:Floppy Disk,CD-ROM,USB Stick,SD Card,VHS Tape,Cassette,DVD,Zip Disk;screen:CRT Monitor,Calculator,Digital Watch,Webcam,Office Printer,Wi-Fi Router,Dial-Up Modem,Fax Machine,Desk Phone,Pager;phone:Flip Phone,Brick Phone,MP3 Player,Walkie-Talkie,Pocket Radio,Alarm Clock;gamepad:Mouse,Keyboard,Joystick,TV Remote,Trackball,Mouse Pad",
+ "phone:Smartphone,Tablet,Smartwatch,E-Reader,Fitness Band,Wireless Earbuds;screen:Laptop,4K Monitor,Smart TV,Projector,Dash Cam,Action Camera;gamepad:Mechanical Keyboard,Game Console,Handheld Console,Racing Wheel,Arcade Stick;chip:Graphics Card,SSD,RAM Stick,Raspberry Pi,Motherboard,CPU;robot:Robot Vacuum,Drone,Smart Thermostat,3D Pen,Smart Lock",
+ "screen:Gaming PC,Ultrawide Monitor,OLED TV,Mirrorless Camera;chip:Liquid-Cooled Rig,Server Rack,FPGA Board,Neural Chip;robot:3D Printer,VR Headset,Robot Arm,Electric Scooter,Exoskeleton;rocket:Satellite Dish,Weather Balloon,Electric Car,CubeSat,Hoverboard",
+ "robot:Humanoid Robot,Self-Driving Car,Brain Implant,Robot Dog;rocket:Reusable Rocket,Space Station,Mars Rover;chip:Supercomputer,AI Datacenter;atom:Fusion Reactor",
+ "atom:Quantum Computer,Dyson Sphere;rocket:Mars Colony Ship;robot:Superintelligence"]},
+{id:'crypto',name:'Crypto & Stocks',a:'#e07a10',b:'#1fa866',h:[35,150,210,270],em:'Bitcoin',
+ g:{coin:'Coin',chart:'Market',doc:'Paperwork',bear:'Bear',bull:'Bull',vault:'Vault'},d:[
+ "coin:Penny Stock,Meme Coin,Dust Balance,Stablecoin,Dog Coin,Frog Coin,Testnet Token,Wrapped Token,Faucet Drip,Airdrop Crumbs;chart:Red Candle,Green Candle,Sideways Market,Limit Order,Market Order,Stop Loss,Bid-Ask Spread,Paper Trade,The Dip,Dead Cat Bounce,Pump,Dump;doc:Gas Fee,Seed Phrase,Brokerage Statement,Ticker Symbol,Tax Form,Dividend Cheque,Prospectus,Trade Confirmation,Margin Call,KYC Check;bear:Rug Pull,Bag Holder,FOMO,FUD,Paper Hands,Rekt,Exit Scam,Bear Trap",
+ "coin:Dogecoin,Litecoin,Cardano,Polkadot,Chainlink,XRP,Avalanche,Monero;chart:Index Fund,ETF,Dividend Stock,Growth Stock,Value Stock,Treasury Bond,Call Option,Put Option;vault:Hardware Wallet,Cold Storage,Hot Wallet,Roth IRA,401k,Savings Bond;bull:Diamond Hands,HODL,Buy the Dip,Bull Flag,Golden Cross,Airdrop",
+ "coin:Solana,BNB,Tether,Blue-Chip NFT;chart:S&P 500,Nasdaq 100,Dow Jones,Blue-Chip Stock,IPO Day,Stock Split;vault:Mining Rig,Validator Node,Staking Rewards,Yield Farm;bull:Bull Run,Whale,Short Squeeze,To the Moon",
+ "coin:Ethereum,Bitcoin Halving;chart:Trillion-Dollar Company,Ten-Bagger,All-Time High,Bitcoin ETF;vault:Hedge Fund,Gold Reserve;bull:Wall Street Bull,Unicorn Startup",
+ "coin:Bitcoin,Genesis Block;vault:Satoshi’s Wallet;chart:Berkshire Class A"]},
+{id:'cars',name:'Nice Cars',a:'#b3122a',b:'#3a3f4a',h:[355,215,30,260,5],em:'Bugatti Chiron',
+ g:{hatch:'Hot Hatch',sedan:'Sedan',coupe:'Sports Car',suv:'Off-Road',classic:'Classic',super:'Supercar',hyper:'Hypercar'},d:[
+ "hatch:VW Golf GTI,Honda Civic Si,Mini Cooper S,Ford Fiesta ST,Hyundai Veloster N,Mazda3 Turbo,Fiat 500 Abarth,Ford Focus ST,Renault Clio RS,Peugeot 208 GTi,Suzuki Swift Sport;sedan:Honda Accord Sport,Toyota Camry TRD,Mazda6,Kia Stinger,VW Jetta GLI,Subaru Legacy GT,Acura TLX,Nissan Maxima,Lexus IS 350,Volvo S60,Genesis G70,Infiniti Q50;coupe:Mazda MX-5 Miata,Toyota GR86,Subaru BRZ,Honda Prelude,Nissan 350Z,VW Scirocco,Toyota Celica,Mitsubishi Eclipse,Audi TT;suv:Jeep Wrangler,Ford Bronco,Toyota 4Runner,Land Rover Defender,Toyota Tacoma,Ford F-150,Suzuki Jimny,Subaru Outback",
+ "coupe:Ford Mustang GT,Chevy Camaro SS,Dodge Challenger,Nissan 370Z,Toyota GR Supra,BMW M2,Audi TT RS,Porsche Cayman,Lotus Elise,Alfa Romeo 4C;sedan:BMW M3,Subaru WRX STI,Mitsubishi Lancer Evo,Audi RS3,Mercedes C63 AMG,Dodge Charger Hellcat,Cadillac CT5-V,Tesla Model S Plaid,Alfa Romeo Giulia QV;hatch:Honda Civic Type R,Toyota GR Yaris,VW Golf R,Ford Focus RS,Mercedes A45 AMG;suv:Ford F-150 Raptor,Mercedes G-Wagon,Range Rover Sport,Porsche Cayenne Turbo",
+ "coupe:Porsche 911 Carrera,Nissan GT-R,Chevy Corvette Z06,BMW M4 CSL,Mercedes-AMG GT,Lexus LC 500,Aston Martin Vantage,Jaguar F-Type R,Dodge Viper,Acura NSX,Maserati GranTurismo;classic:Mazda RX-7 FD,Toyota Supra Mk4,Nissan Skyline R34,Shelby Cobra,1969 Boss 429,DeLorean DMC-12,Datsun 240Z",
+ "super:Lamborghini Huracán,Ferrari F40,McLaren 720S,Porsche 911 GT3 RS,Lamborghini Aventador SVJ,Ford GT,Pagani Huayra,Audi R8 V10,Lexus LFA,Porsche Carrera GT",
+ "hyper:Bugatti Chiron,McLaren F1,Koenigsegg Jesko;classic:Ferrari 250 GTO"]},
+{id:'vapes',name:'Vapes',a:'#8b3fd9',b:'#ff5fa2',h:[275,325,190,300],em:'Gold-Plated Mod',
+ g:{juice:'E-Liquid',coil:'Coil',battery:'Power',dispo:'Disposable',pod:'Pod',tank:'Tank',mod:'Mod',cloud:'Cloud'},d:[
+ "juice:Cool Mint,Menthol,Classic Tobacco,Vanilla,Strawberry,Grape,Green Apple,Cola,Coffee,Bubblegum,Lemon,Cherry,Watermelon,Banana;coil:Burnt Coil,Stock Coil,Cotton Wick,Spare O-Ring,Drip Tip,Gunked Coil,Dry Hit,Spitback;battery:Dead Battery,Charging Cable,Low Battery Blink,USB-C Port,Battery Wrap,Wall Charger,Micro-USB Cable,Power Button;dispo:Empty Disposable,Gas Station Disposable,Cracked Pod,Lost Vape,Borrowed Vape,Pocket Lint Vape,Blinking Disposable,Cig-A-Like,Starter Kit,Vape Pen",
+ "juice:Blue Razz,Mango Ice,Strawberry Kiwi,Peach Ice,Lush Ice,Pink Lemonade,Cotton Candy,Vanilla Custard,Tropical Punch,Sour Apple;dispo:Mint Disposable,5000-Puff Bar,Rechargeable Disposable,Mesh-Coil Disposable;pod:Pod System,Refillable Pod,Mango Pod,Nic Salt Pod,Draw-Activated Pod,Pod Mod;tank:Glass Tank,Bubble Glass,Top-Fill Tank,MTL Tank,Airflow Ring;battery:18650 Cell,21700 Cell,Dual Charger",
+ "mod:Box Mod,Dual-Battery Mod,Temp Control Mod,Squonk Mod,Touchscreen Mod,Regulated Mod;tank:Sub-Ohm Tank,RTA,RDA,RDTA,Mesh RDA;coil:Clapton Coil,Alien Coil,Fused Clapton;cloud:Vapor Ring,Jellyfish Trick,Ghost Inhale,Tornado Trick",
+ "mod:Custom Mech Mod,Stabilized Wood Mod,DNA Chip Mod,Titanium Tube Mod,Limited-Run Squonker;cloud:Cloud Chaser,Competition Cloud,Triple Ring;juice:Limited-Run Flavour,Reserve Custard",
+ "mod:Gold-Plated Mod,One-of-One Engraved Mod;cloud:The Perfect Cloud;pod:Never-Ending Pod"]},
+{id:'islam',name:'Islam',a:'#0e6b5c',b:'#c9a227',h:[165,45,200,150,265],em:'Eight-Point Star',
+ g:{beads:'Daily Life',palm:'Food',crescent:'Times & Seasons',arch:'Architecture',lantern:'Celebration',pen:'Calligraphy',star:'Geometric Art',mosque:'Mosque',astro:'Golden Age',pillar:'Pillar',kaaba:'Pilgrimage'},d:[
+ "beads:Prayer Mat,Tasbih,Kufi Cap,Miswak,Attar,Qibla Compass,Hijab,Thobe,Incense Burner,Wudu Jug;palm:Dates,Iftar Table,Suhoor,Samosa,Lentil Soup,Mint Tea,Qatayef,Baklava,Rose Sherbet,Olive Branch,Honey,Black Seed;crescent:Crescent Moon,Moon Sighting,Friday,Fajr,Dhuhr,Asr,Maghrib,Isha,Muharram,Rajab;arch:Minaret,Dome,Mihrab,Minbar,Courtyard Fountain,Horseshoe Arch,Mashrabiya,Prayer Hall",
+ "lantern:Ramadan Lantern,Eid Sweets,Eidi Gift,Henna Night,Eid Prayer,Taraweeh;pen:Kufic Script,Naskh Script,Thuluth Script,Diwani Script,Nastaliq Script,Reed Pen;star:Arabesque,Zellige Tile,Muqarnas,Girih Pattern,Iznik Tile,Eight-Point Star;beads:Wudu,Dua,Dhikr,Sadaqah,Adhan,Jumuah;mosque:Neighbourhood Mosque,Wooden Mosque,Mud-Brick Mosque,Island Mosque",
+ "mosque:Blue Mosque,Hassan II Mosque,Sheikh Zayed Mosque,Faisal Mosque,Great Mosque of Djenné,Umayyad Mosque,Great Mosque of Córdoba,Badshahi Mosque,Istiqlal Mosque,Great Mosque of Kairouan;astro:House of Wisdom,Astrolabe,Al-Khwarizmi’s Algebra,Ibn Sina’s Canon,Ibn al-Haytham’s Optics,Al-Jazari’s Clock,Ibn Battuta’s Travels,Al-Qarawiyyin University",
+ "crescent:Ramadan,Eid al-Fitr,Eid al-Adha;pillar:Shahada,Salah,Zakat,Sawm;mosque:Al-Aqsa Mosque,Dome of the Rock;kaaba:Umrah",
+ "kaaba:The Kaaba,Hajj;mosque:Masjid an-Nabawi;crescent:Laylat al-Qadr"]}
+];
+
+/* ================= helpers ================= */
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const fx=v=>Math.round(v*10)/10;
+const hsl=(h,s,l)=>`hsl(${Math.round(((h%360)+360)%360)} ${Math.round(s)}% ${Math.round(l)}%)`;
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const PWR=[[8,39],[30,58],[50,74],[70,89],[90,99]];
+T.forEach((t,ti)=>{
+  t.i=ti;t.cards=[];
+  t.d.forEach((s,ri)=>s.split(';').forEach(g=>{const[k,ns]=g.split(':');ns.split(',').forEach(n=>t.cards.push({n,k,ri,t}))}));
+  t.cards.forEach((c,i)=>{c.i=i;c.key=t.id+':'+i;const p=PWR[c.ri];c.pw=p[0]+Math.floor(rng(hash(c.n)+7)()*(p[1]-p[0]+1))});
+});
+const TOTAL=T.reduce((n,t)=>n+t.cards.length,0);
+
+/* ================= card art (generated SVG) ================= */
+const W='#fff',K='#14181d',GOLD='#f2c230',GD='#b8860b',MET='#cfd6dc',PAPER='#f4f1ea';
+const E=(a,b,c,d,f,o='')=>`<ellipse cx="${a}" cy="${b}" rx="${c}" ry="${d}" fill="${f}" ${o}/>`;
+const C=(a,b,c,f,o='')=>`<circle cx="${a}" cy="${b}" r="${c}" fill="${f}" ${o}/>`;
+const B=(a,b,c,d,e,f,o='')=>`<rect x="${a}" y="${b}" width="${c}" height="${d}" rx="${e}" fill="${f}" ${o}/>`;
+const P=(d,f,o='')=>`<path d="${d}" fill="${f}" ${o}/>`;
+const L=(d,s,w,o='')=>`<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${o}/>`;
+const G=(t,s)=>`<g transform="${t}">${s}</g>`;
+const mir=s=>s+G('matrix(-1 0 0 1 200 0)',s);
+const op=v=>`opacity="${v}"`;
+const st=(c,w)=>`stroke="${c}" stroke-width="${w}"`;
+const star=(cx,cy,n,Ro,ri,f,o='',rot=-90)=>{let p='';for(let i=0;i<n*2;i++){const a=(rot+i*180/n)*Math.PI/180,q=i%2?ri:Ro;p+=fx(cx+q*Math.cos(a))+','+fx(cy+q*Math.sin(a))+' '}return`<polygon points="${p}" fill="${f}" ${o}/>`};
+const sk=(x,y,s,f,o='')=>P(`M${x},${fx(y-s)}Q${x},${y} ${fx(x+s)},${y}Q${x},${y} ${x},${fx(y+s)}Q${x},${y} ${fx(x-s)},${y}Q${x},${y} ${x},${fx(y-s)}z`,f,o);
+const GLASS='rgba(255,255,255,.26)';
+
+const M={
+/* drugs */
+cup:x=>L('M124,74q20,0 20,15t-20,15',x.c,7)+B(70,62,54,54,9,x.c)+E(97,65,24,5,x.d)+B(76,82,6,24,3,x.l,op(.6))+L('M84,52q-7,-9 0,-18M98,52q-7,-9 0,-18M112,52q-7,-9 0,-18',W,3,op(.7)),
+pill:x=>x.r()<.55?G('rotate(-35 100 80)',B(56,62,88,36,18,x.c)+P('M100,62h26a18,18 0 0 1 0,36h-26z',PAPER)+B(64,67,30,6,3,W,op(.5))+L('M100,62v36',K,1.5,op(.35))):C(100,82,37,x.d)+C(100,80,36,PAPER)+C(100,80,36,'none',st(x.c,6))+L('M76,80h48',x.d,3)+E(88,63,12,5,W,op(.9)),
+bottle:x=>B(91,28,18,11,2,K)+B(93,38,14,22,2,x.d)+P('M93,58q-19,6 -19,22v38q0,8 8,8h36q8,0 8,-8v-38q0,-16 -19,-22z',x.c)+B(74,84,52,26,0,PAPER)+B(80,90,40,4,2,x.d)+B(80,98,26,4,2,x.d,op(.5))+B(79,66,5,14,2.5,W,op(.45)),
+cig:x=>G('rotate(-14 100 80)',B(44,72,96,15,3,PAPER)+B(44,72,28,15,3,'#d9903d')+B(132,72,9,15,3,'#e5482d')+L('M72,72v15',GD,1.2))+L('M148,58q10,-9 0,-18t0,-18',W,3,op(.55)),
+leaf:x=>{const g=hsl(105+x.r()*30,58,44),gd=hsl(120,55,26);let s=L('M100,110v20',gd,3.5);[[-80,.5],[-52,.78],[-24,.96],[0,1.08],[24,.96],[52,.78],[80,.5]].forEach(a=>s+=G(`translate(100 112) rotate(${a[0]}) scale(${a[1]})`,P('M0,0Q-10,-26 0,-64Q10,-26 0,0z',g)+L('M0,-4V-54',gd,1.3)));return s},
+herb:x=>{const g=hsl(95+x.r()*50,55,45),gd=hsl(125,50,24);return G('rotate(24 100 80)',P('M100,26Q142,58 100,128Q58,58 100,26z',g)+L('M100,34V136M100,58l15,-11M100,58l-15,-11M100,78l19,-13M100,78l-19,-13M100,98l15,-11M100,98l-15,-11',gd,2))},
+flask:x=>P('M90,34h20v28l28,50q5,12 -8,12h-60q-13,0 -8,-12l28,-50z',GLASS,st(W,2.5))+P('M74,92h52l12,20q5,12 -8,12h-60q-13,0 -8,-12z',x.c)+C(96,108,4,x.l)+C(110,101,3,x.l)+C(104,116,2.5,x.l)+B(86,29,28,7,3.5,W),
+mush:x=>P('M88,84q-3,28 -9,44h42q-6,-16 -9,-44z','#f1e6d0')+P('M56,86q0,-48 44,-48t44,48q-44,12 -88,0z',x.c)+C(82,62,7,W,op(.9))+C(108,53,5,W,op(.9))+C(123,72,6,W,op(.9))+C(98,74,4,W,op(.9)),
+crystal:x=>E(100,124,46,6,'#000',op(.3))+G('rotate(-28 80 120)',P('M70,70l12,18l-5,36h-14l-5,-36z',x.c))+G('rotate(28 120 120)',P('M130,74l12,18l-5,34h-14l-5,-34z',x.d))+P('M100,26l22,30l-8,66h-28l-8,-66z',x.l)+P('M100,26l22,30l-8,66h-14z',x.c)+L('M78,56L100,64L122,56M100,64V122',W,1.2,op(.7)),
+syringe:x=>G('rotate(-40 100 80)',L('M24,80h36',MET,2.5)+B(58,68,74,24,4,GLASS,st(W,2))+B(62,72,40,16,2,x.c)+B(102,70,5,20,1,K)+B(107,77,50,6,1,MET)+B(130,62,5,36,2,MET)+B(156,67,5,26,2,MET)+L('M70,68v7M82,68v7M94,68v7M106,68v7M118,68v7',W,1.5)),
+blotter:x=>{let s=B(60,40,80,80,3,PAPER);for(let i=0;i<4;i++)for(let j=0;j<4;j++)s+=B(60+i*20,40+j*20,20,20,0,[x.c,x.l,x.d][(i*3+j*2)%3],op(.9))+sk(70+i*20,50+j*20,5,W,op(.8));return G('rotate(-8 100 80)',s+L('M80,40v80M100,40v80M120,40v80M60,60h80M60,80h80M60,100h80',K,1.2,'stroke-dasharray="2 2.5" '+op(.6)))},
+/* sports */
+fb:x=>G('rotate(-24 100 80)',P('M44,80Q100,28 156,80Q100,132 44,80z','#7d4220')+P('M54,76Q100,38 146,76Q100,52 54,76z','#a35e30')+L('M82,80h36M84,74v12M92,74v12M100,74v12M108,74v12M116,74v12',W,2.6)+L('M63,65Q58,80 63,95M137,65Q142,80 137,95',W,4)),
+soc:x=>{let s=C(100,80,40,PAPER),ln='',pt=[];for(let i=0;i<5;i++){const a=(i*72-90)*Math.PI/180,p=(q,o=0)=>fx(100+q*Math.cos(a+o))+','+fx(80+q*Math.sin(a+o));pt.push(p(15));ln+=`M${p(15)}L${p(29)}`;s+=`<polygon points="${p(29)} ${p(35,-.4)} ${p(40,-.3)} ${p(40,.3)} ${p(35,.4)}" fill="${K}"/>`}return s+`<polygon points="${pt.join(' ')}" fill="${K}"/>`+L(ln,K,2)+C(100,80,40,'none',st(K,2))+E(86,60,12,6,W,op(.5))},
+base:x=>C(100,80,40,'#f6f1e4')+mir(L('M74,49Q95,80 74,111','#d8342c',2)+L('M74,49Q95,80 74,111','#d8342c',9,'stroke-dasharray="1.6 5" stroke-linecap="butt"'))+E(100,58,14,6,W,op(.6)),
+bask:x=>C(100,80,40,'#e8792b')+L('M60,80h80M100,40v80M73,51Q95,80 73,109M127,51Q105,80 127,109',K,2.5)+E(86,60,12,6,W,op(.3)),
+trophy:x=>mir(L('M76,50q-20,0 -18,18t20,18',GOLD,6))+P('M74,40h52v14q0,34 -26,40q-26,-6 -26,-40z',GOLD)+P('M100,40h26v14q0,34 -26,40z',GD,op(.45))+B(94,92,12,16,0,GD)+B(80,106,40,10,2,GOLD)+B(72,114,56,10,2,K)+star(100,64,5,11,4.6,W,op(.8)),
+/* tech */
+cable:x=>L('M100,104q0,24 -22,22t-26,14',x.d,6)+B(86,34,28,38,3,MET)+B(92,43,6,9,1,K)+B(102,43,6,9,1,K)+B(80,70,40,38,7,x.c)+B(86,78,28,4,2,x.l,op(.7))+B(86,86,18,4,2,x.l,op(.4)),
+disk:x=>x.r()<.5?B(62,42,76,76,6,x.c)+B(80,42,40,26,2,MET)+B(104,46,9,18,1,x.d)+B(72,80,56,38,3,PAPER)+L('M80,92h40M80,102h40',x.d,2,op(.5)):C(100,80,40,MET)+P('M100,80L128.3,51.7A40,40 0 0 1 140,80z',x.c,op(.7))+P('M100,80L71.7,108.3A40,40 0 0 1 60,80z',x.l,op(.7))+C(100,80,40,'none',st(x.l,2))+C(100,80,13,'rgba(255,255,255,.65)')+C(100,80,5,K),
+screen:x=>B(94,100,12,14,0,'#56616d')+B(78,113,44,7,3.5,'#56616d')+B(54,38,92,64,6,K)+B(59,43,82,54,2,x.d)+P('M59,97V72L80,58L98,76L118,52L141,70V97z',x.c)+C(126,54,5,x.l),
+phone:x=>{let s=B(74,30,52,100,10,K)+B(78,36,44,88,6,x.d);for(let i=0;i<3;i++)for(let j=0;j<4;j++)s+=B(83+i*13,46+j*16,9,9,2.5,[x.c,x.l,W][(i+j)%3]);return s+B(92,32,16,3,1.5,'#3a4450')+B(84,112,32,7,3.5,W,op(.3))},
+gamepad:x=>P('M62,56h76q16,0 20,26l2,18q-2,14 -14,6l-14,-16h-64l-14,16q-12,8 -14,-6l2,-18q4,-26 20,-26z',x.c)+B(63,71,20,7,2,K)+B(69.5,64.5,7,20,2,K)+C(126,64,5,x.l)+C(138,74,5,W)+C(114,74,5,K)+C(126,84,5,x.d)+B(92,64,16,5,2.5,x.d),
+chip:x=>{let s='';for(let i=0;i<6;i++){const p=fx(73+i*10.8);s+=B(p-2.5,36,5,14,1,MET)+B(p-2.5,110,5,14,1,MET)+B(56,p-22.5,14,5,1,MET)+B(130,p-22.5,14,5,1,MET)}return s+B(66,46,68,68,7,K)+B(77,57,46,46,4,x.c)+L('M86,80h10l7,-9h12M86,91h28',x.l,2.2)+C(86,67,3,x.l)},
+robot:x=>L('M100,48V34',MET,3)+C(100,31,5,x.l)+B(60,62,10,22,3,x.d)+B(130,62,10,22,3,x.d)+B(68,46,64,54,12,x.c)+B(76,56,48,24,8,K)+C(89,68,6,x.l)+C(111,68,6,x.l)+B(88,86,24,7,2,K)+L('M94,86v7M100,86v7M106,86v7',x.c,1.5)+B(82,104,36,24,6,x.d)+C(100,116,4,x.l),
+rocket:x=>G('rotate(32 100 80)',P('M86,108q14,40 28,0z','#ff9a2e')+P('M93,108q7,22 14,0z','#ffe24a')+P('M78,84l-17,30h17z',x.c)+P('M122,84l17,30h-17z',x.c)+P('M100,22q22,26 22,62v24h-44v-24q0,-36 22,-62z',PAPER)+P('M100,22q12,14 17,30h-34q5,-16 17,-30z',x.c)+C(100,72,9,x.d)+C(100,72,9,'none',st(MET,3))+B(78,100,44,6,0,x.d)),
+atom:x=>[0,60,120].map(a=>`<ellipse cx="100" cy="80" rx="50" ry="17" fill="none" stroke="${x.l}" stroke-width="2.5" transform="rotate(${a} 100 80)"/>`).join('')+C(100,80,11,x.c)+C(96,76,3.5,W,op(.7))+C(150,80,4.5,W)+C(75,36.7,4.5,W)+C(75,123.3,4.5,W),
+/* crypto & stocks */
+coin:x=>{const g=x.ri?[GOLD,GD,'#fff3b0']:['#cfd6dc','#7d8a96','#fff'];return C(100,86,40,g[1])+C(100,80,40,g[0])+C(100,80,33,'none',st(g[1],2.5))+C(100,80,36.5,'none',st(g[2],1.5)+' stroke-dasharray="1.5 4"')+`<text x="100" y="95" text-anchor="middle" font-family="Bricolage Grotesque,Arial Black,sans-serif" font-weight="800" font-size="42" fill="${g[1]}">${esc(x.n[0])}</text>`+E(84,60,14,6,W,op(.4))},
+chart:x=>{let s=L('M46,122h110M46,122V38',W,1.5,op(.45)),y=98-x.ri*5+x.r()*8;for(let i=0;i<7;i++){const up=x.r()<.42+x.ri*.11,h=8+x.r()*16,ny=Math.max(46,Math.min(112,up?y-h:y+h*.8)),t=fx(Math.min(y,ny)),bh=fx(Math.max(3,Math.abs(ny-y))),col=up?'#2fd07f':'#ff4d4d',cx=60+i*14;s+=L(`M${cx},${fx(t-6)}V${fx(t+bh+6)}`,col,1.6)+B(cx-4.5,t,9,bh,1,col);y=ny}return s},
+doc:x=>G('rotate(-6 100 80)',P('M68,32h46l18,18v78h-64z',PAPER)+P('M114,32v18h18z',MET)+L('M78,62h34M78,74h44M78,86h44M78,98h26',x.d,3,op(.65))+C(116,110,10,x.c)+star(116,110,5,6,2.6,W)),
+bear:x=>mir(C(73,53,13,'#6f5645')+C(73,53,6,'#c9a98a'))+C(100,84,36,'#6f5645')+E(100,98,17,13,'#c9a98a')+E(100,92,7,5,K)+mir(C(86,78,4,K))+L('M100,97v6M92,106q8,5 16,0',K,2)+P('M150,56h12v30h8l-14,18l-14,-18h8z','#ff4d4d'),
+bull:x=>mir(L('M76,66q-28,-4 -24,-36','#f1e6d0',8))+mir(E(66,76,11,6,'#4d3122'))+P('M72,62q28,-14 56,0q4,30 -10,52q-18,14 -36,0q-14,-22 -10,-52z','#6b4530')+E(100,108,17,12,'#c9a98a')+mir(C(93,108,3,K))+mir(C(86,82,4.5,K))+L('M92,117q8,6 16,0',GOLD,3)+P('M48,128h-12v-30h-8l14,-18l14,18h-8z','#2fd07f'),
+vault:x=>B(66,118,12,10,0,K)+B(122,118,12,10,0,K)+B(58,38,84,82,8,'#56616d')+B(64,44,72,70,5,'#8b97a3')+C(100,79,25,'#56616d')+C(100,79,19,MET)+L('M100,60v38M81,79h38M86.5,65.5l27,27M113.5,65.5l-27,27',K,3)+C(100,79,7,x.c)+B(53,52,7,14,2,K)+B(53,92,7,14,2,K),
+/* vapes */
+juice:x=>P('M95,42l5,-20l5,20z',K)+B(90,40,20,22,3,K)+L('M90,48h20M90,54h20',W,1,op(.3))+P('M88,62h24q12,4 12,16v40q0,8 -8,8h-32q-8,0 -8,-8v-40q0,-12 12,-16z',x.c)+B(76,84,48,28,0,PAPER)+C(100,98,8,x.c)+B(80,70,5,10,2.5,W,op(.5)),
+coil:x=>{let s=L('M65,102V128M135,102V128',MET,4)+B(50,72,100,16,8,PAPER);for(let i=0;i<8;i++)s+=`<ellipse cx="${65+i*10}" cy="80" rx="5" ry="24" fill="none" stroke="${i%2?x.l:x.c}" stroke-width="4.5"/>`;return s},
+battery:x=>B(90,26,20,12,2,MET)+B(76,34,48,96,8,x.c)+B(76,34,48,18,8,x.d)+B(76,44,48,8,0,x.d)+P('M106,58l-18,26h11l-5,22l20,-30h-11z','#ffe24a')+B(81,58,4,60,2,W,op(.3)),
+dispo:x=>G('rotate(14 100 80)',B(91,16,18,20,5,K)+B(84,32,32,100,11,x.c)+B(84,76,32,22,0,x.l,op(.6))+B(89,40,5,28,2.5,W,op(.45))+C(100,122,3,W)),
+pod:x=>B(88,20,24,18,5,K)+B(82,34,36,36,6,GLASS,st(W,1.5))+B(86,50,28,18,3,x.c)+B(80,66,40,66,9,x.d)+B(80,66,40,10,0,K,op(.3))+C(100,102,4,x.l)+B(96,114,8,3,1.5,W,op(.5)),
+tank:x=>B(92,20,16,24,4,K)+B(76,42,48,10,3,MET)+B(79,52,42,46,3,GLASS,st(W,1.5))+B(81,68,38,30,2,x.c,op(.85))+B(94,56,12,42,2,MET)+B(76,98,48,14,3,MET)+L('M76,105h48',K,1,op(.4))+B(88,112,24,14,2,'#8b97a3'),
+mod:x=>B(95,12,10,16,3,K)+B(87,26,26,30,3,GLASS,st(W,1.5))+B(89,38,22,18,1,x.l,op(.7))+B(84,54,32,7,2,MET)+B(64,60,72,72,10,x.c)+P('M64,70q0,-10 10,-10h14v72h-14q-10,0 -10,-10z',x.d)+B(96,70,30,22,3,K)+L('M102,78h12M102,84h18',x.l,2)+C(76,76,6,MET)+B(72,96,8,5,2,MET)+B(72,106,8,5,2,MET)+B(96,100,30,22,3,'rgba(255,255,255,.14)'),
+cloud:x=>(x.r()<.6?`<ellipse cx="152" cy="46" rx="11" ry="15" fill="none" stroke="#fff" stroke-width="3.5" opacity=".75"/><ellipse cx="170" cy="36" rx="6" ry="8" fill="none" stroke="#fff" stroke-width="2.5" opacity=".5"/>`:'')+`<g opacity=".94">`+C(76,90,21,W)+C(102,74,29,W)+C(130,90,20,W)+B(60,88,90,24,12,W)+`</g>`+E(100,108,34,4,x.l,op(.55)),
+/* islam */
+beads:x=>{let s='';for(let i=0;i<18;i++){const a=i*20*Math.PI/180;s+=C(fx(100+36*Math.sin(a)),fx(68-32*Math.cos(a)),5.2,i%3?x.c:x.l)}return s+C(100,104,6.5,GOLD)+L('M100,110v8',GOLD,3)+P('M94,117h12l3,18h-18z',GOLD)+L('M97,121v12M103,121v12',GD,1)},
+palm:x=>E(100,132,36,5,'#c9a66b',op(.6))+L('M100,130q-8,-34 1,-64','#7d5a36',8)+mir(L('M100,66q-28,-20 -52,2M100,66q-22,-32 -44,-24M100,66q-6,-28 -24,-38','#2f9e55',6))+C(92,74,4.2,'#6b3a1e')+C(99,79,4.2,'#8a4b24')+C(107,75,4.2,'#6b3a1e')+C(103,84,4.2,'#8a4b24'),
+crescent:x=>`<mask id="${x.id}m"><rect width="200" height="160" fill="#fff"/><circle cx="114" cy="72" r="33" fill="#000"/></mask>`+C(98,80,40,'#f6e7a8',`mask="url(#${x.id}m)"`)+star(132,66,5,11,4.6,W),
+arch:x=>B(58,118,84,9,2,x.d)+P('M64,120V74q0,-34 36,-46q36,12 36,46v46h-12V76q0,-24 -24,-34q-24,10 -24,34v44z',x.c)+P('M76,120V76q0,-24 24,-34q24,10 24,34v44z',K,op(.6))+star(100,92,8,15,11.5,x.l,op(.95))+L('M100,42v14',GOLD,1.5)+C(100,60,4.5,GOLD),
+lantern:x=>C(100,25,6,'none',st(GOLD,2.5))+P('M100,30l18,18h-36z',GOLD)+P('M82,48h36l8,32l-8,32h-36l-8,-32z',x.c)+P('M90,54h20l5,26l-5,26h-20l-5,-26z','#ffe9a3',op(.9))+L('M100,48v64M74,80h52',GOLD,2)+star(100,80,8,10,7.6,GOLD)+B(84,112,32,7,2,GOLD)+P('M90,119h20l-4,11h-12z',GD),
+pen:x=>L('M44,116q26,-34 54,-14t54,-18',K,6)+L('M56,132q20,-8 36,0',K,3)+G('rotate(-42 120 60)',B(78,54,74,12,3,'#b0793f')+B(78,54,20,12,3,'#8a5a2b')+P('M78,54l-18,6l18,6z',K)),
+star:x=>{let s=star(100,80,8,48,36.7,x.d)+star(100,80,8,41,31.4,x.c)+star(100,80,8,29,22.2,x.l,'',-67.5)+star(100,80,8,17,13,x.d)+C(100,80,5,GOLD);for(let i=0;i<8;i++){const a=(i*45+22.5)*Math.PI/180;s+=sk(fx(100+56*Math.cos(a)),fx(80+56*Math.sin(a)),4.5,GOLD)}return s},
+mosque:x=>(x.r()<.55?mir(P('M60,90q0,-15 13,-20q13,5 13,20z',x.d)):'')+mir(B(42,58,12,66,1,x.d)+P('M42,58l6,-20l6,20z',x.l)+B(40,76,16,4,1,x.l))+B(62,88,76,36,0,x.c)+P('M70,88q0,-34 30,-44q30,10 30,44z',x.l)+L('M100,44V32',GOLD,2)+C(100,29,3.5,GOLD)+P('M90,124V104q0,-10 10,-14q10,4 10,14v20z',K,op(.65))+mir(P('M70,114v-10q0,-5 5,-7q5,2 5,7v10z',K,op(.5)))+B(36,122,128,5,1,x.d),
+astro:x=>C(100,25,6,'none',st(GOLD,3))+C(100,82,45,GOLD)+C(100,82,39,'#23303b')+C(100,82,35,'none',st('#fff3b0',5)+' stroke-dasharray="1.5 4.6"')+C(100,74,21,'none',st(GOLD,2))+C(107,91,16,'none',st(x.l,2))+L('M100,46v72M64,82h72',GOLD,1.2,op(.6))+G(`rotate(${Math.round(x.r()*120-60)} 100 82)`,B(98,46,4,72,2,W))+C(100,82,4.5,GOLD),
+kaaba:x=>E(100,128,52,6,'#000',op(.3))+P('M62,58l32,-12l46,10l-32,12z','#2c333a')+P('M62,58l46,10v56l-46,-12z','#14181d')+P('M108,68l32,-12v54l-32,14z','#1f252b')+P('M62,72l46,10v9l-46,-10z',GOLD)+P('M108,82l32,-12v9l-32,12z',GD)+P('M78,116v-22l12,2.6v22.4z',GOLD)
+};
+M.pillar=M.star;
+const ball=(x,cx,cy,sc)=>G(`translate(${cx} ${cy}) scale(${sc}) translate(-100 -80)`,M[x.k](x));
+const bat=B(95,20,10,86,5,'#c9975b')+B(96,104,8,22,3,'#8a5a2b')+B(94,124,12,5,2,'#8a5a2b');
+const PROP={
+ fb:[x=>L('M100,132V96M68,96h64M68,96V36M132,96V36',GOLD,5)+ball(x,100,60,.42),
+     x=>P('M58,96q-4,-52 44,-54q42,2 44,44q0,10 -8,10h-30q-6,0 -8,10l-4,14h-24q-12,-4 -14,-24z',x.c)+L('M98,43q-24,10 -28,42',W,5)+C(92,90,6,K)+L('M112,97h34M118,109h24M130,97v21M146,97q0,21 -16,21h-12',MET,3.5)],
+ soc:[x=>E(100,126,72,6,'#2f9e55',op(.7))+L('M58,62h84M58,76h84M58,90h84M58,104h84M72,50v72M86,50v72M100,50v72M114,50v72M128,50v72',W,1,op(.35))+L('M50,124V48h100v76',W,5)+ball(x,80,106,.4)],
+ base:[x=>G('rotate(38 100 80)',bat)+G('rotate(-38 100 80)',bat)+ball(x,100,106,.4)],
+ bask:[x=>B(60,24,80,56,3,PAPER,st(K,2))+B(85,48,30,22,0,'none',st('#d8342c',3))+ball(x,105,56,.4)+E(100,84,23,5,'none',st('#e8792b',4))+L('M79,86l7,26M92,89l2,24M108,89l-2,24M121,86l-7,26M83,98h34M86,110h28',W,1.6)]
+};
+const sport=x=>{
+  if(x.ri>2)return M.trophy(x)+ball(x,100,28,.4);
+  const pr=PROP[x.k],v=Math.floor(x.r()*(pr.length+1.6));
+  if(v<pr.length)return pr[v](x);
+  const a=Math.round(x.r()*50-25),fast=x.r()<.55;
+  return(fast?L('M26,62h28M16,80h34M26,98h28',W,3.5,op(.55)):'')+G(`translate(${fast?10:0} 0) rotate(${a} 100 80)`,M[x.k](x));
+};
+const UPRIGHT=new Set('mosque arch kaaba screen vault chart palm astro star pillar coin beads'.split(' '));
+const STRETCH=new Set('bottle juice cup flask mush crystal battery dispo pod tank mod lantern arch mosque phone screen cable herb leaf'.split(' '));
+
+function monster(x){
+  const r=x.r,el=x.k,ri=x.ri,p={fire:[14,88,56],water:[208,78,56],leaf:[128,55,46],bug:[78,62,46],bolt:[48,95,56],ice:[192,70,74],rock:[28,22,52],ghost:[266,48,62],wind:[172,42,70],dragon:[348,70,50],star:[285,70,62]}[el];
+  const h=p[0]+r()*26-13,c=hsl(h,p[1],p[2]),d=hsl(h,p[1],p[2]-20),l=hsl(h,p[1]-10,Math.min(p[2]+22,92));
+  const w=fx(30+r()*10+ri*2.5),hh=fx(28+r()*10+ri*2.5),cx=100,cy=92-ri,top=fx(cy-hh),bot=fx(cy+hh);
+  let b='',s='';
+  if(el=='wind'||el=='dragon'||el=='star'||(el=='bug'&&r()<.6)){const ws=fx(w*.5+22+ri*2);b+=mir(P(`M${fx(cx-w+8)},${cy-4}q${fx(-ws*.5)},${fx(-hh)} ${-ws},${fx(-hh*.7)}q${fx(ws*.1)},${fx(hh*.5)} ${fx(ws*.25)},${fx(hh*.55)}q${fx(-ws*.05)},${fx(hh*.3)} ${fx(ws*.3)},${fx(hh*.45)}z`,d))}
+  if(el!='ghost'){const tx=fx(cx+w+18),ty=fx(cy+hh*.5-16);b+=L(`M${fx(cx+w-8)},${fx(cy+hh*.5)}q22,6 26,-16`,d,7);b+=el=='fire'?C(tx,ty-4,8,'#ff9a2e')+C(tx,ty-3,4,'#ffe24a'):el=='bolt'?P(`M${tx},${ty-14}l-8,11h6l-3,10l10,-13h-6z`,'#ffe24a'):C(tx,ty,5,l);b+=E(fx(cx-w*.45),bot-1,9,5,d)+E(fx(cx+w*.45),bot-1,9,5,d)}
+  const e=el=='dragon'?2:el=='bug'?3:(el=='rock'||el=='ghost'||el=='ice')?4:Math.floor(r()*4);
+  if(e==0)b+=mir(P(`M${fx(cx-w*.8)},${fx(cy-hh*.5)}l-5,-24l22,10z`,c)+P(`M${fx(cx-w*.8+2)},${fx(cy-hh*.5-4)}l-3,-13l12,6z`,l));
+  if(e==1)b+=mir(C(fx(cx-w*.7),top+8,10,c)+C(fx(cx-w*.7),top+8,5,l));
+  if(e==2)s+=mir(P(`M${fx(cx-w*.5)},${top+9}q-11,-14 -2,-27q2,14 13,20z`,'#f4ead2'));
+  if(e==3)b+=mir(L(`M${cx-9},${top+4}q-10,-16 -20,-18`,d,3)+C(cx-30,top-14,4,l));
+  s=(el=='ghost'?P(`M${fx(cx-w)},${cy}a${w},${hh} 0 0 1 ${fx(2*w)},0v${fx(hh*.85)}q${fx(-w/3)},-12 ${fx(-w*2/3)},0t${fx(-w*2/3)},0t${fx(-w*2/3)},0z`,c):el=='rock'?(()=>{let q='';for(let i=0;i<9;i++){const a=i*40*Math.PI/180,k=.86+r()*.2;q+=fx(cx+w*k*Math.cos(a))+','+fx(cy+hh*k*Math.sin(a))+' '}return`<polygon points="${q}" fill="${c}" stroke="${c}" stroke-width="7" stroke-linejoin="round"/>`})():E(cx,cy,w,hh,c))+s;
+  s+=E(cx,fx(cy+hh*.38),fx(w*.6),fx(hh*.48),l,op(.75));
+  if(r()<.5)s+=C(fx(cx-w*.55),fx(cy-hh*.5),4,d,op(.5))+C(fx(cx+w*.6),fx(cy-hh*.35),3,d,op(.5))+C(fx(cx+w*.4),fx(cy-hh*.62),2.5,d,op(.5));
+  if(el=='fire')s+=P(`M${cx},${top-22}q15,14 7,27q-7,7 -14,0q-9,-11 7,-27z`,'#ff9a2e')+P(`M${cx},${top-10}q7,7 3,13q-3,3 -6,0q-4,-5 3,-13z`,'#ffe24a');
+  if(el=='leaf')s+=L(`M${cx},${top+4}v-12`,'#2e7d3a',3)+P(`M${cx},${top-8}q-16,-14 -22,0q10,8 22,0z`,'#49b85a')+P(`M${cx},${top-8}q16,-14 22,0q-10,8 -22,0z`,'#6fd07c');
+  if(el=='water')s+=P(`M${cx-10},${top+6}q10,-26 22,-22q-6,10 -2,22z`,d)+C(cx+26,top-6,3,l)+C(cx+33,top+6,2,l);
+  if(el=='ice')s+=P(`M${cx-18},${top+10}l6,-22l7,19z`,'#e8fbff')+P(`M${cx-5},${top+5}l5,-28l6,27z`,W)+P(`M${cx+8},${top+8}l7,-20l5,22z`,'#e8fbff');
+  if(el=='bolt')s+=P(`M${cx+4},${top-24}l-12,16h8l-4,14l14,-18h-8z`,'#ffe24a');
+  if(el=='rock')s+=C(cx-12,top+5,8,d)+C(cx+9,top+2,10,d)+C(cx+6,top-1,4,l,op(.5));
+  if(el=='ghost')s+=C(cx+w+8,cy-hh*.6,4,l,op(.7))+C(cx+w+16,fx(cy-hh*.9),2.5,l,op(.5));
+  if(el=='wind')s+=L(`M${cx-12},${top-4}q12,-14 22,-4t-8,8`,W,3,op(.8));
+  if(el=='dragon')s+=P(`M${cx-12},${top+6}l5,-14l5,12l5,-16l5,16l5,-12l4,14z`,d);
+  if(el=='star')s+=E(cx,top-8,24,6,'none',st(GOLD,3))+sk(cx-w-8,top+6,5,W)+sk(cx+w+10,top+18,4,W);
+  const ey=fx(cy-hh*.18),ex=fx(w*.4),er=fx(5.5+r()*3);
+  if(r()<.1)s+=C(cx,ey,er+4,W)+C(cx,ey+1,er*.6+2,K)+C(cx-2,ey-2,2,W);
+  else{s+=mir(C(fx(cx-ex),ey,er,W)+C(fx(cx-ex+1),fx(ey+1),fx(er*.58),K)+C(fx(cx-ex-1),fx(ey-1.5),fx(er*.22),W));if(ri>=2)s+=mir(L(`M${fx(cx-ex-er)},${fx(ey-er-4)}l${fx(er*1.9)},5`,K,2.6));else s+=mir(E(fx(cx-ex-er),fx(ey+er+4),4,2.5,'#ff8fa3',op(.6)))}
+  const my=fx(cy+hh*.3);
+  s+=ri>=3?P(`M${cx-11},${my-2}q11,15 22,0z`,'#3a0d14')+mir(P(`M${cx-8},${my-1}l3,7l3,-6z`,W)):L(`M${cx-7},${my}q7,7 14,0`,K,2.5)+(ri==2?mir(P(`M${cx-6},${my+2}l2.5,6l2.5,-5z`,W)):'');
+  return b+s;
+}
+
+function car(x){
+  const r=x.r,S={hatch:[42,158,110,93,75,46,60,104,128,3,10.5],sedan:[28,172,110,94,77,54,76,110,132,3,10.5],coupe:[28,172,110,95,80,40,84,108,132,3,11],suv:[34,166,107,86,63,38,48,108,128,2,13],classic:[26,174,110,95,80,50,72,96,112,2,11],super:[24,176,111,97,84,38,82,100,134,5,12],hyper:[22,178,111,98,86,34,80,100,138,4,12]}[x.k];
+  const[x0,x1,Bo,Kb,Rf,tb,rr,rf,wb,hd,wr]=S.map((v,i)=>i>3&&i<9?fx(v+r()*4-2):v);
+  const pt=[[2,80,48],[48,95,55],[212,80,50],[210,8,72],[220,12,18],[140,60,38],[24,92,54],[0,0,94],[275,55,50],[190,85,45]][Math.floor(r()*10)];
+  const c=hsl(pt[0],pt[1],pt[2]),d=hsl(pt[0],pt[1],Math.max(pt[2]-18,6)),l=hsl(pt[0],pt[1],Math.min(pt[2]+24,98));
+  const len=x1-x0,w1=fx(x0+len*.2),w2=fx(x1-len*.2),wy=Bo-3,k=x.k;
+  let s=E(100,wy+wr,len*.52,4,'#000',op(.4));
+  if(k=='hyper'||(k=='super'&&r()<.6)||(k=='coupe'&&r()<.25))s+=L(`M${x0+5},${Kb-2}v-10M${x0-2},${Kb-12}h20`,d,3.2);
+  if(k=='suv')s+=L(`M${rr+4},${Rf-3}H${rf-6}`,K,3)+B(x0-5,Kb+4,6,18,3,K);
+  s+=P(`M${x0},${Bo}L${x0},${Kb+5}Q${x0},${Kb} ${x0+8},${Kb-1}L${tb},${Kb-2}C${fx((tb+rr)/2)},${Rf+3} ${rr-6},${Rf} ${rr},${Rf}L${rf},${Rf}Q${rf+8},${Rf+1} ${wb},${Kb}L${x1-16},${Kb+hd}Q${x1},${Kb+hd+2} ${x1},${Kb+hd+9}L${x1},${Bo}Z`,c);
+  s+=B(x0+2,Bo-6,len-4,6,2,d);
+  s+=P(`M${tb+7},${Kb-2}C${fx((tb+rr)/2+4)},${Rf+6} ${rr-2},${Rf+4} ${rr+2},${Rf+4}L${rf-1},${Rf+4}Q${rf+5},${Rf+5} ${wb-6},${Kb-2}Z`,'#16222e');
+  s+=L(`M${fx((rr+rf)/2)},${Rf+4}V${Kb-2}`,c,3)+L(`M${rf-6},${Rf+7}L${wb-12},${Kb-5}`,W,1.5,op(.35));
+  s+=L(`M${x0+10},${Kb+4}L${x1-18},${Kb+hd+4}`,l,1.6,op(.75))+L(`M${fx((rr+rf)/2)},${Kb}V${Bo-8}`,d,1.2);
+  s+=E(x1-5,Kb+hd+9,5,2.6,'#fff7c2')+B(x0,Kb+5,4,7,1,'#ff3b30');
+  if(k=='super'||k=='hyper')s+=P(`M${fx(w1+wr+8)},${Kb+5}l15,-2l-4,10h-11z`,'#0c0f12');
+  if(k=='hyper')s+=L(`M${x0+14},${Bo-9}H${x1-10}`,l,2.4);
+  if(k=='classic')s+=B(x0-3,Bo-9,9,4,2,'#dfe5ea')+B(x1-6,Bo-9,9,4,2,'#dfe5ea');
+  [w1,w2].forEach(wx=>{s+=C(wx,wy,wr+3,'#0c0f12')+C(wx,wy,wr,'#1a1d21')+(k=='classic'?C(wx,wy,wr-2.5,'none',st('#f4f1ea',2)):'')+C(wx,wy,fx(wr*.62),MET);let sp='';for(let i=0;i<5;i++){const a=(i*72-90)*Math.PI/180;sp+=`M${wx},${wy}L${fx(wx+wr*.6*Math.cos(a))},${fx(wy+wr*.6*Math.sin(a))}`}s+=L(sp,'#56616d',1.6)+C(wx,wy,2.2,K)});
+  return s;
+}
+
+function motif(c){
+  if(c.m)return c.m;
+  const t=c.t,r=rng(hash(c.n)+1),H=t.h[hash(c.n)%t.h.length]+170+r()*60;
+  const x={r,k:c.k,ri:c.ri,n:c.n,id:'a'+t.i+'_'+c.i,c:hsl(H,78,60),d:hsl(H,70,40),l:hsl(H,90,80)};
+  if(c.ri==4){x.c=GOLD;x.d=GD;x.l='#fff3b0'}
+  if(t.id=='monsters')return c.m=monster(x);
+  if(t.id=='cars')return c.m=car(x);
+  if(t.id=='sports')return c.m=sport(x);
+  // same base drawing per category, so vary size, proportions and lean per card
+  const j=rng(hash(c.n)+3),sx=fx(.88+j()*.22),sy=STRETCH.has(c.k)?fx(.88+j()*.22):sx,rot=UPRIGHT.has(c.k)?0:Math.round(j()*14-7);
+  return c.m=G(`translate(100 82) rotate(${rot}) scale(${sx} ${sy}) translate(-100 -80)`,M[c.k](x));
+}
+function art(c){
+  if(c.svg)return c.svg;
+  const t=c.t,r=rng(hash(t.id+c.n)),id='a'+t.i+'_'+c.i,ri=c.ri,H=t.h[hash(c.n)%t.h.length]+r()*24-12;
+  const rn=(a,b)=>fx(a+r()*(b-a)),pick=a=>a[Math.floor(r()*a.length)],INK=['#ffd76a','#7fe9ff','#fff','#ff8ad1','#9dffb0'];
+  let d=`<radialGradient id="${id}g" cx=".5" cy=".46" r=".85"><stop offset="0" stop-color="${hsl(H,70,24)}"/><stop offset=".55" stop-color="${hsl(H+30,65,9)}"/><stop offset="1" stop-color="#02030a"/></radialGradient><radialGradient id="${id}b"><stop offset="0" stop-color="#fff8d6" stop-opacity=".95"/><stop offset=".3" stop-color="#ffb84a" stop-opacity=".6"/><stop offset="1" stop-color="#ff7a2e" stop-opacity="0"/></radialGradient>`,s='';
+  // nebula clouds
+  for(let i=0;i<5;i++){const h2=H+[0,70,150,210,300][i]+r()*40;d+=`<radialGradient id="${id}n${i}"><stop offset="0" stop-color="${hsl(h2,95,62)}" stop-opacity=".5"/><stop offset="1" stop-color="${hsl(h2,95,45)}" stop-opacity="0"/></radialGradient>`;s+=E(rn(0,200),rn(20,260),rn(45,90),rn(35,75),`url(#${id}n${i})`)}
+  // holographic paint splashes in the corners
+  [[rn(150,200),rn(0,50)],[rn(140,200),rn(215,280)],[rn(0,40),rn(200,270)]].forEach((p,i)=>{if(i==2&&r()<.5)return;let q='';const n=18,R0=rn(24,44);for(let k=0;k<n;k++){const a=k/n*6.283,rad=R0*(.45+r()*.75);q+=fx(p[0]+rad*Math.cos(a))+','+fx(p[1]+rad*Math.sin(a))+' '}s+=`<polygon points="${q}" fill="url(#holo)" opacity="${rn(.3,.55)}"/>`;for(let k=0;k<10;k++){const a=r()*6.283,rad=R0*(.8+r()*.9);s+=C(fx(p[0]+rad*Math.cos(a)),fx(p[1]+rad*Math.sin(a)),rn(.6,2.6),k%2?'#e6edf5':'url(#holo)',op(.8))}});
+  // light burst behind the subject
+  const bx=rn(55,145),by=rn(95,135);
+  for(let i=0;i<22;i++){const a=r()*6.283,l1=rn(18,40),l2=rn(60,150);s+=L(`M${fx(bx+l1*Math.cos(a))},${fx(by+l1*Math.sin(a))}L${fx(bx+l2*Math.cos(a))},${fx(by+l2*Math.sin(a))}`,pick(INK),rn(.5,1.8),op(rn(.25,.75)))}
+  s+=C(bx,by,rn(55,80),`url(#${id}b)`);
+  for(let i=0;i<3;i++){const x=rn(20,180),y=rn(40,240),w=rn(30,70)*(r()<.5?-1:1);s+=L(`M${x},${y}q${fx(w)},${rn(-50,-10)} ${fx(w*1.4)},${rn(10,40)}t${fx(-w*.8)},${rn(20,50)}`,'#ffd76a',rn(.8,2.4),op(rn(.35,.7)))}
+  // speed streaks and spatter
+  for(let i=0;i<16;i++){const x=rn(-30,170),y=rn(180,285),len=rn(30,120);s+=L(`M${fx(x+len)},${fx(y-len*.42)}L${x},${y}`,pick(INK),rn(.6,3.2),op(rn(.2,.7)))}
+  for(let i=0;i<50;i++)s+=C(rn(0,200),rn(0,280),rn(.3,1.5),pick(INK),op(rn(.4,1)));
+  s+=E(100,198,74,7,'#000',op(.55));
+  if(ri==4)s+=C(100,140,86,'none',st(GOLD,1.6)+' stroke-dasharray="2 6" '+op(.9));
+  s+=`<g filter="url(#lit)" transform="translate(100 142) scale(${t.id=='monsters'?1.12:1.22}) translate(-100 -82)">${motif(c)}</g>`;
+  for(let i=[0,2,4,7,10][ri];i>0;i--){const a=r()*6.283,q=rn(70,110);s+=sk(fx(100+q*.9*Math.cos(a)),fx(140+q*Math.sin(a)),rn(3,8),ri==4?'#fff3b0':W,op(.95))}
+  return c.svg=`<svg viewBox="0 0 200 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>${d}</defs><rect width="200" height="280" fill="url(#${id}g)"/>${s}</svg>`;
+}
+const emblem=t=>`<svg viewBox="10 0 180 160" aria-hidden="true"><g filter="url(#lit)">${motif(t.cards.find(c=>c.n==t.em))}</g></svg>`;
+
+/* ================= state ================= */
+const KEY='packrip-v2';
+// Finished artwork supplied for a card replaces the generated face. Key: "themeId:Card Name".
+const IMG={'cars:Honda Prelude':'prelude.jpg'};
+let S={coins:START,opened:0,owned:{},last:Date.now(),recent:[]};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.owned&&typeof s.coins=='number')S=Object.assign(S,s)}catch(e){}
+if(!Array.isArray(S.recent))S.recent=[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const BY={};T.forEach(t=>t.cards.forEach(c=>BY[c.key]=c));
+let cur=T[0],filter=-1,busy=false,view='home';
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+const own=c=>S.owned[c.key]||0;
+const found=t=>t.cards.filter(own).length;
+const num=c=>'#'+String(c.i+1).padStart(3,'0');
+const coins=n=>`<i class="coin"></i>${n.toLocaleString('en-US')}`;
+function roll(min=0){const pool=R.slice(min);let x=Math.random()*pool.reduce((n,r)=>n+r.w,0);for(let i=0;i<pool.length;i++){if(x<pool[i].w)return i+min;x-=pool[i].w}return min}
+function dupeValue(){let v=0;T.forEach(t=>t.cards.forEach(c=>{if(own(c)>1)v+=(own(c)-1)*R[c.ri].sell}));return v}
+
+/* ================= rendering ================= */
+function cardEl(c){
+  const d=el('div','card'),r=R[c.ri],ik=c.t.id+':'+c.n;d.dataset.r=r.id;
+  if(IMG[ik]){
+    d.classList.add('photo');d.innerHTML=`<img src="${IMG[ik]}" alt="${esc(c.n)}, ${r.name}"><div class="foil"></div>`;
+    d.firstChild.onerror=()=>{delete IMG[ik];d.replaceWith(cardEl(c))};
+    return d;
+  }
+  d.innerHTML=`<div class="in"><div class="art">${art(c)}</div><div class="nm">${esc(c.n)}</div><div class="tab">${r.name}</div><div class="bl">${r.name}</div><div class="br">${esc(c.t.g[c.k])} · ${num(c)}</div></div><div class="foil"></div>`;
+  return d;
+}
+function cellEl(c){
+  const n=own(c),b=el('button','cell');b.type='button';b.setAttribute('aria-label',`${c.n}, ${R[c.ri].name}, you own ${n}`);
+  b.append(cardEl(c));if(n>1)b.append(el('span','cnt','×'+n));
+  b.onclick=()=>showCard(c);return b;
+}
+function packEl(t,ti,tag){
+  const p=el(tag||'div','pack t'+(ti+1));
+  p.style.setProperty('--a',t.a);p.style.setProperty('--b',t.b);
+  p.innerHTML=`<span class="shine"></span>${emblem(t)}<span class="nm">${esc(t.name)}</span><span class="tag">${TIERS[ti].name} ×${TIERS[ti].n}</span>`;
+  return p;
+}
+function renderWallet(){
+  const left=Math.max(0,WAIT-(Date.now()-S.last));
+  $('nCoins').textContent=S.coins.toLocaleString('en-US');
+  $('nPay').textContent=PAY.toLocaleString('en-US');
+  $('nNext').textContent='0:'+String(Math.ceil(left/1000)).padStart(2,'0');
+  $('meter').style.width=(100-left/WAIT*100)+'%';
+}
+function tick(){
+  if(Date.now()-S.last>=WAIT){S.coins+=PAY;S.last=Date.now();save();if(view=='store')renderOffers()}
+  renderWallet();
+}
+function renderRack(){
+  document.querySelectorAll('.rack').forEach(k=>{
+    const home=k.id=='rackH';k.innerHTML='';
+    T.forEach(t=>{
+      const n=found(t),b=el('button');b.type='button';if(!home)b.setAttribute('aria-pressed',t===cur);
+      b.style.setProperty('--a',t.a);b.style.setProperty('--b',t.b);
+      b.innerHTML=`${emblem(t)}<b>${esc(t.name)}</b><small>${n}/${t.cards.length}</small><span class="bar"><i style="width:${n/t.cards.length*100}%"></i></span>`;
+      b.onclick=()=>{cur=t;filter=-1;if(home)view='inv';refresh()};k.append(b);
+    });
+  });
+}
+function renderHome(){
+  $('nOpened').textContent=S.opened;
+  $('nFound').textContent=T.reduce((n,t)=>n+found(t),0)+'/'+TOTAL;
+  $('nDupes').innerHTML=coins(dupeValue());
+  const rc=$('recent'),list=S.recent.map(k=>BY[k]).filter(c=>c&&own(c));rc.innerHTML='';
+  if(list.length){rc.className='recent';list.forEach(c=>rc.append(cellEl(c)))}
+  else{rc.className='empty';rc.append(el('span','','No cards yet. Your newest pulls will show up here.'));const b=el('button','primary','Go to the store');b.type='button';b.onclick=()=>{view='store';refresh()};rc.append(b)}
+  const od=$('odds');od.innerHTML='';
+  R.forEach(r=>{const li=el('li');li.dataset.r=r.id;li.innerHTML=`<i></i><b>${r.name}</b> ${r.w}% · sells ${coins(r.sell)}`;od.append(li)});
+}
+function renderOffers(){
+  $('shelfTitle').textContent=cur.name+' packs';
+  const o=$('offers');o.innerHTML='';
+  TIERS.forEach((tier,ti)=>{
+    const can=S.coins>=tier.cost,d=el('div','offer'),p=packEl(cur,ti,'button');
+    p.type='button';p.disabled=!can;p.setAttribute('aria-label',`Open a ${cur.name} ${tier.name} pack for ${tier.cost} coins`);p.onclick=()=>openPack(ti);
+    const info=el('div','info');info.append(el('b','',tier.name+' pack'),el('span','',tier.note));
+    const b=el('button','buy');b.type='button';b.disabled=!can;b.innerHTML=can?coins(tier.cost):`Need ${coins(tier.cost-S.coins)} more`;b.onclick=()=>openPack(ti);
+    d.append(p,info,b);o.append(d);
+  });
+}
+function renderBinder(){
+  $('binderTitle').textContent=`${cur.name} binder · ${found(cur)}/${cur.cards.length}`;
+  const dv=dupeValue(),sb=$('sellAll');sb.disabled=!dv;sb.innerHTML=dv?`Sell all duplicates · +${coins(dv)}`:'No duplicates to sell';
+  const tabs=$('tabs');tabs.innerHTML='';
+  [-1,0,1,2,3,4].forEach(ri=>{
+    const list=ri<0?cur.cards:cur.cards.filter(c=>c.ri===ri),b=el('button');b.type='button';
+    if(ri>=0){b.dataset.r=R[ri].id;b.append(el('i'))}
+    b.append((ri<0?'All':R[ri].name)+' '+list.filter(own).length+'/'+list.length);
+    b.setAttribute('aria-pressed',filter===ri);b.onclick=()=>{filter=ri;renderBinder()};tabs.append(b);
+  });
+  const g=$('binder');g.innerHTML='';
+  cur.cards.forEach(c=>{
+    if(filter>=0&&c.ri!==filter)return;
+    if(!own(c)){const s=el('div','slotc');s.dataset.r=R[c.ri].id;s.append(el('b','','?'),el('span','',num(c)),el('i','',R[c.ri].name));g.append(s);return}
+    g.append(cellEl(c));
+  });
+}
+function refresh(){
+  renderWallet();
+  document.querySelectorAll('#nav button').forEach(b=>{if(b.dataset.v==view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  ['home','store','inv'].forEach(v=>$('v-'+v).hidden=v!=view);
+  renderRack();
+  if(view=='home')renderHome();
+  if(view=='store')renderOffers();
+  if(view=='inv')renderBinder();
+}
+
+/* ================= opening packs ================= */
+function setActions(list){const a=$('actions');a.innerHTML='';list.forEach(b=>{const e=el('button',b.cls);e.type='button';e.innerHTML=b.html;e.disabled=!!b.off;e.onclick=b.fn;a.append(e)});a.hidden=false;const f=a.querySelector('button:not(:disabled)');if(f)f.focus()}
+function openPack(ti){
+  const tier=TIERS[ti],t=cur;
+  if(busy||S.coins<tier.cost)return;busy=true;
+  S.coins-=tier.cost;S.opened++;
+  const rs=[];for(let i=0;i<tier.n;i++)rs.push(roll());
+  if(tier.min&&Math.max(...rs)<tier.min)rs[tier.n-1]=roll(tier.min);
+  const pulls=rs.map(ri=>{const pool=t.cards.filter(c=>c.ri===ri),c=pool[Math.floor(Math.random()*pool.length)],isNew=!own(c);S.owned[c.key]=own(c)+1;return{c,isNew}});
+  S.recent=pulls.map(p=>p.c.key).concat(S.recent.filter(k=>!pulls.some(p=>p.c.key==k))).slice(0,7);
+  save();refresh();
+  const slot=$('slot'),res=$('result');
+  $('stage').hidden=false;$('actions').hidden=true;res.innerHTML='';res.removeAttribute('data-r');
+  slot.className='slot n'+tier.n;slot.innerHTML='';slot.append(packEl(t,ti));
+  setTimeout(()=>{
+    slot.innerHTML='';
+    const flips=pulls.map(p=>{const f=el('div','flip down');f.append(cardEl(p.c),Object.assign(el('div','back'),{innerHTML:'<span>PR</span>'}));if(p.isNew)f.append(el('span','new','NEW'));slot.append(f);return f});
+    flips.forEach((f,i)=>setTimeout(()=>{f.classList.remove('down');setTimeout(()=>f.classList.add('up'),calm?0:700)},calm?0:120+i*480));
+    setTimeout(()=>{
+      const best=Math.max(...rs),nw=pulls.filter(p=>p.isNew).length,du=tier.n-nw;
+      res.dataset.r=R[best].id;
+      res.innerHTML=`<b>${tier.n==1?R[best].name+'!':'Best pull: '+R[best].name}</b>`+(tier.n==1?esc(pulls[0].c.n)+(nw?' is new to your binder.':` — you now have ${own(pulls[0].c)}.`):`${nw} new, ${du} duplicate${du==1?'':'s'}.`);
+      const can=S.coins>=tier.cost;
+      setActions([{cls:'primary',html:can?`Open another ${tier.name} · ${coins(tier.cost)}`:'Not enough coins for another',off:!can,fn:()=>openPack(ti)},{cls:'ghost',html:'Done',fn:closeStage}]);
+      busy=false;
+    },calm?0:120+tier.n*480+500);
+  },calm?0:900);
+}
+function showCard(c){
+  if(busy)return;
+  const slot=$('slot'),res=$('result'),n=own(c),r=R[c.ri];
+  $('stage').hidden=false;slot.className='slot n1';slot.innerHTML='';
+  const f=el('div','flip up');f.append(cardEl(c));slot.append(f);
+  res.dataset.r=r.id;res.innerHTML=`<b>${r.name}</b>You own ${n}. Each copy sells for ${coins(r.sell)}`;
+  setActions([{cls:'primary',html:n>1?`Sell one duplicate · +${coins(r.sell)}`:'Only copy, nothing to sell',off:n<2,fn:()=>{S.owned[c.key]=n-1;S.coins+=r.sell;save();refresh();showCard(c)}},{cls:'ghost',html:'Close',fn:closeStage}]);
+}
+function closeStage(){if(busy)return;$('stage').hidden=true;$('slot').innerHTML=''}
+$('stage').addEventListener('click',e=>{if(e.target===$('stage'))closeStage()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeStage()});
+$('stage').addEventListener('pointermove',e=>{
+  const f=e.target.closest&&e.target.closest('.flip.up');if(!f||calm)return;
+  const b=f.getBoundingClientRect(),px=(e.clientX-b.left)/b.width,py=(e.clientY-b.top)/b.height;
+  f.classList.add('tilt');f.style.transform=`rotateY(${fx((px-.5)*24)}deg) rotateX(${fx((.5-py)*24)}deg)`;
+  f.style.setProperty('--mx',fx(px*100)+'%');f.style.setProperty('--my',fx(py*100)+'%');
+});
+$('stage').addEventListener('pointerout',e=>{const f=e.target.closest&&e.target.closest('.flip.up');if(f&&!f.contains(e.relatedTarget)){f.classList.remove('tilt');f.style.transform=''}});
+
+/* ================= wallet + tabs ================= */
+setInterval(tick,1000);
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{view=b.dataset.v;refresh()});
+$('sellAll').onclick=()=>{const v=dupeValue();if(!v)return;Object.keys(S.owned).forEach(k=>{if(S.owned[k]>1)S.owned[k]=1});S.coins+=v;save();refresh()};
+let armed=null;
+$('reset').onclick=function(){
+  if(!armed){this.textContent='Tap again to wipe coins and cards';armed=setTimeout(()=>{armed=null;this.textContent='Start over'},3000);return}
+  clearTimeout(armed);armed=null;this.textContent='Start over';S={coins:START,opened:0,owned:{},last:Date.now(),recent:[]};save();refresh();
+};
+refresh();
+</script>
