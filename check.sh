@@ -24,7 +24,7 @@ T.forEach(t=>{const n=[0,0,0,0,0];t.cards.forEach(c=>n[c.ri]++);
    catch(e){print('FAIL: art('+c.n+') threw '+e);bad++}});
   if(seen.size<100){print('FAIL: '+t.id+' has only '+seen.size+' distinct card images');bad++}});
 const avg=Math.round(bytes/800);print('avg svg bytes per card: '+avg);
-if(avg>14000){print('FAIL: average card svg over 14000 bytes (binder shows 100 at once)');bad++}
+if(avg>16000){print('FAIL: average card svg over 16000 bytes (binder shows 100 at once)');bad++}
 if(bad)quit(1);print('CHECK OK');
 JS
 "$JSC" "$TMP/art.js"

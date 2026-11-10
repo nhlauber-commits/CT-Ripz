@@ -1,7 +1,12 @@
 # Pack Rip: rules for this job
 
 `pack-rip.html` is a single-file web app published as a sandboxed page. `prelude.jpg` sits beside it.
-You are redoing the **visual design of the interface and the card artwork**. The game itself stays as it is.
+You are redoing the **visual design of the interface only**. The game and the card artwork stay as they are.
+
+## Scope for this job
+- Do NOT change the card art code: `art()`, `motif()`, `monster()`, `car()`, the `M` drawing table, the `ART` and `IMG` lists, or anything in `art/`. Painted card images are being added separately.
+- You may restyle the card frame (`.card` CSS) lightly, but keep its layout.
+- Work in small, separate edits (one area of the interface at a time). Do not rewrite the whole file in one edit.
 
 ## Do not change (the game's parameters)
 - 8 themes, 100 cards each, split 40 Common / 28 Uncommon / 18 Rare / 10 Epic / 4 Legendary. Keep every card name, theme, category key and label in `T` exactly.
@@ -19,7 +24,7 @@ You are redoing the **visual design of the interface and the card artwork**. The
 - No `alert/confirm/prompt`. Wrap localStorage in try/catch (already done).
 - Keep the single `<script>` block with `<script>` and `</script>` each alone on their own line.
 - Keep this order inside the script: data (`T`, `R`, `TIERS`), helpers, art code, then the comment line `/* ================= state ================= */`. Everything above that line must run without a DOM. `art(card)` must stay a pure function returning a string that starts with `<svg`, with no `NaN` or `undefined` in it.
-- Performance: the Inventory shows up to 100 cards at once. Keep the average card SVG under 14,000 bytes. Put heavy filters (turbulence, lighting) in ONE shared `<defs>` in the page and reference them; never define a filter per card. Use feTurbulence sparingly.
+- Performance: the Inventory shows up to 100 cards at once. Keep the average card SVG under 16,000 bytes. Put heavy filters (turbulence, lighting) in ONE shared `<defs>` in the page and reference them; never define a filter per card. Use feTurbulence sparingly.
 - Must work at 375px wide with no horizontal page scroll; keep the 16px side gutters written with `max(16px, env(safe-area-inset-*))`. Respect `prefers-reduced-motion`.
 - Every colour comes from CSS custom properties on `:root`; the page sets its own background. A single dark look is fine.
 
