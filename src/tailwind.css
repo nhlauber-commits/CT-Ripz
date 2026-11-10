@@ -1,0 +1,33 @@
+/* Tailwind for CT Ripz.
+   Preflight (Tailwind's reset) is left out on purpose: the page has its own base styles.
+   Colours and fonts still live on :root in app.html; the theme below only points at them,
+   so classes like bg-navy, text-gold, border-rare and font-display use the same values. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/* Only scan the source page (not the built pack-rip.html, docs or art). */
+@source "../app.html";
+
+@theme inline {
+  --color-navy-deep: var(--navy-deep);
+  --color-navy: var(--navy);
+  --color-navy-hi: var(--navy-hi);
+  --color-navy-raise: var(--navy-raise);
+  --color-edge: var(--edge);
+  --color-edge-hi: var(--edge-hi);
+  --color-gold: var(--gold);
+  --color-gold-hi: var(--gold-hi);
+  --color-gold-lo: var(--gold-lo);
+  --color-gold-ink: var(--gold-ink);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-muted: var(--muted);
+  --color-common: var(--common);
+  --color-uncommon: var(--uncommon);
+  --color-rare: var(--rare);
+  --color-epic: var(--epic);
+  --color-legendary: var(--legendary);
+  --font-display: var(--display);
+  --font-body: var(--body);
+}

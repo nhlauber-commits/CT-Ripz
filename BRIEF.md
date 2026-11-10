@@ -1,6 +1,8 @@
 # CT Ripz: rules for this job
 
 `pack-rip.html` is a single-file web app published as a sandboxed page. `prelude.jpg` sits beside it.
+
+**Edit `app.html`, not `pack-rip.html`.** `app.html` is the source. `npm run build` compiles Tailwind into it and writes `pack-rip.html`, which is the file that gets published. Any change made directly to `pack-rip.html` is overwritten on the next build.
 You are redoing the **visual design of the interface only**. The game and the card artwork stay as they are.
 
 ## Scope for this job: make the app easier and more pleasant to use
@@ -21,8 +23,9 @@ You are redoing the **visual design of the interface only**. The game and the ca
 - Islam theme: no depictions of people; keep it to places, objects, geometric and calligraphic art.
 
 ## Hard technical rules (the page breaks or is refused otherwise)
-- One file. No `<!doctype>`, `<html>`, `<head>` or `<body>` tags. Keep `<title>CT Ripz</title>` and the `claude:viewport-fit-sides` meta at the top.
-- No build step, no frameworks, no npm. Plain HTML, CSS, JS.
+- The built `pack-rip.html` must be one file. No `<!doctype>`, `<html>`, `<head>` or `<body>` tags. Keep `<title>CT Ripz</title>` and the `claude:viewport-fit-sides` meta at the top.
+- Build: Vite + Tailwind CSS v4 (`npm install` once, then `npm run dev` to work on it and `npm run build` to produce `pack-rip.html`). No UI frameworks (no React, Vue etc.): plain HTML and JS plus Tailwind classes.
+- Tailwind's colours and fonts point at the `:root` variables in `app.html` (`bg-navy`, `text-gold`, `border-rare`, `font-display` and so on). Add new colours to `:root` first, then map them in `src/tailwind.css`. Tailwind's reset (Preflight) is deliberately off; the page keeps its own base styles.
 - External resources: only Google Fonts stylesheets (`fonts.googleapis.com`). No external images, no other hosts, no fetch. All art is inline SVG / CSS generated in code. Textures must be made in code (SVG filters such as feTurbulence, CSS gradients, inline data-URI SVG).
 - No `alert/confirm/prompt`. Wrap localStorage in try/catch (already done).
 - Keep the single `<script>` block with `<script>` and `</script>` each alone on their own line.
@@ -42,4 +45,4 @@ You are redoing the **visual design of the interface only**. The game and the ca
 - Keep the card layout family: metal frame tinted by rarity, full-bleed art, name top-left, rarity tab notched top-right, rarity bottom-left. Do not restyle the cards beyond what is needed to sit well on navy.
 
 ## Check
-Run `sh check.sh` from the repo root. It must end with `CHECK OK`. Do not edit `check.sh`.
+Run `npm run build`, then `npm run check` (works on any computer) or `sh check.sh` (Mac only) from the repo root. Both must end with `CHECK OK`. Do not edit `check.sh`.
