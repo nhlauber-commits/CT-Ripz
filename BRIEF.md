@@ -3,10 +3,13 @@
 `pack-rip.html` is a single-file web app published as a sandboxed page. `prelude.jpg` sits beside it.
 You are redoing the **visual design of the interface only**. The game and the card artwork stay as they are.
 
-## Scope for this job
-- Do NOT change the card art code: `art()`, `motif()`, `monster()`, `car()`, `sport()`, the `M` and `PROP` drawing tables, the `ART` and `IMG` lists, or anything in `art/`. Painted card images are being added separately.
-- You may restyle the card frame (`.card` CSS) lightly, but keep its layout.
-- Work in small, separate edits (one area of the interface at a time). Do not rewrite the whole file in one edit.
+## Scope for this job: make the app easier and more pleasant to use
+- The navy and gold look is approved. Keep it. This job is about usability, not a new visual style.
+- You MAY change the interface script (rendering, event handlers, new small features) and add new elements, ids and classes.
+- Do NOT change: the card data in `T`; the art code (`art()`, `motif()`, `monster()`, `car()`, `sport()`, the `M` and `PROP` drawing tables); the `ART` and `IMG` lists; anything in `art/`; the economy constants (`R`, `TIERS`, `START`, `PAY`, `WAIT`, `CAP`); the localStorage key. You may add optional fields to the saved state, but old saves must still load.
+- Never use `alert`, `confirm` or `prompt`. Build confirmations and messages into the page.
+- Every new control must work with keyboard and touch, have a visible focus state, and be at least 40px tall on phones.
+- Work in small, separate edits. Do not rewrite the whole file in one edit.
 
 ## Do not change (the game's parameters)
 - 8 themes, 100 cards each, split 40 Common / 28 Uncommon / 18 Rare / 10 Epic / 4 Legendary. Keep every card name, theme, category key and label in `T` exactly.
