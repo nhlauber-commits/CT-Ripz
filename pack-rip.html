@@ -1,194 +1,143 @@
 <title>CT Ripz</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: a card shop in three tabs. Wallet always in the header; Home shows progress and latest pulls, Store sells three pack tiers per theme, Inventory holds the 100-slot binders. Rips happen in a spotlight overlay. Single dark look so foil and rarity glows read. */
+/* Layout: a card shop in three tabs. Wallet always in the header; Home shows progress and latest pulls, Store sells three pack tiers per theme, Inventory holds the 100-slot binders. Rips happen in a spotlight overlay. Navy and gold collector catalogue system. */
 :root{
   color-scheme:dark;
-  --felt:#0b1210; --felt-hi:#121f1b; --felt-deep:#060a09;
-  --counter:#151c21; --counter-hi:#1c262d; --counter-lo:#0f1418;
-  --raise:#212d36; --edge:#2d3c47; --edge-hi:#3e5260;
-  --brass:#d4a84f; --brass-hi:#f3d27a; --brass-lo:#7c5b1a;
-  --paper:#efe8d8; --paper-dim:#bfb5a2;
-  --ink:#f2efe9; --dim:#96a3ad; --muted:#63727d;
-  --coin:#f5c433; --coin-hi:#fff3b0; --coin-d:#9e6e06; --coin-ink:#1a1300;
-  --silver:#d8e0e8; --silver-hi:#f6f9fc; --silver-lo:#7d8894;
-  --white:#ffffff; --card-well:#04060c; --flame:#ff8a3c;
+  --navy-deep:#060c18; --navy:#0b1528; --navy-hi:#111f38; --navy-raise:#182a4a;
+  --edge:#22365a; --edge-hi:#314b78;
+  --gold:#d4af37; --gold-hi:#ecd074; --gold-lo:#7a5d17; --gold-ink:#07101e;
+  --ink:#f4efe4;
+  --dim:color-mix(in srgb,var(--ink) 68%,var(--navy));
+  --muted:color-mix(in srgb,var(--ink) 45%,var(--navy));
+  --silver:#d4dce6; --silver-hi:#f2f6fa; --silver-lo:#768394;
+  --white:#ffffff; --card-well:#050914; --flame:#ff8a3c;
   --holo-1:#ff5abe; --holo-2:#5ad2ff; --holo-3:#ffeb82; --holo-4:#78ffaa;
-  --shadow:#020507;
-  --common:#a9b3be; --uncommon:#47d08a; --rare:#4aa3ff; --epic:#b672ff; --legendary:#ffc233;
-  --display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
-  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,monospace;
-  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --weave:repeating-linear-gradient(45deg,color-mix(in srgb,var(--ink) 1.6%,transparent) 0 1px,transparent 1px 6px),repeating-linear-gradient(-45deg,color-mix(in srgb,var(--shadow) 28%,transparent) 0 1px,transparent 1px 6px);
-  --brushed:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 2.2%,transparent) 0 1px,transparent 1px 3px,color-mix(in srgb,var(--shadow) 18%,transparent) 3px 4px);
+  --shadow:#02050b;
+  --common:#9aa7b8; --uncommon:#45c782; --rare:#4a9eff; --epic:#b370ff; --legendary:#f2be38;
+  --display:"Fraunces",Georgia,serif;
+  --body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .96 0 0 0 0 .94 0 0 0 0 .89 0 0 0 .032 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 *{box-sizing:border-box}
 body{
   margin:0;
-  background-color:var(--felt);
-  background-image:
-    var(--grain),
-    var(--weave),
-    radial-gradient(ellipse 90% 55% at 50% 0%,color-mix(in srgb,var(--felt-hi) 85%,transparent),transparent 70%),
-    radial-gradient(circle at 85% 20%,color-mix(in srgb,var(--brass-lo) 18%,transparent),transparent 45%),
-    linear-gradient(180deg,var(--felt-deep) 0%,var(--felt) 18%,var(--felt) 85%,var(--felt-deep) 100%);
-  background-attachment:fixed;
-  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
-  padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-color:var(--navy);
+  background-image:var(--grain);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:64px;
   overflow-x:hidden;
 }
-.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,6.5vw,52px);line-height:.94;margin:0;letter-spacing:-.025em;
-  text-shadow:0 2px 0 var(--shadow),0 6px 18px color-mix(in srgb,var(--shadow) 65%,transparent)}
-h1 span{color:var(--legendary)}
-h2{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.01em;margin:0;display:flex;align-items:center;gap:10px;color:var(--paper)}
-h2::before{content:"";width:6px;height:16px;border-radius:2px;background:linear-gradient(180deg,var(--brass-hi),var(--brass-lo));box-shadow:0 0 8px color-mix(in srgb,var(--brass) 45%,transparent);flex-shrink:0}
-.sub{color:var(--dim);margin:6px 0 0;max-width:46ch;font-size:14px;line-height:1.4}
-.label{color:var(--dim);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.11em}
+body::before{content:'';position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--navy-deep)}
+.wrap{
+  max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px;
+  padding:24px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));
+}
+.brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.mark{width:24px;height:24px;display:block;flex-shrink:0}
+h1{font-family:var(--display);font-weight:700;font-size:20px;line-height:1;margin:0;letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
+h1 span{color:var(--gold)}
+h2{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.005em;margin:0;padding-bottom:8px;border-bottom:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));color:var(--ink)}
+.label{color:var(--dim);font-family:var(--body);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.09em}
 button{font:inherit;color:inherit;cursor:pointer}
 button:disabled{cursor:not-allowed}
-button:focus-visible{outline:2px solid var(--brass-hi);outline-offset:3px}
+button:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
 section{display:flex;flex-direction:column;gap:14px}
-.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px}
+.head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding-bottom:8px;border-bottom:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge))}
+.head h2{border-bottom:0;padding-bottom:0}
 [data-r=common]{--rc:var(--common)}[data-r=uncommon]{--rc:var(--uncommon)}[data-r=rare]{--rc:var(--rare)}[data-r=epic]{--rc:var(--epic)}[data-r=legendary]{--rc:var(--legendary)}
-.coin{display:inline-block;width:.95em;height:.95em;border-radius:50%;vertical-align:-.13em;margin-right:.32em;
-  background:radial-gradient(circle at 32% 28%,var(--coin-hi),var(--coin) 48%,var(--coin-d));
-  box-shadow:inset 0 0 0 .11em var(--coin-d),inset 0 .08em .12em var(--coin-hi),0 1px 3px color-mix(in srgb,var(--shadow) 75%,transparent)}
+.coin{display:inline-block;width:.88em;height:.88em;border-radius:50%;vertical-align:-.1em;margin-right:.32em;
+  background:var(--gold);border:1.5px solid var(--gold-hi)}
 
-/* header + wallet + tabs */
+/* slim sticky top bar: brand + nav + wallet */
 header{
-  position:relative;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 24px;
-  padding:18px 20px;border-radius:16px;
-  background-color:var(--counter);
-  background-image:
-    var(--grain),
-    radial-gradient(circle at 10px 10px,var(--brass-lo) 2px,transparent 2.5px),
-    radial-gradient(circle at calc(100% - 10px) 10px,var(--brass-lo) 2px,transparent 2.5px),
-    radial-gradient(circle at 10px calc(100% - 10px),var(--brass-lo) 2px,transparent 2.5px),
-    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px),var(--brass-lo) 2px,transparent 2.5px),
-    linear-gradient(135deg,color-mix(in srgb,var(--brass) 10%,var(--counter-hi)) 0%,var(--counter) 50%,var(--counter-lo) 100%);
-  border:1px solid color-mix(in srgb,var(--brass) 38%,var(--edge));
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb,var(--brass-hi) 25%,transparent),
-    inset 0 0 0 3px color-mix(in srgb,var(--shadow) 35%,transparent),
-    0 12px 28px -8px color-mix(in srgb,var(--shadow) 80%,transparent);
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;
+  padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));
+  background-color:var(--navy-deep);
+  background-image:var(--grain);
+  border-bottom:1px solid color-mix(in srgb,var(--gold) 45%,var(--edge));
 }
-header>div:first-child::before{
-  content:"EST. 800-CARD VAULT · FOIL & BINDER EXCHANGE";
-  display:block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;
-  color:var(--brass);margin-bottom:4px;
-}
-.wallet{
-  display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;
-  background-color:var(--counter-lo);
-  background-image:var(--brushed),linear-gradient(180deg,var(--counter-lo),color-mix(in srgb,var(--shadow) 45%,var(--counter-lo)));
-  border:1px solid color-mix(in srgb,var(--brass) 32%,var(--edge));
-  border-radius:12px;padding:10px 14px;font-variant-numeric:tabular-nums;
-  box-shadow:inset 0 2px 6px color-mix(in srgb,var(--shadow) 75%,transparent),0 1px 0 color-mix(in srgb,var(--ink) 8%,transparent);
-}
-.wallet .bal{
-  font-family:var(--display);font-weight:800;font-size:clamp(24px,5vw,30px);line-height:1;color:var(--coin);white-space:nowrap;
-  text-shadow:0 2px 8px color-mix(in srgb,var(--coin) 28%,transparent);
-  padding-right:14px;border-right:1px solid color-mix(in srgb,var(--edge) 75%,transparent);
-}
-.wallet .next{display:flex;flex-direction:column;gap:6px;min-width:9.5em;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.02em}
-.wallet .next b{color:var(--paper);font-weight:700}
-.meter{height:6px;border-radius:99px;background:var(--felt-deep);border:1px solid color-mix(in srgb,var(--edge) 80%,transparent);overflow:hidden;box-shadow:inset 0 1px 2px var(--shadow)}
-.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--coin-d),var(--coin),var(--coin-hi));box-shadow:0 0 8px var(--coin)}
 .nav{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
-  padding:5px;border-radius:13px;
-  background-color:var(--counter-lo);
-  background-image:var(--grain),linear-gradient(180deg,var(--counter-lo),var(--counter));
-  border:1px solid var(--edge);
-  box-shadow:inset 0 2px 5px color-mix(in srgb,var(--shadow) 70%,transparent);
+  display:flex;align-items:center;gap:2px;
 }
 .nav button{
-  position:relative;background:none;border:1px solid transparent;border-radius:9px;
-  padding:10px 12px;font-family:var(--display);font-weight:700;font-size:clamp(14px,3.8vw,17px);letter-spacing:.01em;
-  color:var(--dim);transition:color .15s,background-color .15s,border-color .15s,transform .15s;
-  display:flex;align-items:center;justify-content:center;gap:7px;
+  position:relative;background:none;border:0;border-bottom:2px solid transparent;border-radius:2px 2px 0 0;
+  padding:7px 12px;font-family:var(--display);font-weight:600;font-size:14px;letter-spacing:.01em;
+  color:var(--dim);transition:color .15s,background-color .15s,border-color .15s;
+  display:flex;align-items:center;justify-content:center;
 }
-.nav button::before{
-  content:"";width:6px;height:6px;border-radius:50%;background:var(--edge-hi);
-  transition:background-color .15s,box-shadow .15s;
-}
-.nav button:hover{color:var(--ink);background:color-mix(in srgb,var(--raise) 55%,transparent)}
+.nav button:hover{color:var(--ink);background-color:var(--navy-hi)}
 .nav button[aria-current=page]{
-  color:var(--paper);
-  background-color:var(--raise);
-  background-image:var(--brushed),linear-gradient(180deg,color-mix(in srgb,var(--brass) 16%,var(--raise)) 0%,var(--counter) 100%);
-  border-color:color-mix(in srgb,var(--brass) 55%,var(--edge));
-  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--brass-hi) 35%,transparent),0 4px 10px color-mix(in srgb,var(--shadow) 65%,transparent);
+  color:var(--gold-hi);
+  background-color:var(--navy-hi);
+  border-bottom-color:var(--gold);
 }
-.nav button[aria-current=page]::before{
-  background:var(--legendary);box-shadow:0 0 8px var(--legendary);
+.wallet{
+  margin-left:auto;display:flex;align-items:center;gap:10px;
+  background-color:var(--navy);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));
+  border-radius:3px;padding:5px 10px;font-variant-numeric:tabular-nums;
 }
-.view{display:flex;flex-direction:column;gap:30px}
+.wallet .bal{
+  font-family:var(--display);font-weight:700;font-size:16px;line-height:1;color:var(--gold-hi);white-space:nowrap;
+  padding-right:10px;border-right:1px solid var(--edge);
+}
+.wallet .next{display:flex;flex-direction:column;gap:3px;color:var(--dim);font-size:11px;line-height:1.1;white-space:nowrap}
+.wallet .next b{color:var(--ink);font-weight:600}
+.meter{height:3px;border-radius:1px;background:var(--navy-deep);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--gold)}
+.view{display:flex;flex-direction:column;gap:32px}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .stats div{
   position:relative;overflow:hidden;
-  background-color:var(--counter);
-  background-image:var(--grain),linear-gradient(180deg,var(--counter-hi) 0%,var(--counter-lo) 100%);
-  border:1px solid var(--edge);border-top:2px solid var(--brass);
-  border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums;
-  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent),0 6px 14px -4px color-mix(in srgb,var(--shadow) 70%,transparent);
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  border:1px solid var(--edge);border-top:2px solid var(--gold);
+  border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums;
 }
-.stats div::after{
-  content:"";position:absolute;top:7px;right:8px;width:5px;height:5px;border-radius:50%;
-  background:var(--brass-lo);box-shadow:inset 0 1px 1px var(--brass-hi);
-}
-.stats b{font-family:var(--display);font-weight:800;font-size:clamp(20px,4.5vw,28px);line-height:1.1;color:var(--paper)}
+.stats b{font-family:var(--display);font-weight:700;font-size:clamp(20px,4.5vw,28px);line-height:1.1;color:var(--ink)}
 .recent{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:14px;
-  padding:16px;border-radius:14px;
-  background-color:var(--felt-deep);
-  background-image:var(--grain),var(--weave),radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--felt-hi) 90%,transparent),transparent 75%);
-  border:1px solid color-mix(in srgb,var(--brass) 28%,var(--edge));
-  box-shadow:inset 0 3px 12px color-mix(in srgb,var(--shadow) 85%,transparent);
+  padding:16px;border-radius:4px;
+  background-color:var(--navy-deep);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 32%,var(--edge));
 }
 .empty{
-  background-color:var(--felt-deep);
-  background-image:var(--grain),var(--weave);
-  border:1.5px dashed color-mix(in srgb,var(--brass) 40%,var(--edge));
-  border-radius:14px;padding:20px 22px;color:var(--paper-dim);
+  background-color:var(--navy-deep);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 32%,var(--edge));
+  border-radius:4px;padding:20px 22px;color:var(--dim);
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
-  box-shadow:inset 0 2px 10px color-mix(in srgb,var(--shadow) 75%,transparent);
 }
 /* theme rack */
 .rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
 .rack button{
   position:relative;overflow:hidden;
-  background-color:var(--counter);
-  background-image:
-    var(--grain),
-    radial-gradient(circle at 50% 24%,color-mix(in srgb,var(--a) 22%,transparent),transparent 65%),
-    linear-gradient(180deg,var(--counter-hi) 0%,var(--counter-lo) 100%);
-  border:1px solid var(--edge);border-top:2px solid color-mix(in srgb,var(--a) 75%,var(--brass));
-  border-radius:11px;padding:10px 8px 10px;
-  display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;
-  box-shadow:0 5px 12px -4px color-mix(in srgb,var(--shadow) 75%,transparent);
-  transition:transform .15s,border-color .15s,box-shadow .15s;
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  border:1px solid var(--edge);border-top:2px solid var(--a);
+  border-radius:4px;padding:12px 8px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;
+  transition:border-color .15s,background-color .15s;
 }
 .rack button:hover{
-  transform:translateY(-2px);
-  border-color:color-mix(in srgb,var(--a) 60%,var(--paper));
-  box-shadow:0 8px 18px -4px color-mix(in srgb,var(--shadow) 85%,transparent),0 0 12px color-mix(in srgb,var(--a) 22%,transparent);
+  background-color:var(--navy-raise);
+  border-color:color-mix(in srgb,var(--gold) 55%,var(--edge));
+  border-top-color:var(--a);
 }
-.rack svg{width:62px;height:50px;filter:drop-shadow(0 3px 5px color-mix(in srgb,var(--shadow) 70%,transparent))}
-.rack b{font-family:var(--display);font-weight:700;font-size:13.5px;text-align:center;line-height:1.15;color:var(--paper)}
-.rack small{color:var(--dim);font-family:var(--mono);font-size:10.5px;font-variant-numeric:tabular-nums}
-.rack .bar{width:100%;height:5px;border-radius:99px;background:var(--felt-deep);border:1px solid color-mix(in srgb,var(--edge) 70%,transparent);overflow:hidden;margin-top:2px}
-.rack .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--a),var(--b));box-shadow:0 0 6px var(--a)}
+.rack svg{width:62px;height:50px}
+.rack b{font-family:var(--display);font-weight:600;font-size:14px;text-align:center;line-height:1.15;color:var(--ink)}
+.rack small{color:var(--dim);font-size:11px;font-variant-numeric:tabular-nums}
+.rack .bar{width:100%;height:3px;border-radius:1px;background:var(--navy-deep);overflow:hidden;margin-top:2px}
+.rack .bar i{display:block;height:100%;background:var(--gold)}
 .rack button[aria-pressed=true]{
-  border-color:var(--brass-hi);
-  background-image:
-    var(--grain),
-    radial-gradient(circle at 50% 24%,color-mix(in srgb,var(--a) 38%,transparent),transparent 70%),
-    linear-gradient(180deg,var(--raise) 0%,var(--counter) 100%);
-  box-shadow:0 0 0 1px var(--brass-hi),0 8px 18px -4px color-mix(in srgb,var(--shadow) 90%,transparent);
+  background-color:var(--navy-raise);
+  border-color:var(--gold);
+  border-top-color:var(--gold-hi);
 }
 
 /* pack offers */
@@ -326,44 +275,40 @@ button.pack:not(:disabled):hover{transform:translateY(-6px) rotate(-1.5deg) scal
 button.pack:disabled{opacity:.78;filter:grayscale(.25) brightness(.88)}
 
 .odds{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px;
-  margin:0;padding:12px;list-style:none;
-  font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--dim);
-  background-color:var(--counter-lo);
-  background-image:var(--grain),linear-gradient(180deg,var(--counter-lo),var(--counter));
-  border:1px solid var(--edge);border-radius:12px;
-  box-shadow:inset 0 2px 6px color-mix(in srgb,var(--shadow) 70%,transparent);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1px;
+  margin:0;padding:0;list-style:none;
+  font-size:13px;font-variant-numeric:tabular-nums;color:var(--dim);
+  background-color:var(--edge);
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));border-radius:4px;overflow:hidden;
 }
 .odds li{
   display:flex;align-items:center;gap:8px;
-  padding:8px 10px;border-radius:8px;
-  background:color-mix(in srgb,var(--rc) 7%,var(--counter));
-  border:1px solid color-mix(in srgb,var(--rc) 28%,var(--edge));
+  padding:10px 12px;
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
 }
 .odds li>i:first-child{
-  width:9px;height:9px;transform:rotate(45deg);background:var(--rc);
-  box-shadow:0 0 8px var(--rc);flex-shrink:0;
+  width:7px;height:7px;border-radius:50%;background:var(--rc);flex-shrink:0;
 }
-.odds b{font-family:var(--display);color:var(--paper);font-size:13.5px;font-weight:700;margin-right:auto}
+.odds b{font-family:var(--display);color:var(--ink);font-size:14px;font-weight:600;margin-right:auto}
 
 /* ---------- the card: metal frame, full-bleed art, name top-left, rarity tab notched into the top-right ---------- */
 .card{position:relative;aspect-ratio:5/7;width:100%;container-type:inline-size;border-radius:5%/3.6%;overflow:hidden;text-align:left;
   --m1:color-mix(in srgb,var(--rc) 32%,var(--silver-hi));--m2:color-mix(in srgb,var(--rc) 52%,var(--silver-lo));
   background:linear-gradient(135deg,var(--m1),var(--m2) 26%,var(--m1) 48%,var(--m2) 74%,var(--m1));
-  box-shadow:0 5px 14px color-mix(in srgb,var(--shadow) 65%,transparent),inset 0 0 0 .4cqw color-mix(in srgb,var(--white) 45%,transparent)}
+  box-shadow:0 4px 10px color-mix(in srgb,var(--shadow) 65%,transparent),inset 0 0 0 .4cqw color-mix(in srgb,var(--white) 45%,transparent)}
 .card[data-r=common]{--m1:var(--silver-hi);--m2:var(--silver-lo)}
-.card[data-r=epic],.card[data-r=legendary]{box-shadow:0 0 18px color-mix(in srgb,var(--rc) 50%,transparent),0 5px 14px color-mix(in srgb,var(--shadow) 65%,transparent)}
-.card[data-r=legendary]{background:linear-gradient(120deg,var(--coin-hi),var(--legendary),var(--flame),var(--coin-hi),var(--epic),var(--rare),var(--coin-hi),var(--legendary));background-size:300% 300%;animation:frame 6s linear infinite}
+.card[data-r=legendary]{background:linear-gradient(120deg,var(--gold-hi),var(--legendary),var(--flame),var(--gold-hi),var(--epic),var(--rare),var(--gold-hi),var(--legendary));background-size:300% 300%;animation:frame 6s linear infinite}
 @keyframes frame{to{background-position:300% 0}}
 .card .in{position:absolute;inset:3.6cqw;border-radius:3.6cqw;overflow:hidden;background:var(--card-well);box-shadow:0 0 0 .5cqw color-mix(in srgb,var(--shadow) 60%,transparent)}
 .card .art{position:absolute;inset:0}
 .card .art svg,.card .art img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
 .card .in::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,color-mix(in srgb,var(--shadow) 62%,transparent),transparent 24%,transparent 82%,color-mix(in srgb,var(--shadow) 68%,transparent));box-shadow:inset 0 0 5cqw color-mix(in srgb,var(--shadow) 62%,transparent)}
 .card .nm,.card .tab,.card .bl,.card .br{position:absolute;z-index:2}
-.card .nm{left:4cqw;top:3.4cqw;max-width:59cqw;font-family:var(--display);font-weight:800;font-size:9.4cqw;line-height:1;color:var(--white);overflow-wrap:anywhere;text-shadow:0 .5cqw 1.4cqw var(--shadow),0 0 .8cqw var(--shadow)}
+.card .nm{left:4cqw;top:3.4cqw;max-width:59cqw;font-family:var(--display);font-weight:700;font-size:9.4cqw;line-height:1;color:var(--white);overflow-wrap:anywhere;text-shadow:0 .5cqw 1.4cqw var(--shadow),0 0 .8cqw var(--shadow)}
 .card .tab{top:0;right:0;padding:1.4cqw 4cqw 2cqw 4.6cqw;border-bottom-left-radius:3.6cqw;background:linear-gradient(180deg,var(--m1),var(--m2));
-  font-weight:700;font-size:4.5cqw;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--counter-lo);box-shadow:-.4cqw .4cqw 0 color-mix(in srgb,var(--shadow) 50%,transparent)}
-.card[data-r=legendary] .tab{background:linear-gradient(180deg,var(--coin-hi),var(--legendary))}
+  font-weight:700;font-size:4.5cqw;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--navy-deep);box-shadow:-.4cqw .4cqw 0 color-mix(in srgb,var(--shadow) 50%,transparent)}
+.card[data-r=legendary] .tab{background:linear-gradient(180deg,var(--gold-hi),var(--legendary))}
 .card .bl{left:4cqw;bottom:3.2cqw;font-weight:700;font-size:5.3cqw;line-height:1;letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--rc) 45%,var(--white));text-shadow:0 .3cqw 1cqw var(--shadow)}
 .card .br{right:4cqw;bottom:3.4cqw;font-size:3.9cqw;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:var(--silver);font-variant-numeric:tabular-nums;text-shadow:0 .3cqw 1cqw var(--shadow)}
 .card.photo{background:var(--silver)}
@@ -415,17 +360,16 @@ button.pack:disabled{opacity:.78;filter:grayscale(.25) brightness(.88)}
     0 12px 28px -8px color-mix(in srgb,var(--shadow) 80%,transparent);
 }
 .cell{
-  position:relative;display:block;width:100%;background:none;border:0;padding:0;border-radius:6px;
-  transition:transform .16s cubic-bezier(.2,.8,.2,1),filter .16s;
+  position:relative;display:block;width:100%;background:none;border:0;padding:0;border-radius:4px;
+  transition:transform .15s;
 }
-.cell:hover{transform:translateY(-5px) scale(1.015)}
+.cell:hover{transform:translateY(-3px)}
 .cell .cnt{
-  position:absolute;top:-7px;right:-7px;z-index:3;
-  background:linear-gradient(180deg,var(--coin-hi),var(--coin));
-  color:var(--coin-ink);border:1px solid var(--coin-d);
-  font-family:var(--mono);font-weight:700;font-size:11px;
-  border-radius:99px;padding:1px 7px;font-variant-numeric:tabular-nums;
-  box-shadow:0 3px 8px color-mix(in srgb,var(--shadow) 75%,transparent);
+  position:absolute;top:-6px;right:-6px;z-index:3;
+  background:var(--gold);
+  color:var(--gold-ink);border:1px solid var(--gold-hi);
+  font-weight:700;font-size:11px;
+  border-radius:3px;padding:1px 6px;font-variant-numeric:tabular-nums;
 }
 .slotc{
   position:relative;aspect-ratio:5/7;border-radius:5%/3.6%;
@@ -449,12 +393,12 @@ button.pack:disabled{opacity:.78;filter:grayscale(.25) brightness(.88)}
   padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--rc) 10%,transparent);
 }
 .ghost{
-  background:var(--counter-lo);border:1px solid var(--edge);border-radius:8px;
-  padding:8px 14px;color:var(--dim);font-family:var(--mono);font-size:12px;letter-spacing:.03em;
+  background:transparent;border:1px solid color-mix(in srgb,var(--gold) 55%,var(--edge));border-radius:4px;
+  padding:8px 14px;color:var(--gold-hi);font-family:var(--body);font-weight:600;font-size:13px;
   transition:color .15s,border-color .15s,background-color .15s;
 }
-.ghost:not(:disabled):hover{color:var(--paper);border-color:var(--brass);background:var(--counter)}
-.ghost:disabled{opacity:.5}
+.ghost:not(:disabled):hover{color:var(--ink);border-color:var(--gold);background:var(--navy-hi)}
+.ghost:disabled{border-color:var(--edge);color:var(--muted)}
 .sell{
   background-color:var(--raise);
   background-image:var(--brushed),linear-gradient(180deg,color-mix(in srgb,var(--coin) 18%,var(--raise)) 0%,var(--counter) 100%);
@@ -534,16 +478,21 @@ button.pack:disabled{opacity:.78;filter:grayscale(.25) brightness(.88)}
 }
 .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .primary{
-  background:linear-gradient(180deg,var(--coin-hi) 0%,var(--legendary) 48%,var(--coin-d) 100%);
-  color:var(--coin-ink);border:1px solid var(--brass-hi);border-radius:9px;padding:11px 18px;
-  font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;
-  box-shadow:inset 0 1px 0 var(--coin-hi),0 4px 12px color-mix(in srgb,var(--shadow) 65%,transparent);
+  background:var(--gold);
+  color:var(--gold-ink);border:1px solid var(--gold);border-radius:4px;padding:10px 18px;
+  font-family:var(--body);font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;
+  transition:background-color .15s,border-color .15s;
 }
-.primary:disabled{background:var(--raise);color:var(--dim);border-color:var(--edge);box-shadow:none}
+.primary:not(:disabled):hover{background:var(--gold-hi);border-color:var(--gold-hi)}
+.primary:disabled{background:var(--navy-raise);color:var(--muted);border-color:var(--edge)}
 .actions .ghost{padding:11px 18px;font-size:14px}
-@media (max-width:520px){
-  header{padding:14px}
-  .wallet{width:100%;justify-content:space-between}
+@media (max-width:600px){
+  header{gap:6px 10px;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+  .wallet{padding:4px 8px;gap:8px}
+  .wallet .bal{font-size:15px;padding-right:8px}
+  .wallet .next{font-size:10.5px}
+  .nav{order:3;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--edge)}
+  .nav button{padding:8px 6px;font-size:13.5px}
   .stats{gap:8px}
   .stats div{padding:10px}
   .rack{grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
@@ -574,23 +523,27 @@ button.pack:disabled{opacity:.78;filter:grayscale(.25) brightness(.88)}
   <linearGradient id="holo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7ac8"/><stop offset=".25" stop-color="#ffe27a"/><stop offset=".5" stop-color="#7dffb2"/><stop offset=".75" stop-color="#6fd6ff"/><stop offset="1" stop-color="#b68cff"/></linearGradient>
 </defs></svg>
 
-<div class="wrap">
-  <header>
-    <div>
-      <h1>CT <span>Ripz</span></h1>
-      <p class="sub">Buy packs, pull cards, sell your duplicates and fill all eight 100-card binders.</p>
-    </div>
-    <div class="wallet">
-      <div class="bal"><i class="coin"></i><span id="nCoins">0</span></div>
-      <div class="next"><span>+<b id="nPay"></b> coins in <b id="nNext">0:30</b></span><span class="meter"><i id="meter"></i></span></div>
-    </div>
-  </header>
-
+<header>
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 28 28" aria-hidden="true">
+      <rect x="2" y="2" width="24" height="24" rx="2.5" fill="var(--navy-hi)" stroke="var(--gold)" stroke-width="1.5"/>
+      <path d="M6.5 9h15M6.5 19h15" stroke="var(--gold)" stroke-width=".75" opacity=".45"/>
+      <path d="M12.5 10.8a3.6 3.6 0 1 0 0 6.4M14.5 10.4h5M17 10.4v7.2" fill="none" stroke="var(--gold-hi)" stroke-width="1.75" stroke-linecap="square"/>
+    </svg>
+    <h1>CT <span>Ripz</span></h1>
+  </div>
   <nav class="nav" id="nav" aria-label="Sections">
     <button type="button" data-v="home">Home</button>
     <button type="button" data-v="store">Store</button>
     <button type="button" data-v="inv">Inventory</button>
   </nav>
+  <div class="wallet">
+    <div class="bal"><i class="coin"></i><span id="nCoins">0</span></div>
+    <div class="next"><span>+<b id="nPay"></b> coins in <b id="nNext">0:30</b></span><span class="meter"><i id="meter"></i></span></div>
+  </div>
+</header>
+
+<div class="wrap">
 
   <div class="view" id="v-home">
     <div class="stats">
