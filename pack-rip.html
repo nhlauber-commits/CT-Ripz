@@ -662,7 +662,7 @@ const TIERS=[
   {name:'Triple',n:3,cost:270,note:'3 cards, save 10%'},
   {name:'Mega',n:5,cost:425,note:'5 cards, at least one Rare or better',min:2}
 ];
-const START=1000,PAY=1000,WAIT=30000;
+const START=1000,PAY=1000,WAIT=60000,CAP=5000; // free coins every minute, only while the balance is under CAP
 // Each theme: d = one string per rarity (40 / 28 / 18 / 10 / 4 cards), written as "artKey:Name,Name;artKey:Name"
 const T=[
 {id:'monsters',name:'Monsters',a:'#e2452f',b:'#f2a922',h:[15,200,130,275,45],em:'Solardrake',
@@ -968,14 +968,15 @@ function packEl(t,ti,tag){
   return p;
 }
 function renderWallet(){
-  const left=Math.max(0,WAIT-(Date.now()-S.last));
+  const capped=S.coins>=CAP,left=capped?WAIT:Math.max(0,WAIT-(Date.now()-S.last)),sec=Math.ceil(left/1000);
   $('nCoins').textContent=S.coins.toLocaleString('en-US');
-  $('nPay').textContent=PAY.toLocaleString('en-US');
-  $('nNext').textContent='0:'+String(Math.ceil(left/1000)).padStart(2,'0');
-  $('meter').style.width=(100-left/WAIT*100)+'%';
+  const line=document.querySelector('.wallet .next span');
+  if(line)line.innerHTML=capped?`Free coins paused at <b>${CAP.toLocaleString('en-US')}</b>`:`+<b>${PAY.toLocaleString('en-US')}</b> coins in <b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>`;
+  $('meter').style.width=(capped?0:100-left/WAIT*100)+'%';
 }
 function tick(){
-  if(Date.now()-S.last>=WAIT){S.coins+=PAY;S.last=Date.now();save();if(view=='store')renderOffers()}
+  if(S.coins>=CAP)S.last=Date.now(); // no free coins at or above the cap; the minute restarts once the balance drops below it
+  else if(Date.now()-S.last>=WAIT){S.coins+=PAY;S.last=Date.now();save();if(view=='store')renderOffers()}
   renderWallet();
 }
 function renderRack(){

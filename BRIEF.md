@@ -11,7 +11,7 @@ You are redoing the **visual design of the interface only**. The game and the ca
 ## Do not change (the game's parameters)
 - 8 themes, 100 cards each, split 40 Common / 28 Uncommon / 18 Rare / 10 Epic / 4 Legendary. Keep every card name, theme, category key and label in `T` exactly.
 - Rarity odds and sell prices in `R`; the three pack tiers in `TIERS` (Single 1 card 100, Triple 3 cards 270, Mega 5 cards 425 with one Rare or better).
-- Coins: start 1000, +1000 automatically every 30 seconds (`START`, `PAY`, `WAIT`).
+- Coins: start 1000, +1000 automatically every 60 seconds, but only while the balance is under 5000 (`START`, `PAY`, `WAIT`, `CAP`).
 - Three tabs: Home, Store, Inventory. Pack opening overlay with flip reveal. Selling duplicates. Saved state in localStorage under the same key and shape.
 - `IMG` override: the Honda Prelude card shows `prelude.jpg` as its whole face. Keep that working.
 - The Monsters theme uses original creatures only. No Pokémon names, characters or likenesses.
