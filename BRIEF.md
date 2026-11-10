@@ -4,7 +4,7 @@
 You are redoing the **visual design of the interface only**. The game and the card artwork stay as they are.
 
 ## Scope for this job
-- Do NOT change the card art code: `art()`, `motif()`, `monster()`, `car()`, the `M` drawing table, the `ART` and `IMG` lists, or anything in `art/`. Painted card images are being added separately.
+- Do NOT change the card art code: `art()`, `motif()`, `monster()`, `car()`, `sport()`, the `M` and `PROP` drawing tables, the `ART` and `IMG` lists, or anything in `art/`. Painted card images are being added separately.
 - You may restyle the card frame (`.card` CSS) lightly, but keep its layout.
 - Work in small, separate edits (one area of the interface at a time). Do not rewrite the whole file in one edit.
 
@@ -29,8 +29,6 @@ You are redoing the **visual design of the interface only**. The game and the ca
 - Every colour comes from CSS custom properties on `:root`; the page sets its own background. A single dark look is fine.
 
 ## What good looks like
-- Card art: **each theme has its own art direction and its own backdrops**, and cards inside a theme vary too. No cosmic/nebula/starfield backdrop except where it truly fits one card. Think materials and places: turf, hardwood court, infield clay, stadium lights; circuit boards, blueprint grids, brushed aluminium; banknote guilloche, ticker tape, ledger paper, vault steel; asphalt, garage, sunset road, track kerbs; chrome, neon, vapour; zellige tile, arabesque, carved stone, parchment; lab glass, pharmacy shelves, botanical paper; monster habitats (cave, reef, forest, storm, glacier).
-- Subjects more realistic and less cartoonish: real proportions, gradients, shading, highlights, material texture.
 - Interface: visually appealing and **textured** (grain, paper, metal, felt, foil), with real typographic hierarchy. Not flat panels. Avoid generic looks: purple-blue gradient heroes, everything centred, identical rounded cards everywhere.
 - Keep the card layout family: metal frame tinted by rarity, full-bleed art, name top-left, rarity tab notched top-right, rarity bottom-left.
 
