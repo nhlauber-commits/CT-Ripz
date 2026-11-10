@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run check)",
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(npm install)",
+      "Bash(node tools/run-check.mjs)",
+      "Bash(sh check.sh)"
+    ],
+    "deny": [
+      "Edit(check.sh)",
+      "Read(.env)",
+      "Edit(.env)"
+    ]
+  },
+  "enabledMcpjsonServers": ["higgsfield"]
+}
