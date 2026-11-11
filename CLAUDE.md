@@ -13,7 +13,8 @@ both exist:
 | Path | What it is |
 |---|---|
 | `pack-rip.html` | The current, playable game. One self-contained file. Source of truth for game data and behaviour. |
-| `src/` | The React version (Vite). Only a shell so far; game code gets ported here as components. The redesign happens here. |
+| `src/` | The React version (Vite + Tailwind CSS v4). Only a shell so far; game code gets ported here as components. The redesign happens here. |
+| `src/styles.css` | Tailwind import and the colour tokens (`@theme`): `bg-navy`, `text-gold`, `border-legendary` etc. Add new colours there, not as raw hex in components. |
 | `public/art/` | Card art (Higgsfield, made by Nick), plus `prelude.jpg`. Both versions load images from here. |
 | `public/textures/` | Background and surface textures for the React version (Higgsfield, made by Nick). |
 | `BRIEF.md` | The owner's design brief: art direction, fonts, logo, rules. |
