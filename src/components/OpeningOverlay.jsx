@@ -139,7 +139,7 @@ function cardStage(st) {
     r: r.id,
     slotCls: 'slot n1',
     slot: (
-      <div key={c.key + ':' + st.focus} className="flip up">
+      <div key={c.key} className="flip up">
         <Card c={c} />
         <span className={n > 1 ? 'new' : 'dupe-badge'}>OWNED ×{n}</span>
       </div>
@@ -185,7 +185,8 @@ export default function OpeningOverlay() {
   // Each new set of buttons puts the keyboard on the first one that can be pressed.
   useEffect(() => {
     if (!focus) return
-    const f = actions.current.querySelector('button:not(:disabled)')
+    const keep = actions.current.querySelectorAll('button')[ui.stage && ui.stage.focusIdx]
+    const f = keep && !keep.disabled ? keep : actions.current.querySelector('button:not(:disabled)')
     if (f) f.focus()
   }, [focus])
 

@@ -1,14 +1,46 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { R } from '../data/game.js'
-import { ui, own, found, dupeValue, sellAll, setFilter, setSearch, setSort, toggleOwned, toggleDupes } from '../state/game.js'
+import { ui, own, found, dupeValue, dupeCount, sellAll, setFilter, setSearch, setSort, toggleOwned, toggleDupes } from '../state/game.js'
 import Coins from './Coins.jsx'
 import Rack from './Rack.jsx'
 import Binder from './Binder.jsx'
 
+// "Sell all duplicates" sells across all eight themes, so it asks for a second tap within three seconds.
+function SellAllButton() {
+  const [armed, setArmed] = useState(false)
+  const timer = useRef(null)
+  useEffect(() => () => clearTimeout(timer.current), [])
+  const dv = dupeValue()
+  function click() {
+    if (!armed) {
+      setArmed(true)
+      timer.current = setTimeout(() => setArmed(false), 3000)
+      return
+    }
+    clearTimeout(timer.current)
+    setArmed(false)
+    sellAll()
+  }
+  return (
+    <button className="sell" id="sellAll" type="button" disabled={!dv} onClick={click}>
+      {!dv ? (
+        'No duplicates to sell'
+      ) : armed ? (
+        <>
+          Tap again to sell {dupeCount()} from all themes · +<Coins n={dv} />
+        </>
+      ) : (
+        <>
+          Sell all duplicates · +<Coins n={dv} />
+        </>
+      )}
+    </button>
+  )
+}
+
 export default function Inventory() {
   const { cur, filter } = ui
   const search = useRef(null)
-  const dv = dupeValue()
   const baseRarity = filter < 0 ? cur.cards : cur.cards.filter((c) => c.ri === filter)
   return (
     <>
@@ -21,15 +53,7 @@ export default function Inventory() {
           <h2 id="binderTitle">
             {cur.name} binder · {found(cur)}/{cur.cards.length}
           </h2>
-          <button className="sell" id="sellAll" type="button" disabled={!dv} onClick={sellAll}>
-            {dv ? (
-              <>
-                Sell all duplicates · +<Coins n={dv} />
-              </>
-            ) : (
-              'No duplicates to sell'
-            )}
-          </button>
+          <SellAllButton />
         </div>
         <div className="inv-tools">
           <div className="search-wrap">

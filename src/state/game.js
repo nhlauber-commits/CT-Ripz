@@ -88,6 +88,15 @@ function roll(min = 0) {
   }
   return min
 }
+export function dupeCount() {
+  let n = 0
+  T.forEach((t) =>
+    t.cards.forEach((c) => {
+      if (own(c) > 1) n += own(c) - 1
+    }),
+  )
+  return n
+}
 export function dupeValue() {
   let v = 0
   T.forEach((t) =>
@@ -96,15 +105,6 @@ export function dupeValue() {
     }),
   )
   return v
-}
-function dupeCount() {
-  let n = 0
-  T.forEach((t) =>
-    t.cards.forEach((c) => {
-      if (own(c) > 1) n += own(c) - 1
-    }),
-  )
-  return n
 }
 export function getFilteredBinder() {
   const { cur, filter, ownedOnly, dupesOnly, sortBy } = ui
@@ -151,6 +151,7 @@ export function setView(v) {
   refresh()
 }
 export function pickTheme(t, fromHome) {
+  if (t !== ui.cur) clearBinderFilters()
   ui.cur = t
   ui.filter = -1
   if (fromHome) ui.view = 'inv'
@@ -181,11 +182,15 @@ export function toggleDupes() {
   ui.dupesOnly = !ui.dupesOnly
   emit()
 }
-export function resetBinderFilters() {
+// Search, rarity and ownership filters go back to showing everything. The sort order is kept.
+function clearBinderFilters() {
   ui.filter = -1
   ui.searchQuery = ''
   ui.ownedOnly = false
   ui.dupesOnly = false
+}
+export function resetBinderFilters() {
+  clearBinderFilters()
   emit()
 }
 
@@ -210,11 +215,12 @@ export function sellOne(c) {
   S.coins += r.sell
   save()
   refresh()
-  showCard(c)
+  showCard(c, null, 1)
   toast(`Sold 1 duplicate of ${c.n} for ${r.sell.toLocaleString('en-US')} coins`)
 }
 export function resetGame() {
   S = { coins: START, opened: 0, owned: {}, last: Date.now(), recent: [] }
+  clearBinderFilters()
   save()
   refresh()
   toast('Collection reset — started fresh with 1,000 coins')
@@ -332,20 +338,28 @@ export function sellPackDupes() {
   refresh()
   toast(`Sold ${nSold} duplicate${nSold == 1 ? '' : 's'} for ${gained.toLocaleString('en-US')} coins`)
 }
-export function showCard(c, list) {
+// In the binder, Previous / Next follow the filters as they are now. The card on show stays in
+// the list even if a sale means it no longer matches; it drops out once the player steps away.
+function syncNav(c) {
+  const fresh = getFilteredBinder().filter(own)
+  if (!fresh.includes(c)) fresh.splice(Math.min(Math.max(cardNavList.indexOf(c), 0), fresh.length), 0, c)
+  cardNavList = fresh
+}
+// focusIdx: the button that keeps the keyboard focus, when it can still be pressed.
+export function showCard(c, list, focusIdx) {
   if (busy) return
   if (Array.isArray(list)) cardNavList = list.filter(own)
-  else if (!cardNavList.length || !cardNavList.includes(c))
-    cardNavList = (ui.view === 'inv' ? getFilteredBinder() : ui.cur.cards).filter(own)
-  ui.stage = { kind: 'card', c, focus: ++focusN }
+  else if (ui.view === 'inv') syncNav(c)
+  else if (!cardNavList.length || !cardNavList.includes(c)) cardNavList = ui.cur.cards.filter(own)
+  ui.stage = { kind: 'card', c, focus: ++focusN, focusIdx }
   emit()
 }
 export function stepCard(d) {
   const st = ui.stage
   if (busy || !st || st.kind != 'card') return false
   const idx = cardNavList.indexOf(st.c)
-  if (d < 0 && idx > 0) showCard(cardNavList[idx - 1])
-  else if (d > 0 && idx >= 0 && idx < cardNavList.length - 1) showCard(cardNavList[idx + 1])
+  if (d < 0 && idx > 0) showCard(cardNavList[idx - 1], null, 0)
+  else if (d > 0 && idx >= 0 && idx < cardNavList.length - 1) showCard(cardNavList[idx + 1], null, 2)
   else return false
   return true
 }

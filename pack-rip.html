@@ -1113,7 +1113,7 @@ function renderRack(){
       const n=found(t),b=el('button');b.type='button';if(!home)b.setAttribute('aria-pressed',t===cur);
       b.style.setProperty('--a',t.a);b.style.setProperty('--b',t.b);
       b.innerHTML=`${emblem(t)}<b>${esc(t.name)}</b><small>${n}/${t.cards.length}</small><span class="bar"><i style="width:${n/t.cards.length*100}%"></i></span>`;
-      b.onclick=()=>{cur=t;filter=-1;if(home)view='inv';refresh()};k.append(b);
+      b.onclick=()=>{if(t!==cur)clearBinderFilters();cur=t;filter=-1;if(home)view='inv';refresh()};k.append(b);
     });
   });
 }
@@ -1176,14 +1176,16 @@ function getFilteredBinder(){
     return a.i-b.i;
   });
 }
-function resetBinderFilters(){
+// Search, rarity and ownership filters go back to showing everything. The sort order is kept.
+function clearBinderFilters(){
   filter=-1;searchQuery='';ownedOnly=false;dupesOnly=false;
   const inp=$('invSearch');if(inp)inp.value='';
-  renderBinder();
 }
+function resetBinderFilters(){clearBinderFilters();renderBinder()}
 function renderBinder(){
   $('binderTitle').textContent=`${cur.name} binder · ${found(cur)}/${cur.cards.length}`;
-  const dv=dupeValue(),sb=$('sellAll');sb.disabled=!dv;sb.innerHTML=dv?`Sell all duplicates · +${coins(dv)}`:'No duplicates to sell';
+  const dv=dupeValue(),sb=$('sellAll');if(!dv&&sellArmed){clearTimeout(sellArmed);sellArmed=null}
+  sb.disabled=!dv;sb.innerHTML=!dv?'No duplicates to sell':sellArmed?`Tap again to sell ${dupeCount()} from all themes · +${coins(dv)}`:`Sell all duplicates · +${coins(dv)}`;
   const clr=$('invClear');if(clr)clr.hidden=!searchQuery.length;
   const srt=$('invSort');if(srt&&srt.value!==sortBy)srt.value=sortBy;
   const baseRarity=filter<0?cur.cards:cur.cards.filter(c=>c.ri===filter);
@@ -1240,7 +1242,7 @@ function refresh(){
 let ripTimers=[],finishReveal=null;
 function clearRipTimers(){ripTimers.forEach(clearTimeout);ripTimers=[]}
 function later(fn,ms){const id=setTimeout(fn,ms);ripTimers.push(id);return id}
-function setActions(list){const a=$('actions');a.innerHTML='';list.forEach(b=>{const e=el('button',b.cls);e.type='button';e.innerHTML=b.html;e.disabled=!!b.off;if(b.fn)e.onclick=b.fn;a.append(e)});a.hidden=false;const f=a.querySelector('button:not(:disabled)');if(f)f.focus()}
+function setActions(list,fi){const a=$('actions');a.innerHTML='';list.forEach(b=>{const e=el('button',b.cls);e.type='button';e.innerHTML=b.html;e.disabled=!!b.off;if(b.fn)e.onclick=b.fn;a.append(e)});a.hidden=false;const bs=a.querySelectorAll('button'),f=fi!=null&&bs[fi]&&!bs[fi].disabled?bs[fi]:a.querySelector('button:not(:disabled)');if(f)f.focus()} // fi: the button that keeps the keyboard focus, when it can still be pressed
 function openPack(ti){
   const tier=TIERS[ti],t=cur;
   if(busy||S.coins<tier.cost)return;busy=true;activeCard=null;
@@ -1323,11 +1325,19 @@ function openPack(ti){
     later(()=>{if(finishReveal)finishReveal()},120+tier.n*480+500);
   },900);
 }
-function showCard(c,navList){
+// In the binder, Previous / Next follow the filters as they are now. The card on show stays in
+// the list even if a sale means it no longer matches; it drops out once the player steps away.
+function syncNav(c){
+  const fresh=getFilteredBinder().filter(own);
+  if(!fresh.includes(c))fresh.splice(Math.min(Math.max(cardNavList.indexOf(c),0),fresh.length),0,c);
+  cardNavList=fresh;
+}
+function showCard(c,navList,fi){
   if(busy)return;
   activeCard=c;
   if(Array.isArray(navList))cardNavList=navList.filter(own);
-  else if(!cardNavList.length||!cardNavList.includes(c))cardNavList=(view==='inv'?getFilteredBinder():cur.cards).filter(own);
+  else if(view==='inv')syncNav(c);
+  else if(!cardNavList.length||!cardNavList.includes(c))cardNavList=cur.cards.filter(own);
   const idx=cardNavList.indexOf(c),tot=cardNavList.length;
   const slot=$('slot'),res=$('result'),n=own(c),r=R[c.ri];
   $('stage').hidden=false;slot.className='slot n1';slot.innerHTML='';
@@ -1338,11 +1348,11 @@ function showCard(c,navList){
   res.dataset.r=r.id;
   res.innerHTML=`<b>${esc(c.n)} · ${r.name}</b><span>${esc(c.t.g[c.k])} · ${num(c)} · You own ${n} ${n==1?'copy':'copies'} · Duplicate sells for ${coins(r.sell)}${pos}</span>`;
   setActions([
-    {cls:'ghost',html:'← Previous',off:idx<=0,fn:()=>{if(idx>0)showCard(cardNavList[idx-1])}},
-    {cls:'primary',html:n>1?`Sell one duplicate · +${coins(r.sell)}`:'Only copy, nothing to sell',off:n<2,fn:()=>{S.owned[c.key]=n-1;S.coins+=r.sell;save();refresh();showCard(c);toast(`Sold 1 duplicate of ${c.n} for ${r.sell.toLocaleString('en-US')} coins`)}},
-    {cls:'ghost',html:'Next →',off:idx<0||idx>=tot-1,fn:()=>{if(idx>=0&&idx<tot-1)showCard(cardNavList[idx+1])}},
+    {cls:'ghost',html:'← Previous',off:idx<=0,fn:()=>{if(idx>0)showCard(cardNavList[idx-1],null,0)}},
+    {cls:'primary',html:n>1?`Sell one duplicate · +${coins(r.sell)}`:'Only copy, nothing to sell',off:n<2,fn:()=>{S.owned[c.key]=n-1;S.coins+=r.sell;save();refresh();showCard(c,null,1);toast(`Sold 1 duplicate of ${c.n} for ${r.sell.toLocaleString('en-US')} coins`)}},
+    {cls:'ghost',html:'Next →',off:idx<0||idx>=tot-1,fn:()=>{if(idx>=0&&idx<tot-1)showCard(cardNavList[idx+1],null,2)}},
     {cls:'ghost',html:'Close',fn:closeStage}
-  ]);
+  ],fi);
 }
 function closeStage(){if(busy){if(finishReveal)finishReveal();return}activeCard=null;$('stage').hidden=true;$('slot').innerHTML=''}
 $('stage').addEventListener('click',e=>{
@@ -1354,8 +1364,8 @@ document.addEventListener('keydown',e=>{
   if(finishReveal&&(e.key===' '||e.key==='Enter'||e.key==='Escape')){e.preventDefault();finishReveal();return}
   if(!busy&&activeCard&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
     const idx=cardNavList.indexOf(activeCard);
-    if(e.key==='ArrowLeft'&&idx>0){e.preventDefault();showCard(cardNavList[idx-1])}
-    else if(e.key==='ArrowRight'&&idx>=0&&idx<cardNavList.length-1){e.preventDefault();showCard(cardNavList[idx+1])}
+    if(e.key==='ArrowLeft'&&idx>0){e.preventDefault();showCard(cardNavList[idx-1],null,0)}
+    else if(e.key==='ArrowRight'&&idx>=0&&idx<cardNavList.length-1){e.preventDefault();showCard(cardNavList[idx+1],null,2)}
     return;
   }
   if(e.key==='Escape')closeStage();
@@ -1378,8 +1388,12 @@ $('invClear').onclick=()=>{searchQuery='';$('invSearch').value='';renderBinder()
 $('invSort').onchange=function(){sortBy=this.value;renderBinder()};
 $('togOwned').onclick=()=>{ownedOnly=!ownedOnly;renderBinder()};
 $('togDupes').onclick=()=>{dupesOnly=!dupesOnly;renderBinder()};
+// Sells duplicates in all eight themes, so it asks for a second tap within three seconds.
+let sellArmed=null;
 $('sellAll').onclick=()=>{
   const v=dupeValue(),n=dupeCount();if(!v)return;
+  if(!sellArmed){sellArmed=setTimeout(()=>{sellArmed=null;if(view=='inv')renderBinder()},3000);renderBinder();return}
+  clearTimeout(sellArmed);sellArmed=null;
   Object.keys(S.owned).forEach(k=>{if(S.owned[k]>1)S.owned[k]=1});
   S.coins+=v;save();refresh();
   toast(`Sold ${n} duplicate${n==1?'':'s'} for ${v.toLocaleString('en-US')} coins`);
@@ -1387,7 +1401,7 @@ $('sellAll').onclick=()=>{
 let armed=null;
 $('reset').onclick=function(){
   if(!armed){this.textContent='Tap again to wipe coins and cards';armed=setTimeout(()=>{armed=null;this.textContent='Start over'},3000);return}
-  clearTimeout(armed);armed=null;this.textContent='Start over';S={coins:START,opened:0,owned:{},last:Date.now(),recent:[]};save();refresh();
+  clearTimeout(armed);armed=null;this.textContent='Start over';S={coins:START,opened:0,owned:{},last:Date.now(),recent:[]};clearBinderFilters();save();refresh();
   toast('Collection reset — started fresh with 1,000 coins');
 };
 refresh();
