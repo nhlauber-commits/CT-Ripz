@@ -40,7 +40,8 @@ const a=process.argv.slice(2);
 vm.runInThisContext(a[0]==='-e'?a[1]:readFile(a[0]));
 `)
 const node = process.execPath.replace(/\\/g, '/')
-writeFileSync(`${dir}/jsc`, `#!/bin/sh\nexec "${node}" "${shim}" "$@"\n`)
+// mode 0o755: Linux and macOS refuse to run the stand-in without the execute bit.
+writeFileSync(`${dir}/jsc`, `#!/bin/sh\nexec "${node}" "${shim}" "$@"\n`, { mode: 0o755 })
 const script = readFileSync('check.sh', 'utf8').replace(/^JSC=.*$/m, `JSC="${dir}/jsc"`)
 writeFileSync(`${dir}/check.sh`, script)
 
