@@ -1,13 +1,14 @@
 # CT Ripz
 
 A card-pack opening game: 8 themes of 100 cards, three pack tiers, a coin wallet,
-Home / Store / Inventory tabs, and a flip-reveal opening overlay.
+Home / Store / Inventory / Stats tabs, and a flip-reveal opening overlay.
 
-**Current priority: a unique, elaborate, textured visual identity ("The Vault").**
-A plain or blank-looking result is a failed result, however tidy it is.
+**Current priority: a vibrant, textured, high-contrast, very stimulating look ("Hyperprint").**
+A plain, flat or quiet result is a failed result, however tidy it is.
 
 The game is moving from one HTML file (`pack-rip.html`, playable, source of truth for game
-data and behaviour) to a React app in `src/` (a shell so far; the redesign happens there).
+data and behaviour, still in the old navy and gold look) to a React app in `src/` (playable,
+and where the Hyperprint design lives).
 
 ## How context is organised
 1. **This file**: always loaded. Only what applies to every task.
@@ -31,13 +32,15 @@ data and behaviour) to a React app in `src/` (a shell so far; the redesign happe
   Mega 5 cards 425 with one Rare or better.
 - Coins: start 1000, +1000 every 60 seconds only while under 5000 (`START`, `PAY`, `WAIT`, `CAP`).
 - Save stays in localStorage under `packrip-v2`, same shape. New fields optional; old saves load.
+  Player history is one optional `stats` object (`src/state/stats.js`).
 - Monsters theme: original creatures only, no Pokémon names or likenesses.
   Islam theme: no depictions of people.
-- Look: navy and gold, elaborate and textured. Fonts: Big Shoulders Display, Big Shoulders
-  Inline Display (wordmark only), Libre Franklin. Rarity colours only as small accents.
+- Look (React app): ink and cream with hot pink, cyan, yellow, orange, lime and violet; halftone,
+  sunburst rays, stripes and grain; sticker panels with thick outlines and hard offset shadows.
+  Fonts: Dela Gothic One (titles), Anton (display), Bricolage Grotesque (body).
   Every colour from CSS custom properties.
 - No `alert`, `confirm` or `prompt`. Every control works with keyboard and touch, has a
-  visible focus state, and is at least 40px tall on phones. Works at 375px wide with no
+  visible focus state, and is at least 44px tall on phones. Works at 375px wide with no
   horizontal scroll. Respect `prefers-reduced-motion`.
 
 ## Images
