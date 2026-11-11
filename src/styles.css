@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* Tailwind colour tokens, taken from pack-rip.html's :root (the approved navy and gold).
+   They become CSS variables (--color-navy, --color-gold ...) and classes such as
+   bg-navy, bg-navy-raise, text-gold, border-gold, text-ink, border-legendary. */
+@theme {
+  --color-navy-deep: #060c18;
+  --color-navy: #0b1528;
+  --color-navy-hi: #111f38;
+  --color-navy-raise: #182a4a;
+  --color-edge: #22365a;
+  --color-edge-hi: #314b78;
+  --color-gold: #d4af37;
+  --color-gold-hi: #ecd074;
+  --color-gold-lo: #7a5d17;
+  --color-gold-ink: #07101e;
+  --color-ink: #f4efe4;
+  --color-common: #9aa7b8;
+  --color-uncommon: #45c782;
+  --color-rare: #4a9eff;
+  --color-epic: #b370ff;
+  --color-legendary: #f2be38;
+}
+
+/* Placeholder tokens matching the approved navy and gold look.
+   Copy the real values from pack-rip.html's :root when porting. */
+:root {
+  --navy-0: #0b1a33;
+  --navy-1: #11244a;
+  --gold: #c9a227;
+  --text: #f3efe4;
+  --gutter: max(16px, env(safe-area-inset-left));
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--navy-0);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px var(--gutter);
+  background: var(--navy-1);
+  border-bottom: 1px solid var(--gold);
+}
+h1 { font-family: 'Fraunces', serif; margin: 0; }
+h1 span { color: var(--gold); }
+.tab {
+  min-height: 40px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.tab.on { border-color: var(--gold); color: var(--gold); }
+.tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.view { padding: 24px var(--gutter); }
