@@ -325,8 +325,42 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
 .tilt .foil::before{animation:none!important}
 
 /* binder */
-.tabs{display:flex;flex-wrap:wrap;gap:6px}
-.tabs button{
+.inv-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.search-wrap{position:relative;flex:1 1 220px;display:flex;align-items:center}
+.search{
+  width:100%;min-height:40px;
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  color:var(--ink);font:inherit;font-size:14px;
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));border-radius:4px;
+  padding:8px 34px 8px 12px;
+  transition:border-color .15s,background-color .15s;
+}
+.search::placeholder{color:var(--muted)}
+.search:hover{border-color:color-mix(in srgb,var(--gold) 55%,var(--edge))}
+.search:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px;border-color:var(--gold);background-color:var(--navy-raise)}
+.search-clear{
+  position:absolute;right:4px;min-width:32px;min-height:32px;
+  background:none;border:0;border-radius:3px;color:var(--dim);font-size:16px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.search-clear:hover{color:var(--ink);background:var(--navy-deep)}
+.sort-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sort{
+  min-height:40px;
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  color:var(--ink);font:inherit;font-size:13px;font-weight:600;
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));border-radius:4px;
+  padding:8px 12px;cursor:pointer;
+  transition:border-color .15s,background-color .15s;
+}
+.sort:hover{border-color:color-mix(in srgb,var(--gold) 55%,var(--edge));background-color:var(--navy-raise)}
+.sort:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px;border-color:var(--gold)}
+.inv-filters{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px}
+.tabs,.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button,.toggles button{
+  min-height:40px;
   background-color:var(--navy-hi);
   background-image:var(--grain);
   border:1px solid var(--edge);
@@ -335,13 +369,24 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
   display:flex;align-items:center;gap:7px;
   transition:color .15s,border-color .15s,background-color .15s;
 }
-.tabs button:hover{color:var(--ink);border-color:color-mix(in srgb,var(--gold) 55%,var(--edge));background-color:var(--navy-raise)}
+.toggles button{border-color:color-mix(in srgb,var(--gold) 35%,var(--edge));color:var(--ink)}
+.tabs button:hover,.toggles button:hover{color:var(--ink);border-color:color-mix(in srgb,var(--gold) 55%,var(--edge));background-color:var(--navy-raise)}
 .tabs button i{width:7px;height:7px;border-radius:50%;background:var(--rc)}
-.tabs button[aria-pressed=true]{
+.tabs button[aria-pressed=true],.toggles button[aria-pressed=true]{
   background-color:var(--gold);
   color:var(--gold-ink);border-color:var(--gold-hi);font-weight:700;
 }
 .tabs button[aria-pressed=true] i{box-shadow:0 0 0 1.5px var(--gold-ink)}
+.binder-empty{
+  grid-column:1/-1;
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));
+  border-radius:4px;padding:24px 20px;color:var(--dim);
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
+}
+.binder-empty b{display:block;font-family:var(--display);font-size:17px;color:var(--ink);margin-bottom:4px}
+.binder-empty-actions{display:flex;flex-wrap:wrap;gap:8px}
 .binder{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:14px;
   padding:18px;border-radius:4px;
@@ -608,7 +653,27 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
         <h2 id="binderTitle">Binder</h2>
         <button class="sell" id="sellAll" type="button">Sell all duplicates</button>
       </div>
-      <div class="tabs" id="tabs"></div>
+      <div class="inv-tools">
+        <div class="search-wrap">
+          <input class="search" id="invSearch" type="search" placeholder="Search cards in this binder by name…" aria-label="Search cards by name" autocomplete="off">
+          <button class="search-clear" id="invClear" type="button" aria-label="Clear search" hidden>×</button>
+        </div>
+        <label class="sort-wrap" for="invSort">
+          <span class="label">Sort by</span>
+          <select class="sort" id="invSort">
+            <option value="num">Card number (#001–100)</option>
+            <option value="rarity">Rarity (high to low)</option>
+            <option value="copies">Most copies</option>
+          </select>
+        </label>
+      </div>
+      <div class="inv-filters">
+        <div class="tabs" id="tabs" role="group" aria-label="Filter by rarity"></div>
+        <div class="toggles" role="group" aria-label="Filter by ownership">
+          <button type="button" id="togOwned" aria-pressed="false">Owned only</button>
+          <button type="button" id="togDupes" aria-pressed="false">Duplicates only</button>
+        </div>
+      </div>
       <div class="binder" id="binder"></div>
     </section>
   </div>
@@ -910,7 +975,7 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BY={};T.forEach(t=>t.cards.forEach(c=>BY[c.key]=c));
-let cur=T[0],filter=-1,busy=false,view='home';
+let cur=T[0],filter=-1,searchQuery='',ownedOnly=false,dupesOnly=false,sortBy='num',cardNavList=[],activeCard=null,busy=false,view='home';
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 const own=c=>S.owned[c.key]||0;
 const found=t=>t.cards.filter(own).length;
@@ -944,10 +1009,10 @@ function cardEl(c){
   const pic=d.querySelector('.art img');if(pic)pic.onerror=()=>{ART.delete(c.key);d.replaceWith(cardEl(c))};
   return d;
 }
-function cellEl(c){
+function cellEl(c,navList){
   const n=own(c),b=el('button','cell');b.type='button';b.setAttribute('aria-label',`${c.n}, ${R[c.ri].name}, you own ${n}`);
   b.append(cardEl(c));if(n>1)b.append(el('span','cnt','×'+n));
-  b.onclick=()=>showCard(c);return b;
+  b.onclick=()=>showCard(c,navList);return b;
 }
 function packEl(t,ti,tag){
   const p=el(tag||'div','pack t'+(ti+1));
@@ -983,7 +1048,7 @@ function renderHome(){
   $('nFound').textContent=T.reduce((n,t)=>n+found(t),0)+'/'+TOTAL;
   $('nDupes').innerHTML=coins(dupeValue());
   const rc=$('recent'),list=S.recent.map(k=>BY[k]).filter(c=>c&&own(c));rc.innerHTML='';
-  if(list.length){rc.className='recent';list.forEach(c=>rc.append(cellEl(c)))}
+  if(list.length){rc.className='recent';list.forEach(c=>rc.append(cellEl(c,list)))}
   else{rc.className='empty';rc.append(el('span','','No cards yet. Your newest pulls will show up here.'));const b=el('button','primary','Go to the store');b.type='button';b.onclick=()=>{view='store';refresh()};rc.append(b)}
   fillOdds($('odds'));
 }
@@ -1015,9 +1080,41 @@ function renderOffers(){
   });
   fillOdds($('storeOdds'));
 }
+function getFilteredBinder(){
+  const q=searchQuery.trim().toLowerCase();
+  const list=cur.cards.filter(c=>{
+    if(filter>=0&&c.ri!==filter)return false;
+    if(ownedOnly&&!own(c))return false;
+    if(dupesOnly&&own(c)<2)return false;
+    if(q&&!c.n.toLowerCase().includes(q))return false;
+    return true;
+  });
+  return list.slice().sort((a,b)=>{
+    if(sortBy==='rarity')return b.ri-a.ri||own(b)-own(a)||a.i-b.i;
+    if(sortBy==='copies')return own(b)-own(a)||b.ri-a.ri||a.i-b.i;
+    return a.i-b.i;
+  });
+}
+function resetBinderFilters(){
+  filter=-1;searchQuery='';ownedOnly=false;dupesOnly=false;
+  const inp=$('invSearch');if(inp)inp.value='';
+  renderBinder();
+}
 function renderBinder(){
   $('binderTitle').textContent=`${cur.name} binder · ${found(cur)}/${cur.cards.length}`;
   const dv=dupeValue(),sb=$('sellAll');sb.disabled=!dv;sb.innerHTML=dv?`Sell all duplicates · +${coins(dv)}`:'No duplicates to sell';
+  const clr=$('invClear');if(clr)clr.hidden=!searchQuery.length;
+  const srt=$('invSort');if(srt&&srt.value!==sortBy)srt.value=sortBy;
+  const baseRarity=filter<0?cur.cards:cur.cards.filter(c=>c.ri===filter);
+  const tOwn=$('togOwned'),tDup=$('togDupes');
+  if(tOwn){
+    tOwn.setAttribute('aria-pressed',ownedOnly);
+    tOwn.textContent=`Owned only (${baseRarity.filter(own).length})`;
+  }
+  if(tDup){
+    tDup.setAttribute('aria-pressed',dupesOnly);
+    tDup.textContent=`Duplicates only (${baseRarity.filter(c=>own(c)>1).length})`;
+  }
   const tabs=$('tabs');tabs.innerHTML='';
   [-1,0,1,2,3,4].forEach(ri=>{
     const list=ri<0?cur.cards:cur.cards.filter(c=>c.ri===ri),b=el('button');b.type='button';
@@ -1025,11 +1122,26 @@ function renderBinder(){
     b.append((ri<0?'All':R[ri].name)+' '+list.filter(own).length+'/'+list.length);
     b.setAttribute('aria-pressed',filter===ri);b.onclick=()=>{filter=ri;renderBinder()};tabs.append(b);
   });
+  const filtered=getFilteredBinder(),ownedInView=filtered.filter(own);
   const g=$('binder');g.innerHTML='';
-  cur.cards.forEach(c=>{
-    if(filter>=0&&c.ri!==filter)return;
+  if(!filtered.length){
+    const emp=el('div','binder-empty'),txt=el('div'),acts=el('div','binder-empty-actions');
+    const parts=[];
+    if(searchQuery.trim())parts.push(`matching “${searchQuery.trim()}”`);
+    if(filter>=0)parts.push(`in ${R[filter].name}`);
+    if(dupesOnly)parts.push('with duplicates');
+    else if(ownedOnly)parts.push('that you own');
+    txt.innerHTML=`<b>No cards match your filters</b><span>Found 0 cards in ${esc(cur.name)} ${esc(parts.join(' '))}.</span>`;
+    const rb=el('button','ghost','Reset filters');rb.type='button';rb.onclick=resetBinderFilters;acts.append(rb);
+    if((ownedOnly&&!found(cur))||(dupesOnly&&!cur.cards.some(c=>own(c)>1))){
+      const sb2=el('button','primary',`Open ${cur.name} packs`);sb2.type='button';sb2.onclick=()=>{view='store';refresh()};acts.append(sb2);
+    }
+    emp.append(txt,acts);g.append(emp);
+    return;
+  }
+  filtered.forEach(c=>{
     if(!own(c)){const s=el('div','slotc');s.dataset.r=R[c.ri].id;s.append(el('b','','?'),el('span','',num(c)),el('i','',R[c.ri].name));g.append(s);return}
-    g.append(cellEl(c));
+    g.append(cellEl(c,ownedInView));
   });
 }
 function refresh(){
@@ -1049,7 +1161,7 @@ function later(fn,ms){const id=setTimeout(fn,ms);ripTimers.push(id);return id}
 function setActions(list){const a=$('actions');a.innerHTML='';list.forEach(b=>{const e=el('button',b.cls);e.type='button';e.innerHTML=b.html;e.disabled=!!b.off;if(b.fn)e.onclick=b.fn;a.append(e)});a.hidden=false;const f=a.querySelector('button:not(:disabled)');if(f)f.focus()}
 function openPack(ti){
   const tier=TIERS[ti],t=cur;
-  if(busy||S.coins<tier.cost)return;busy=true;
+  if(busy||S.coins<tier.cost)return;busy=true;activeCard=null;
   clearRipTimers();
   S.coins-=tier.cost;S.opened++;
   const rs=[];for(let i=0;i<tier.n;i++)rs.push(roll());
@@ -1129,15 +1241,28 @@ function openPack(ti){
     later(()=>{if(finishReveal)finishReveal()},120+tier.n*480+500);
   },900);
 }
-function showCard(c){
+function showCard(c,navList){
   if(busy)return;
+  activeCard=c;
+  if(Array.isArray(navList))cardNavList=navList.filter(own);
+  else if(!cardNavList.length||!cardNavList.includes(c))cardNavList=(view==='inv'?getFilteredBinder():cur.cards).filter(own);
+  const idx=cardNavList.indexOf(c),tot=cardNavList.length;
   const slot=$('slot'),res=$('result'),n=own(c),r=R[c.ri];
   $('stage').hidden=false;slot.className='slot n1';slot.innerHTML='';
-  const f=el('div','flip up');f.append(cardEl(c));slot.append(f);
-  res.dataset.r=r.id;res.innerHTML=`<b>${r.name}</b>You own ${n}. Each copy sells for ${coins(r.sell)}`;
-  setActions([{cls:'primary',html:n>1?`Sell one duplicate · +${coins(r.sell)}`:'Only copy, nothing to sell',off:n<2,fn:()=>{S.owned[c.key]=n-1;S.coins+=r.sell;save();refresh();showCard(c);toast(`Sold 1 duplicate of ${c.n} for ${r.sell.toLocaleString('en-US')} coins`)}},{cls:'ghost',html:'Close',fn:closeStage}]);
+  const f=el('div','flip up');f.append(cardEl(c));
+  const bd=el('span',n>1?'new':'dupe-badge',`OWNED ×${n}`);f.append(bd);
+  slot.append(f);
+  const pos=idx>=0&&tot>0?` · Card ${idx+1} of ${tot}`:'';
+  res.dataset.r=r.id;
+  res.innerHTML=`<b>${esc(c.n)} · ${r.name}</b><span>${esc(c.t.g[c.k])} · ${num(c)} · You own ${n} ${n==1?'copy':'copies'} · Duplicate sells for ${coins(r.sell)}${pos}</span>`;
+  setActions([
+    {cls:'ghost',html:'← Previous',off:idx<=0,fn:()=>{if(idx>0)showCard(cardNavList[idx-1])}},
+    {cls:'primary',html:n>1?`Sell one duplicate · +${coins(r.sell)}`:'Only copy, nothing to sell',off:n<2,fn:()=>{S.owned[c.key]=n-1;S.coins+=r.sell;save();refresh();showCard(c);toast(`Sold 1 duplicate of ${c.n} for ${r.sell.toLocaleString('en-US')} coins`)}},
+    {cls:'ghost',html:'Next →',off:idx<0||idx>=tot-1,fn:()=>{if(idx>=0&&idx<tot-1)showCard(cardNavList[idx+1])}},
+    {cls:'ghost',html:'Close',fn:closeStage}
+  ]);
 }
-function closeStage(){if(busy){if(finishReveal)finishReveal();return}$('stage').hidden=true;$('slot').innerHTML=''}
+function closeStage(){if(busy){if(finishReveal)finishReveal();return}activeCard=null;$('stage').hidden=true;$('slot').innerHTML=''}
 $('stage').addEventListener('click',e=>{
   if(finishReveal){if(!e.target.closest||!e.target.closest('#actions button'))finishReveal();return}
   if(e.target===$('stage'))closeStage();
@@ -1145,6 +1270,12 @@ $('stage').addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   if($('stage').hidden)return;
   if(finishReveal&&(e.key===' '||e.key==='Enter'||e.key==='Escape')){e.preventDefault();finishReveal();return}
+  if(!busy&&activeCard&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
+    const idx=cardNavList.indexOf(activeCard);
+    if(e.key==='ArrowLeft'&&idx>0){e.preventDefault();showCard(cardNavList[idx-1])}
+    else if(e.key==='ArrowRight'&&idx>=0&&idx<cardNavList.length-1){e.preventDefault();showCard(cardNavList[idx+1])}
+    return;
+  }
   if(e.key==='Escape')closeStage();
 });
 $('stage').addEventListener('pointermove',e=>{
@@ -1158,6 +1289,11 @@ $('stage').addEventListener('pointerout',e=>{const f=e.target.closest&&e.target.
 /* ================= wallet + tabs ================= */
 setInterval(tick,1000);
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{view=b.dataset.v;refresh()});
+$('invSearch').oninput=function(){searchQuery=this.value;renderBinder()};
+$('invClear').onclick=()=>{searchQuery='';$('invSearch').value='';renderBinder();$('invSearch').focus()};
+$('invSort').onchange=function(){sortBy=this.value;renderBinder()};
+$('togOwned').onclick=()=>{ownedOnly=!ownedOnly;renderBinder()};
+$('togDupes').onclick=()=>{dupesOnly=!dupesOnly;renderBinder()};
 $('sellAll').onclick=()=>{
   const v=dupeValue(),n=dupeCount();if(!v)return;
   Object.keys(S.owned).forEach(k=>{if(S.owned[k]>1)S.owned[k]=1});
