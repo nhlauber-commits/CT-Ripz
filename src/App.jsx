@@ -1,35 +1,33 @@
-import { useState } from 'react'
+import { ui, useGame } from './state/game.js'
+import Defs from './components/Defs.jsx'
+import TopBar from './components/TopBar.jsx'
+import Home from './components/Home.jsx'
+import Store from './components/Store.jsx'
+import Inventory from './components/Inventory.jsx'
+import OpeningOverlay from './components/OpeningOverlay.jsx'
+import Toast from './components/Toast.jsx'
 
-// Shell for the React version of CT Ripz.
-// The playable game still lives in ../pack-rip.html until it is ported here
-// (see PROMPT.md). Each tab becomes its own component in src/components/.
-const TABS = ['Home', 'Store', 'Inventory']
-
+// The React version of CT Ripz, ported from pack-rip.html (see PROMPT.md, Part 1).
 export default function App() {
-  const [tab, setTab] = useState('Home')
-
+  useGame()
+  const { view } = ui
   return (
-    <div className="app">
-      <header className="bar">
-        <h1>CT <span>Ripz</span></h1>
-        <nav role="tablist" aria-label="Sections">
-          {TABS.map((t) => (
-            <button
-              key={t}
-              role="tab"
-              aria-selected={tab === t}
-              className={tab === t ? 'tab on' : 'tab'}
-              onClick={() => setTab(t)}
-            >
-              {t}
-            </button>
-          ))}
-        </nav>
-      </header>
-      <main className="view">
-        <h2>{tab}</h2>
-        <p>Not ported yet. The working game is pack-rip.html.</p>
-      </main>
-    </div>
+    <>
+      <Defs />
+      <TopBar />
+      <div className="wrap">
+        <div className="view" id="v-home" hidden={view != 'home'}>
+          {view == 'home' && <Home />}
+        </div>
+        <div className="view" id="v-store" hidden={view != 'store'}>
+          {view == 'store' && <Store />}
+        </div>
+        <div className="view" id="v-inv" hidden={view != 'inv'}>
+          {view == 'inv' && <Inventory />}
+        </div>
+      </div>
+      <OpeningOverlay />
+      <Toast />
+    </>
   )
 }
