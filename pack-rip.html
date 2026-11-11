@@ -1113,7 +1113,7 @@ function renderRack(){
       const n=found(t),b=el('button');b.type='button';if(!home)b.setAttribute('aria-pressed',t===cur);
       b.style.setProperty('--a',t.a);b.style.setProperty('--b',t.b);
       b.innerHTML=`${emblem(t)}<b>${esc(t.name)}</b><small>${n}/${t.cards.length}</small><span class="bar"><i style="width:${n/t.cards.length*100}%"></i></span>`;
-      b.onclick=()=>{if(t!==cur)clearBinderFilters();cur=t;filter=-1;if(home)view='inv';refresh()};k.append(b);
+      b.onclick=()=>{clearBinderFilters();cur=t;if(home)view='inv';refresh()};k.append(b);
     });
   });
 }
@@ -1325,12 +1325,12 @@ function openPack(ti){
     later(()=>{if(finishReveal)finishReveal()},120+tier.n*480+500);
   },900);
 }
-// In the binder, Previous / Next follow the filters as they are now. The card on show stays in
-// the list even if a sale means it no longer matches; it drops out once the player steps away.
+// In the binder, Previous / Next keep the order the list had when it was opened, minus cards that
+// no longer match the filters. The card on show stays even if a sale means it no longer matches;
+// it drops out once the player steps away.
 function syncNav(c){
-  const fresh=getFilteredBinder().filter(own);
-  if(!fresh.includes(c))fresh.splice(Math.min(Math.max(cardNavList.indexOf(c),0),fresh.length),0,c);
-  cardNavList=fresh;
+  const keep=new Set(getFilteredBinder().filter(own));
+  cardNavList=cardNavList.includes(c)?cardNavList.filter(x=>x===c||keep.has(x)):[...keep];
 }
 function showCard(c,navList,fi){
   if(busy)return;

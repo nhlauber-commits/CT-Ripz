@@ -151,9 +151,8 @@ export function setView(v) {
   refresh()
 }
 export function pickTheme(t, fromHome) {
-  if (t !== ui.cur) clearBinderFilters()
+  clearBinderFilters()
   ui.cur = t
-  ui.filter = -1
   if (fromHome) ui.view = 'inv'
   refresh()
 }
@@ -338,12 +337,12 @@ export function sellPackDupes() {
   refresh()
   toast(`Sold ${nSold} duplicate${nSold == 1 ? '' : 's'} for ${gained.toLocaleString('en-US')} coins`)
 }
-// In the binder, Previous / Next follow the filters as they are now. The card on show stays in
-// the list even if a sale means it no longer matches; it drops out once the player steps away.
+// In the binder, Previous / Next keep the order the list had when it was opened, minus cards that
+// no longer match the filters. The card on show stays even if a sale means it no longer matches;
+// it drops out once the player steps away.
 function syncNav(c) {
-  const fresh = getFilteredBinder().filter(own)
-  if (!fresh.includes(c)) fresh.splice(Math.min(Math.max(cardNavList.indexOf(c), 0), fresh.length), 0, c)
-  cardNavList = fresh
+  const keep = new Set(getFilteredBinder().filter(own))
+  cardNavList = cardNavList.includes(c) ? cardNavList.filter((x) => x === c || keep.has(x)) : [...keep]
 }
 // focusIdx: the button that keeps the keyboard focus, when it can still be pressed.
 export function showCard(c, list, focusIdx) {
