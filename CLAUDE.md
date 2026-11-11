@@ -13,7 +13,7 @@ both exist:
 | Path | What it is |
 |---|---|
 | `pack-rip.html` | The current, playable game. One self-contained file. Source of truth for game data and behaviour. |
-| `src/` | The React version (Vite). Only a shell so far; game code gets ported here as components. The redesign happens here. |
+| `src/` | The React version (Vite): a port of `pack-rip.html` that plays the same (`data/`, `art/`, `state/`, `components/`, `styles/`). The redesign happens here. |
 | `public/art/` | Card art (Higgsfield, made by Nick), plus `prelude.jpg`. Both versions load images from here. |
 | `public/textures/` | Background and surface textures for the React version (Higgsfield, made by Nick). |
 | `BRIEF.md` | The owner's design brief: art direction, fonts, logo, rules. |
@@ -28,7 +28,8 @@ both exist:
 
 ## Commands
 - `npm install` once, then `npm run dev` to run the React app, `npm run build` to build it.
-- `npm test` checks that the `ART` list and the files in `public/art/` match.
+- `npm test` checks that the `ART` list and the files in `public/art/` match, and that the game
+  data, art code and CSS in `src/` still match `pack-rip.html` (until the redesign changes the CSS).
 - `npm run check` must end with `CHECK OK` before any commit that touches `pack-rip.html`.
 - With `npm run dev` running, the old game is also at `http://localhost:5173/pack-rip.html`.
   Opening `pack-rip.html` directly from the repo folder works too.
