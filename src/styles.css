@@ -1,11 +1,14 @@
 /* Tailwind's theme and utility classes, without its reset (preflight): the reset changes
    headings, buttons, lists and images, and the ported game in styles/game.css must look the
    same as pack-rip.html. Switch to @import "tailwindcss" if the redesign wants the reset. */
-@layer theme, base, components, utilities;
+@layer theme, base, components, vault, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 /* The game's own styles sit in a layer below the utilities, so a Tailwind class on an element
    wins over a plain rule such as button{font:inherit}. */
 @import "./styles/game.css" layer(components);
+/* The Vault look. It sits in a later layer, so every rule in it wins over game.css whatever the
+   selectors are. game.css stays a copy of pack-rip.html. */
+@import "./styles/vault.css" layer(vault);
 @import "tailwindcss/utilities.css" layer(utilities);
 
 /* Tailwind colour tokens, taken from pack-rip.html's :root (the approved navy and gold).

@@ -19,6 +19,9 @@ import {
 import Coins from './Coins.jsx'
 import Card from './Card.jsx'
 import Pack from './Pack.jsx'
+import { ROSETTE_SMALL } from '../vault/guilloche.js'
+
+const BACK = { __html: `<svg class="guil" viewBox="-420 -420 840 840" aria-hidden="true">${ROSETTE_SMALL}</svg><span>CT</span>` }
 
 // A pack being opened: the sealed wrapper, then the cards flipping over, then the summary.
 function packStage(st) {
@@ -27,9 +30,7 @@ function packStage(st) {
     pulls.map((p, i) => (
       <div key={i} className={('flip ' + st.flips[i]).trim()}>
         <Card c={p.c} />
-        <div className="back">
-          <span>CT</span>
-        </div>
+        <div className="back" dangerouslySetInnerHTML={BACK}></div>
         {p.isNew ? (
           <span className="new">NEW</span>
         ) : (

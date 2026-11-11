@@ -16,6 +16,9 @@ both exist:
 | `src/` | The React version (Vite + Tailwind CSS v4): a port of `pack-rip.html` that plays the same (`data/`, `art/`, `state/`, `components/`, `styles/`). The redesign happens here. |
 | `src/styles.css` | Tailwind import and the colour tokens (`@theme`): `bg-navy`, `text-gold`, `border-legendary` etc. Add new colours there, not as raw hex in components. Tailwind's reset (preflight) is left out so the ported game looks the same as `pack-rip.html`. |
 | `src/styles/game.css` | The game's styles and `:root` tokens, copied from `pack-rip.html`. |
+| `src/styles/vault.css` | The Vault look (fonts, textures, plates, shelves, album page, foil buttons). Loads in a later CSS layer than `game.css`, so its rules win. Restyle here, not in `game.css`. |
+| `src/components/Scene.jsx`, `Logo.jsx`, `Corners.jsx`, `src/vault/guilloche.js` | The page background, the legendary-card logo, corner ornaments and the guilloché maths. |
+| `design/sheet.html` | The approved design sheet for The Vault. |
 | `public/art/` | Card art (Higgsfield, made by Nick), plus `prelude.jpg`. Both versions load images from here. |
 | `public/textures/` | Background and surface textures for the React version (Higgsfield, made by Nick). |
 | `BRIEF.md` | The owner's design brief: art direction, fonts, logo, rules. |

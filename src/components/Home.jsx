@@ -6,6 +6,8 @@ import Coins from './Coins.jsx'
 import Cell from './Cell.jsx'
 import Rack from './Rack.jsx'
 import Odds from './Odds.jsx'
+import Logo from './Logo.jsx'
+import Corners from './Corners.jsx'
 
 // "Start over" asks for a second tap within three seconds instead of a confirm dialog.
 function ResetButton() {
@@ -37,6 +39,11 @@ export default function Home() {
   return (
     <>
       <div className="home-cta">
+        <svg className="rosette guil" aria-hidden="true">
+          <use href="#rosette" />
+        </svg>
+        <Corners />
+        <Logo size={104} detail className="hero-logo" />
         <div className="home-cta-text">
           <b id="homeCtaTitle">{totFound ? `Keep building your ${cur.name} binder` : 'Ready to rip your first pack?'}</b>
           <span id="homeCtaSub">

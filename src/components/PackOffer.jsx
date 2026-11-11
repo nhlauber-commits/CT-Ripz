@@ -22,6 +22,8 @@ export default function PackOffer({ tier, ti }) {
         }
         onClick={() => openPack(ti)}
       />
+      <div className="shelf-lip"></div>
+      <div className="offer-foot">
       <div className="info">
         <b>{tier.name} pack</b>
         <span>{tier.note}</span>
@@ -49,6 +51,7 @@ export default function PackOffer({ tier, ti }) {
           </>
         )}
       </button>
+      </div>
     </div>
   )
 }
