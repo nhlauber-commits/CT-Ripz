@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>CT Ripz: Vault template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Big+Shoulders+Inline+Display:wght@800;900&family=Libre+Franklin:wght@400;500;600&display=swap">
+<style>
+/* =====================================================================
+   CT Ripz, "The Vault": design template (review page, not shipped).
+   Static sample data. Every colour is a custom property from :root.
+   ===================================================================== */
+:root{
+  /* navy */
+  --navy-deep:#060c18; --navy:#0b1528; --navy-hi:#111f38; --navy-raise:#182a4a;
+  --edge:#22365a; --edge-hi:#314b78; --shadow:#02050b; --card-well:#050914;
+  /* gold */
+  --gold:#d4af37; --gold-hi:#ecd074; --gold-lo:#7a5d17; --gold-ink:#07101e;
+  /* text */
+  --ink:#f4efe4; --white:#ffffff;
+  --dim:color-mix(in srgb,var(--ink) 72%,var(--navy));
+  --muted:color-mix(in srgb,var(--ink) 52%,var(--navy));
+  /* card metal and foil (from pack-rip.html) */
+  --silver:#d4dce6; --silver-hi:#f2f6fa; --silver-lo:#768394; --flame:#ff8a3c;
+  --holo-1:#ff5abe; --holo-2:#5ad2ff; --holo-3:#ffeb82; --holo-4:#78ffaa;
+  /* rarity: small accents only */
+  --common:#9aa7b8; --uncommon:#45c782; --rare:#4a9eff; --epic:#b370ff; --legendary:#f2be38;
+  /* theme colours: pack wrappers and a thin accent on theme tiles only */
+  --t-monsters-a:#e2452f; --t-monsters-b:#f2a922; --t-drugs-a:#7b2fd0; --t-drugs-b:#19b88a;
+  --t-sports-a:#1553b5; --t-sports-b:#d8342c; --t-tech-a:#2456d6; --t-tech-b:#22c1e6;
+  --t-crypto-a:#e07a10; --t-crypto-b:#1fa866; --t-cars-a:#b3122a; --t-cars-b:#3a3f4a;
+  --t-vapes-a:#8b3fd9; --t-vapes-b:#ff5fa2; --t-islam-a:#0e6b5c; --t-islam-b:#c9a227;
+  /* type */
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --inline:"Big Shoulders Inline Display","Big Shoulders Display","Arial Narrow",sans-serif;
+  --body:"Libre Franklin","Franklin Gothic Medium","Segoe UI",system-ui,sans-serif;
+  --s-1:13px; --s0:16px; --s1:20px; --s2:28px; --s3:40px; --s4:clamp(44px,7vw,64px); --s5:clamp(64px,13vw,132px);
+  /* materials */
+  --foil:linear-gradient(100deg,var(--gold-lo) 0%,var(--gold) 22%,var(--gold-hi) 46%,var(--gold) 62%,var(--gold-lo) 100%);
+  --brush:repeating-linear-gradient(92deg,color-mix(in srgb,var(--white) 16%,transparent) 0 1px,transparent 1px 3px,color-mix(in srgb,var(--shadow) 18%,transparent) 3px 4px,transparent 4px 7px);
+  --weave:
+    repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 8%,transparent) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,color-mix(in srgb,var(--shadow) 60%,transparent) 0 1px,transparent 1px 3px);
+  --hatch:
+    repeating-linear-gradient(38deg,color-mix(in srgb,var(--edge-hi) 55%,transparent) 0 1px,transparent 1px 6px),
+    repeating-linear-gradient(-38deg,color-mix(in srgb,var(--edge-hi) 40%,transparent) 0 1px,transparent 1px 6px);
+  --gutter:clamp(16px,3.2vw,40px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--navy);color:var(--ink);font:400 var(--s0)/1.5 var(--body);overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4,p,ul,ol,dl,dd,figure{margin:0;padding:0}
+ul,ol{list-style:none}
+button{font:inherit;color:inherit;cursor:pointer}
+img,svg{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+.num{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums;line-height:.9;letter-spacing:.01em}
+[hidden]{display:none!important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- 1. the scene: linen, guilloche, hatching, vignette ---------- */
+.scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--navy)}
+.scene>*{position:absolute;inset:0}
+.scene .linen{background-image:var(--weave)}
+.scene .fibre{width:100%;height:100%;opacity:.5;mix-blend-mode:soft-light}
+.scene .rosette{inset:auto;left:62%;top:46%;width:min(1100px,150vw);aspect-ratio:1;transform:translate(-50%,-50%);color:var(--edge-hi);opacity:.62}
+.scene .hatch{background-image:var(--hatch);
+  -webkit-mask-image:radial-gradient(ellipse 72% 68% at 50% 46%,transparent 52%,var(--shadow) 100%);
+          mask-image:radial-gradient(ellipse 72% 68% at 50% 46%,transparent 52%,var(--shadow) 100%)}
+.scene .vignette{background:radial-gradient(ellipse 80% 75% at 50% 42%,transparent 48%,color-mix(in srgb,var(--shadow) 82%,transparent) 100%)}
+body[data-tab=store] .scene .rosette,body[data-tab=inventory] .scene .rosette{opacity:.26;left:50%;top:60%}
+
+/* ---------- 2. the frame: gold hairlines and engraved corners ---------- */
+.frame{position:relative;z-index:1;max-width:1240px;margin:clamp(10px,2vw,28px) auto;padding:0 0 var(--gutter);
+  border:1px solid var(--gold-lo);outline:1px solid color-mix(in srgb,var(--gold) 55%,transparent);outline-offset:-6px}
+.corner{position:absolute;width:clamp(34px,6vw,72px);aspect-ratio:1;color:var(--gold);z-index:3;pointer-events:none}
+.corner.tl{left:-1px;top:-1px}.corner.tr{right:-1px;top:-1px;transform:scaleX(-1)}
+.corner.bl{left:-1px;bottom:-1px;transform:scaleY(-1)}.corner.br{right:-1px;bottom:-1px;transform:scale(-1)}
+@media (max-width:600px){.frame{margin:8px}}
+
+/* ---------- 3. top bar ---------- */
+.bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px 24px;
+  padding:18px calc(var(--gutter) + 8px) 0;position:relative}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:30px;height:38px;flex:none}
+.brand h1{font:900 34px/1 var(--inline);letter-spacing:.02em;text-transform:uppercase}
+.brand h1 span,.foil-text{background:var(--foil);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tabs{display:flex;justify-self:center;border-bottom:1px solid var(--gold-lo)}
+.tabs button{position:relative;min-height:46px;padding:0 26px;background:none;border:0;
+  font:800 20px/1 var(--display);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);transition:color .15s}
+.tabs button+button{border-left:1px solid var(--edge)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected=true]{color:var(--gold-hi)}
+.tabs button[aria-selected=true]::after{content:"";position:absolute;left:10px;right:10px;bottom:-3px;height:5px;background:var(--foil);
+  box-shadow:0 0 0 1px var(--gold-ink)}
+.wallet{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 8px;background:var(--navy-deep);
+  border:1px solid var(--shadow);box-shadow:inset 0 0 0 1px var(--gold-lo)}
+.wallet svg{width:26px;height:26px;color:var(--gold)}
+.wallet .num{font-size:30px;color:var(--gold-hi)}
+.wallet small{display:block;font-size:11px;line-height:1.2;color:var(--muted);letter-spacing:.04em}
+@media (max-width:760px){
+  .bar{grid-template-columns:1fr auto;padding-top:14px}
+  .tabs{grid-column:1/-1;grid-row:2;justify-self:stretch}
+  .wallet{grid-column:2;grid-row:1;padding:4px 10px 4px 6px}
+  .wallet .num{font-size:24px}
+  .tabs button{flex:1;padding:0 6px;font-size:18px}
+  .brand h1{font-size:28px}
+}
+
+/* ---------- 4. surfaces ---------- */
+.view{padding:clamp(18px,3vw,34px) calc(var(--gutter) + 8px) 0}
+.view[hidden]{display:none}
+.plate{position:relative;background-color:var(--navy-hi);background-image:var(--weave);
+  border:1px solid var(--shadow);box-shadow:inset 0 0 0 4px var(--navy-hi),inset 0 0 0 5px var(--gold-lo),0 10px 24px color-mix(in srgb,var(--shadow) 70%,transparent)}
+.rule{display:flex;align-items:center;gap:12px;color:var(--gold);margin:0 0 14px}
+.rule::before,.rule::after{content:"";height:3px;flex:1;border-top:1px solid var(--gold-lo);border-bottom:1px solid var(--gold-lo)}
+.rule::before{flex:0 0 22px}
+.rule h3,.rule h2{font:800 var(--s1)/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hi)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;
+  font:600 15px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+  color:var(--gold-ink);background-image:var(--brush),var(--foil);background-size:auto,220% 100%;background-position:0 0,30% 0;
+  border:1px solid var(--gold-ink);border-radius:2px;
+  box-shadow:inset 0 1px 0 var(--gold-hi),inset 0 -2px 0 var(--gold-lo),0 0 0 1px var(--gold-lo),0 3px 0 var(--shadow);
+  transition:background-position .35s ease,transform .08s}
+.btn:hover{background-position:0 0,85% 0}
+.btn:active{transform:translateY(2px);box-shadow:inset 0 1px 0 var(--gold-hi),inset 0 -2px 0 var(--gold-lo),0 0 0 1px var(--gold-lo),0 1px 0 var(--shadow)}
+.btn.sec{background:none;color:var(--gold-hi);border-color:var(--gold);
+  box-shadow:inset 0 0 0 3px var(--navy-hi),inset 0 0 0 4px var(--gold-lo)}
+.btn.sec:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.btn:disabled{cursor:not-allowed;background:var(--navy);color:var(--muted);border-color:var(--edge);box-shadow:none;transform:none}
+
+/* ---------- 5. the card (layout as in pack-rip.html) ---------- */
+[data-r=common]{--rc:var(--common)}[data-r=uncommon]{--rc:var(--uncommon)}[data-r=rare]{--rc:var(--rare)}
+[data-r=epic]{--rc:var(--epic)}[data-r=legendary]{--rc:var(--legendary)}
+.card{position:relative;display:block;aspect-ratio:5/7;width:100%;container-type:inline-size;border-radius:5%/3.6%;overflow:hidden;text-align:left;
+  --m1:color-mix(in srgb,var(--rc) 32%,var(--silver-hi));--m2:color-mix(in srgb,var(--rc) 52%,var(--silver-lo));
+  background:linear-gradient(135deg,var(--m1),var(--m2) 26%,var(--m1) 48%,var(--m2) 74%,var(--m1));
+  box-shadow:0 4px 0 color-mix(in srgb,var(--shadow) 80%,transparent),0 10px 16px color-mix(in srgb,var(--shadow) 60%,transparent),inset 0 0 0 .4cqw color-mix(in srgb,var(--white) 45%,transparent)}
+.card[data-r=common]{--m1:var(--silver-hi);--m2:var(--silver-lo)}
+.card[data-r=legendary]{background:linear-gradient(120deg,var(--gold-hi),var(--legendary),var(--flame),var(--gold-hi),var(--epic),var(--rare),var(--gold-hi),var(--legendary))}
+.card .in{position:absolute;inset:3.6cqw;border-radius:3.6cqw;overflow:hidden;background:var(--card-well);box-shadow:0 0 0 .5cqw color-mix(in srgb,var(--shadow) 60%,transparent)}
+.card .art{position:absolute;inset:0;color:var(--edge-hi)}
+.card .art svg,.card .art img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+.card .in::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,color-mix(in srgb,var(--shadow) 62%,transparent),transparent 24%,transparent 82%,color-mix(in srgb,var(--shadow) 68%,transparent))}
+.card .nm,.card .tb,.card .bl,.card .br{position:absolute;z-index:2}
+.card .nm{left:4cqw;top:3.4cqw;max-width:59cqw;font:800 10cqw/1 var(--display);letter-spacing:.01em;color:var(--white);overflow-wrap:anywhere;text-shadow:0 .5cqw 1.4cqw var(--shadow),0 0 .8cqw var(--shadow)}
+.card .tb{top:0;right:0;padding:1.4cqw 4cqw 2cqw 4.6cqw;border-bottom-left-radius:3.6cqw;background:linear-gradient(180deg,var(--m1),var(--m2));
+  font:600 4.5cqw/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--navy-deep)}
+.card[data-r=legendary] .tb{background:linear-gradient(180deg,var(--gold-hi),var(--legendary))}
+.card .bl{left:4cqw;bottom:3.2cqw;font:600 5.3cqw/1 var(--body);letter-spacing:.05em;text-transform:uppercase;color:color-mix(in srgb,var(--rc) 45%,var(--white));text-shadow:0 .3cqw 1cqw var(--shadow)}
+.card .br{right:4cqw;bottom:3.4cqw;font:500 3.9cqw/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--silver);text-shadow:0 .3cqw 1cqw var(--shadow)}
+.card .sheen{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:0;transition:opacity .2s;
+  background:linear-gradient(115deg,transparent 12%,color-mix(in srgb,var(--holo-1) 75%,transparent) 30%,color-mix(in srgb,var(--holo-2) 75%,transparent) 43%,color-mix(in srgb,var(--holo-3) 75%,transparent) 56%,color-mix(in srgb,var(--holo-4) 65%,transparent) 67%,transparent 84%);
+  background-size:260% 260%;background-position:var(--mx,30%) var(--my,30%)}
+.card:hover .sheen{opacity:var(--fo,.12)}
+.card[data-r=rare]{--fo:.3}.card[data-r=epic]{--fo:.5}.card[data-r=legendary]{--fo:.7}
+
+/* ---------- 6. HOME ---------- */
+.home{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:clamp(16px,2.4vw,28px)}
+.hero{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px;
+  padding:clamp(26px,5vw,60px) clamp(22px,4.5vw,64px);overflow:hidden;
+  box-shadow:inset 0 0 0 4px var(--navy-hi),inset 0 0 0 5px var(--gold-lo),inset 0 0 0 10px var(--navy-hi),inset 0 0 0 11px color-mix(in srgb,var(--gold) 60%,transparent),0 14px 30px color-mix(in srgb,var(--shadow) 70%,transparent)}
+.hero .seal{position:absolute;right:-9%;top:50%;width:min(620px,105%);aspect-ratio:1;transform:translateY(-50%);color:var(--gold-lo);opacity:.5;pointer-events:none}
+.hero .edge-hatch{position:absolute;inset:11px;background-image:var(--hatch);opacity:.5;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,var(--shadow),transparent 22%);mask-image:linear-gradient(90deg,var(--shadow),transparent 22%)}
+.hero>*:not(.seal):not(.edge-hatch):not(.corner){position:relative}
+.hero h2{font:900 var(--s5)/.82 var(--inline);letter-spacing:.005em;text-transform:uppercase}
+.hero h2 b{display:block;font-weight:900}
+.hero p{max-width:34ch;margin:18px 0 26px;font-size:18px;color:var(--dim)}
+.hero .acts{display:flex;flex-wrap:wrap;gap:12px}
+.hero .mark{width:clamp(150px,21vw,250px);margin:0 clamp(0px,3vw,48px) 4px 0;filter:drop-shadow(0 12px 0 color-mix(in srgb,var(--shadow) 55%,transparent))}
+.hero .corner{width:clamp(30px,4.4vw,54px);color:var(--gold-hi)}
+.hero .corner.tl{left:14px;top:14px}.hero .corner.tr{right:14px;top:14px}.hero .corner.bl{left:14px;bottom:14px}.hero .corner.br{right:14px;bottom:14px}
+
+.ledger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:5px}
+.ledger>div{padding:20px 22px 18px}
+.ledger>div+div{border-left:1px solid var(--gold-lo)}
+.ledger dt{font-size:var(--s-1);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.ledger .num{font-size:clamp(40px,6.4vw,76px);color:var(--ink)}
+.ledger .num i{display:block;margin-top:8px;font:500 var(--s-1)/1 var(--body);font-style:normal;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.ledger .gold{color:var(--gold-hi)}
+.ledger .bar-meter{height:7px;margin-top:14px;background:var(--navy-deep);box-shadow:inset 0 0 0 1px var(--edge)}
+.ledger .bar-meter i{display:block;height:100%;width:17%;background-image:var(--brush),var(--foil)}
+
+.ledger{grid-column:1/-1}
+/* legendary showcase: a small stack that deals its top card to the back */
+.show{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:22px 26px 20px}
+.show .lg-name{font:900 clamp(30px,3.3vw,44px)/.9 var(--display);letter-spacing:.02em;text-transform:uppercase;min-height:1.8em;overflow-wrap:break-word}
+.show .lg-meta{margin:10px 0 4px;font-size:var(--s-1);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.show .lg-meta::before{content:"";display:inline-block;width:8px;height:8px;margin-right:10px;background:var(--legendary);transform:rotate(45deg)}
+.show .lg-fact{color:var(--dim);max-width:30ch;margin-bottom:18px}
+.show .acts{display:flex;flex-wrap:wrap;gap:10px}
+.deck{position:relative;width:clamp(140px,17vw,200px);aspect-ratio:5/7;margin:26px clamp(34px,5vw,60px) 16px clamp(70px,9vw,120px)}
+.deck .dc{position:absolute;inset:0;transition:transform .9s cubic-bezier(.3,.7,.2,1),filter .9s}
+.deck .dc[data-pos="0"]{z-index:3}
+.deck .dc[data-pos="1"]{z-index:2;transform:translate(10%,-4%) rotate(6deg);filter:brightness(.72)}
+.deck .dc[data-pos="2"]{z-index:1;transform:translate(19%,-7%) rotate(12deg);filter:brightness(.5)}
+.deck .dc.out{transform:translate(-64%,3%) rotate(-13deg)}
+.deck .dc.under{z-index:0}
+.odds{padding:22px 22px 14px}
+.odds table{width:100%;border-collapse:collapse;font-size:15px}
+.odds th{font-weight:500;font-size:var(--s-1);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right;padding:0 0 8px}
+.odds th:first-child{text-align:left}
+.odds td{padding:9px 0;border-top:1px dotted var(--edge-hi);text-align:right}
+.odds td:first-child{text-align:left;font-weight:500}
+.odds td:first-child::before{content:"";display:inline-block;width:8px;height:8px;margin-right:10px;background:var(--rc);transform:rotate(45deg)}
+.odds td.num{font-size:24px;color:var(--ink)}
+
+.case{grid-column:1/-1;padding:24px clamp(18px,3vw,34px) 0;background-color:var(--navy-deep)}
+.case .row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,2vw,26px);padding:0 clamp(0px,2vw,24px)}
+.case .lip,.shelf .lip{height:16px;margin:16px -1px -1px;background-image:var(--brush),var(--foil);
+  border-top:1px solid var(--gold-hi);box-shadow:inset 0 -3px 0 var(--gold-lo),0 6px 0 var(--shadow)}
+@media (max-width:860px){
+  .home{grid-template-columns:minmax(0,1fr)}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero .mark{position:absolute!important;right:6px;top:22px;width:104px;margin:0}
+  .hero .seal{right:-45%;width:150%}
+  .hero h2{padding-right:96px}
+  .ledger{grid-template-columns:minmax(0,1fr)}
+  .show{grid-template-columns:minmax(0,1fr)}
+  .show .deck{order:-1;margin:22px auto 22px;left:8px}
+  .show .lg-name{font-size:clamp(34px,10vw,48px)}
+  .ledger>div+div{border-left:0;border-top:1px solid var(--gold-lo)}
+  .case .row{grid-template-columns:repeat(5,minmax(112px,1fr));overflow-x:auto;padding-bottom:6px}
+}
+
+/* ---------- 7. STORE ---------- */
+.themes{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;margin-bottom:clamp(18px,3vw,30px)}
+.themes button{position:relative;min-height:64px;padding:12px 8px 10px 14px;text-align:left;background-color:var(--navy-hi);background-image:var(--weave);
+  border:1px solid var(--edge);border-left:4px solid var(--ta);
+  font:800 18px/1 var(--display);letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
+.themes button small{display:block;margin-top:6px;font:400 12px/1 var(--body);letter-spacing:.04em;text-transform:none;color:var(--muted)}
+.themes button:hover{color:var(--ink);border-color:var(--edge-hi);border-left-color:var(--ta)}
+.themes button[aria-checked=true]{color:var(--gold-hi);background-color:var(--navy-raise);border-color:var(--gold);border-left-color:var(--ta);
+  box-shadow:inset 0 0 0 2px var(--navy-raise),inset 0 0 0 3px var(--gold-lo)}
+[data-theme=monsters]{--ta:var(--t-monsters-a);--tb:var(--t-monsters-b)}[data-theme=drugs]{--ta:var(--t-drugs-a);--tb:var(--t-drugs-b)}
+[data-theme=sports]{--ta:var(--t-sports-a);--tb:var(--t-sports-b)}[data-theme=tech]{--ta:var(--t-tech-a);--tb:var(--t-tech-b)}
+[data-theme=crypto]{--ta:var(--t-crypto-a);--tb:var(--t-crypto-b)}[data-theme=cars]{--ta:var(--t-cars-a);--tb:var(--t-cars-b)}
+[data-theme=vapes]{--ta:var(--t-vapes-a);--tb:var(--t-vapes-b)}[data-theme=islam]{--ta:var(--t-islam-a);--tb:var(--t-islam-b)}
+.shelf{background-color:var(--navy-deep);background-image:var(--weave);border:1px solid var(--shadow);box-shadow:inset 0 0 0 1px var(--edge),0 12px 26px color-mix(in srgb,var(--shadow) 70%,transparent)}
+.shelf .back{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;padding:clamp(26px,4vw,48px) clamp(10px,3vw,40px) 0}
+.shelf .back::before{content:"";position:absolute;inset:0;background-image:var(--hatch);opacity:.45;
+  -webkit-mask-image:linear-gradient(180deg,var(--shadow),transparent 70%);mask-image:linear-gradient(180deg,var(--shadow),transparent 70%)}
+.offer{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 8px}
+.offer+.offer{border-left:1px solid var(--edge)}
+.pack{position:relative;width:min(100%,clamp(96px,15vw,176px));aspect-ratio:5/7.4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6%;
+  color:var(--white);text-align:center;container-type:inline-size;
+  background:
+    linear-gradient(100deg,color-mix(in srgb,var(--shadow) 45%,transparent),transparent 18%,color-mix(in srgb,var(--white) 26%,transparent) 44%,transparent 58%,color-mix(in srgb,var(--shadow) 40%,transparent)),
+    linear-gradient(160deg,var(--ta),color-mix(in srgb,var(--ta) 55%,var(--tb)) 60%,var(--tb));
+  box-shadow:0 5px 0 color-mix(in srgb,var(--shadow) 85%,transparent)}
+.pack::before,.pack::after{content:"";position:absolute;left:0;right:0;height:7%;
+  background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--white) 38%,transparent) 0 2px,color-mix(in srgb,var(--shadow) 45%,transparent) 2px 4px),var(--silver-lo)}
+.pack::before{top:0}.pack::after{bottom:0}
+.pack .em{width:52%;aspect-ratio:1;flex:none;color:var(--white);opacity:.9}
+.pack b{font:900 16cqw/.9 var(--display);letter-spacing:.03em;text-transform:uppercase;padding:0 6%;text-shadow:0 2px 0 color-mix(in srgb,var(--shadow) 60%,transparent)}
+.pack i{font-style:normal;width:100%;padding:4% 0;font:800 10cqw/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--gold-ink);background-image:var(--brush),var(--foil)}
+.offer:nth-child(1) .pack{transform:rotate(-2deg)}.offer:nth-child(3) .pack{transform:rotate(1.5deg);width:min(100%,clamp(104px,17vw,196px))}
+.info{position:absolute;top:-14px;right:clamp(2px,2vw,18px);z-index:2;width:44px;height:44px;padding:0;display:grid;place-items:center;background:none;border:0;border-radius:50%}
+.info span{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--navy-deep);color:var(--gold-hi);
+  font:900 20px/1 var(--display);box-shadow:inset 0 0 0 1px var(--gold),0 0 0 3px var(--navy-deep),0 0 0 4px var(--gold-lo);transition:background-color .15s,color .15s}
+.info:hover span{background:var(--gold);color:var(--gold-ink)}
+dialog.oddsbox{width:min(440px,calc(100vw - 24px));max-height:calc(100dvh - 24px);padding:0;border:0;color:var(--ink);background:none;overflow:visible}
+dialog.oddsbox::backdrop{background:color-mix(in srgb,var(--shadow) 78%,transparent)}
+.oddsbox .plate{padding:26px 26px 22px;max-height:calc(100dvh - 24px);overflow:auto;
+  box-shadow:inset 0 0 0 4px var(--navy-hi),inset 0 0 0 5px var(--gold-lo),inset 0 0 0 9px var(--navy-hi),inset 0 0 0 10px color-mix(in srgb,var(--gold) 60%,transparent),0 18px 40px var(--shadow)}
+.oddsbox h2{font:900 var(--s3)/.9 var(--display);letter-spacing:.04em;text-transform:uppercase}
+.oddsbox .sub{margin:8px 0 18px;font-size:var(--s-1);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.oddsbox h3{margin:16px 0 2px;font:800 18px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hi)}
+.oddsbox table{width:100%;border-collapse:collapse;font-size:15px}
+.oddsbox th{font-weight:500;text-align:left;padding:8px 0;border-top:1px dotted var(--edge-hi)}
+.oddsbox tr[data-r] th::before{content:"";display:inline-block;width:8px;height:8px;margin-right:10px;background:var(--rc);transform:rotate(45deg)}
+.oddsbox td{padding:6px 0;border-top:1px dotted var(--edge-hi);text-align:right;font-size:24px}
+.oddsbox .note{margin-top:14px;padding-top:12px;border-top:3px double var(--gold-lo);font-size:14px;color:var(--dim)}
+.oddsbox .btn{margin-top:18px;width:100%}
+.tags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:0 clamp(10px,3vw,40px) clamp(18px,3vw,30px)}
+.tag{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 8px 0;text-align:center}
+.tag+.tag{border-left:1px solid var(--edge)}
+.tag h3{font:800 var(--s2)/1 var(--display);letter-spacing:.08em;text-transform:uppercase}
+.tag p{font-size:14px;color:var(--dim);min-height:2.9em;max-width:22ch}
+.tag .price{display:flex;align-items:baseline;gap:6px;color:var(--gold-hi)}
+.tag .price .num{font-size:clamp(40px,6vw,64px)}
+.tag .price span{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tag .btn{width:min(100%,200px);margin-top:6px;padding:0 10px}
+.tag .short{font-size:13px;color:var(--muted);min-height:1.5em}
+@media (max-width:760px){
+  .themes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .themes button{min-height:56px}
+  .tag .price{flex-direction:column;align-items:center;gap:2px}
+  .tag h3{font-size:22px}.tag p{font-size:13px;min-height:4.4em}
+  .tag .btn{letter-spacing:.04em;font-size:14px}
+}
+
+/* ---------- 8. INVENTORY ---------- */
+.inv-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px 24px;margin-bottom:16px}
+.inv-head h2{font:900 var(--s4)/.9 var(--display);letter-spacing:.03em;text-transform:uppercase}
+.inv-head .num{font-size:var(--s3);color:var(--gold-hi)}
+.inv-head .num i{font-style:normal;font-size:.5em;color:var(--muted)}
+.index{display:flex;gap:2px;overflow-x:auto;padding:4px 4px 0;margin:0 0 -1px 34px;position:relative;z-index:2}
+.index button{flex:none;min-height:44px;padding:0 14px;background-color:var(--navy);border:1px solid var(--edge);border-bottom:0;border-top:3px solid var(--ta);
+  border-radius:6px 6px 0 0;font:800 16px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+.index button[aria-pressed=true]{background-color:var(--navy-hi);background-image:var(--weave);color:var(--gold-hi);border-color:var(--gold-lo);border-top-color:var(--ta);min-height:48px;margin-top:-4px}
+.album{display:grid;grid-template-columns:34px minmax(0,1fr);background-color:var(--navy-hi);background-image:var(--weave);
+  border:1px solid var(--shadow);box-shadow:inset 0 0 0 1px var(--gold-lo),0 12px 26px color-mix(in srgb,var(--shadow) 70%,transparent)}
+.spine{position:relative;background-color:var(--navy-deep);border-right:1px solid var(--gold-lo);
+  background-image:repeating-linear-gradient(180deg,var(--gold) 0 9px,transparent 9px 15px);background-size:1px 100%;background-repeat:no-repeat;background-position:16px 0}
+.spine i{position:absolute;left:8px;width:17px;height:17px;border-radius:50%;background:var(--navy);box-shadow:inset 0 2px 0 var(--shadow),0 0 0 1px var(--gold-lo),0 0 0 4px var(--navy-deep)}
+.spine i:nth-child(1){top:12%}.spine i:nth-child(2){top:50%}.spine i:nth-child(3){top:88%}
+.page{padding:clamp(14px,2.4vw,26px)}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-bottom:16px;border:1px solid var(--edge);width:fit-content;max-width:100%}
+.filters button{min-height:42px;padding:0 13px;background:none;border:0;font:500 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.filters button+button{border-left:1px solid var(--edge)}
+.filters button::before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;background:var(--rc,var(--gold));transform:rotate(45deg)}
+.filters button[aria-pressed=true]{background:var(--navy-deep);color:var(--gold-hi);box-shadow:inset 0 -3px 0 var(--gold)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:clamp(10px,1.6vw,18px)}
+.slot{position:relative;padding:7px;background:var(--navy-deep);box-shadow:inset 0 0 0 1px var(--edge),inset 0 3px 0 var(--shadow)}
+.slot .cnt{position:absolute;bottom:-7px;right:-5px;z-index:3;min-width:30px;padding:3px 6px;text-align:center;font:800 17px/1 var(--display);color:var(--gold-ink);background-image:var(--brush),var(--foil);border:1px solid var(--gold-ink)}
+.slot.empty>div{aspect-ratio:5/7;display:grid;place-items:center;border:1px solid var(--edge);background-image:var(--hatch);color:var(--muted)}
+.slot.empty .num{font-size:34px;color:color-mix(in srgb,var(--ink) 34%,var(--navy))}
+.sell{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:3px double var(--gold-lo)}
+.sell p{color:var(--dim)}.sell p b{font-weight:600;color:var(--ink)}
+.sell .acts{display:flex;flex-wrap:wrap;gap:10px}
+@media (max-width:600px){
+  .album{grid-template-columns:18px minmax(0,1fr)}.index{margin-left:18px}
+  .spine{background-position:8px 0}.spine i{left:3px;width:11px;height:11px;box-shadow:inset 0 2px 0 var(--shadow),0 0 0 1px var(--gold-lo)}
+  .slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .filters{width:100%}.filters button{flex:1 1 33%;padding:0 6px}
+}
+
+/* ---------- 9. OPENING OVERLAY ---------- */
+dialog.rip{width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;color:var(--ink);background:var(--navy-deep)}
+dialog.rip::backdrop{background:var(--shadow)}
+.stage{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(18px,3vh,34px);padding:28px 16px;overflow:hidden;
+  background-color:var(--navy-deep);
+  background-image:
+    radial-gradient(ellipse 70% 62% at 50% 0%,color-mix(in srgb,var(--edge-hi) 55%,transparent),transparent 72%),
+    repeating-linear-gradient(64deg,color-mix(in srgb,var(--white) 5%,transparent) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(-64deg,color-mix(in srgb,var(--shadow) 70%,transparent) 0 1px,transparent 1px 3px)}
+.stage .seal{position:absolute;left:50%;top:50%;width:min(900px,170vw);aspect-ratio:1;transform:translate(-50%,-50%);color:var(--edge);opacity:.7;pointer-events:none}
+.stage>*:not(.seal){position:relative}
+.stage h2{font:900 var(--s4)/.9 var(--display);letter-spacing:.08em;text-transform:uppercase;text-align:center}
+.stage h2 small{display:block;margin-top:10px;font:500 14px/1.3 var(--body);letter-spacing:.12em;color:var(--dim)}
+.pull{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(10px,2vw,22px);width:100%;max-width:1040px}
+.flip{flex:0 1 178px;min-width:124px;aspect-ratio:5/7;padding:0;border:0;background:none;perspective:900px;border-radius:9px}
+.flip .inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.flip[aria-pressed=true] .inner{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:block}
+.flip .front{transform:rotateY(180deg)}
+.backface{border-radius:5%/3.6%;overflow:hidden;background-color:var(--navy-hi);background-image:var(--weave);color:var(--gold);
+  box-shadow:inset 0 0 0 5px var(--navy-hi),inset 0 0 0 6px var(--gold),inset 0 0 0 10px var(--navy-hi),inset 0 0 0 11px var(--gold-lo),0 5px 0 var(--shadow)}
+.backface svg.seal2{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;max-width:none;transform:translate(-50%,-50%);opacity:.55;color:var(--gold-lo)}
+.backface .mark{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%)}
+.stage .acts{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+@media (max-width:600px){.flip{flex:0 1 30%;min-width:98px}}
+
+/* ---------- 10. DESIGN SHEET ---------- */
+.sheet{position:relative;z-index:1;max-width:1240px;margin:44px auto 60px;padding:0 var(--gutter)}
+.sheet>h2{font:900 var(--s4)/.9 var(--display);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.sheet>p{color:var(--dim);max-width:70ch;margin-bottom:26px}
+.sheet section{margin-bottom:34px}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.sw li{font-size:12px;color:var(--dim)}
+.sw i{display:block;height:54px;margin-bottom:6px;background:var(--c);box-shadow:inset 0 0 0 1px var(--edge-hi)}
+.steps p{display:flex;align-items:baseline;gap:16px;border-top:1px dotted var(--edge-hi);padding:8px 0;overflow:hidden;white-space:nowrap}
+.steps small{flex:0 0 150px;font:400 12px/1.2 var(--body);color:var(--muted);letter-spacing:.04em;text-transform:none;white-space:normal}
+.layers{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.layers figure{font-size:12px;color:var(--dim)}
+.layers figure>div{position:relative;height:150px;margin-bottom:6px;overflow:hidden;background-color:var(--navy);box-shadow:inset 0 0 0 1px var(--edge-hi)}
+.layers svg{position:absolute;left:50%;top:50%;width:190%;max-width:none;transform:translate(-50%,-50%);color:var(--edge-hi)}
+.demo{display:flex;flex-wrap:wrap;align-items:center;gap:16px 22px;padding:22px}
+.logos{display:flex;align-items:flex-end;gap:28px;padding:22px}
+.logos figure{font-size:12px;color:var(--muted);text-align:center}
+.logos .mark{margin:0 auto 8px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.notes li{padding:16px 18px;border-left:3px solid var(--gold-lo);background:color-mix(in srgb,var(--navy-deep) 70%,transparent);font-size:14px;color:var(--dim)}
+.notes b{display:block;margin-bottom:4px;font:800 18px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--gold-hi)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .card:hover .sheen{opacity:0}
+}
+</style>
+</head>
+<body data-tab="home">
+
+<!-- One shared <defs>: filters, gradients and ornaments are defined here once and referenced. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="fx-fibre" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9 .035" numOctaves="2" seed="7" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 -.08"/>
+    </filter>
+    <linearGradient id="lg-foil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" style="stop-color:var(--gold-hi)"/><stop offset=".38" style="stop-color:var(--legendary)"/>
+      <stop offset=".62" style="stop-color:var(--flame)"/><stop offset=".8" style="stop-color:var(--gold-hi)"/><stop offset="1" style="stop-color:var(--gold-lo)"/>
+    </linearGradient>
+    <pattern id="pt-engrave" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+      <line x1="0" y1="0" x2="0" y2="3" stroke="currentColor" stroke-width=".5"/>
+    </pattern>
+    <!-- guilloche rosette: paths are drawn by script into this symbol -->
+    <symbol id="rosette" viewBox="-300 -300 600 600"><g id="rosette-paths" fill="none" stroke="currentColor" stroke-width=".7"></g></symbol>
+    <!-- engraved corner flourish -->
+    <symbol id="corner" viewBox="0 0 72 72">
+      <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round">
+        <path d="M1 70V14C1 6.8 6.8 1 14 1h56"/>
+        <path d="M7 62V19C7 12.4 12.4 7 19 7h43" stroke-width=".7"/>
+        <path d="M13 44c0-12 7-19 16-19 7 0 12 4.6 12 10.4 0 4.8-3.6 8.2-8 8.2-3.6 0-6.2-2.4-6.2-5.6 0-2.6 1.9-4.4 4.2-4.4"/>
+        <path d="M44 13c-12 0-19 7-19 16 0 7 4.6 12 10.4 12" stroke-width=".7"/>
+        <path d="M13 44c0 6 3 10 8 12M44 13c6 0 10 3 12 8" stroke-width=".7"/>
+        <path d="M18 18l5-5 5 5-5 5z"/><path d="M23 15.4V20.6M20.4 18h5.2" stroke-width=".6"/>
+        <path d="M48 4.5c3 2.4 6 2.4 9 0M4.5 48c2.4 3 2.4 6 0 9" stroke-width=".7"/>
+      </g>
+    </symbol>
+    <symbol id="coin" viewBox="0 0 28 28">
+      <g fill="none" stroke="currentColor"><circle cx="14" cy="14" r="12.2" stroke-width="1.6"/><circle cx="14" cy="14" r="9" stroke-width=".7" stroke-dasharray="1 1.4"/>
+      <path d="M14 7.2l1.9 4.5 4.9.4-3.7 3.2 1.1 4.8L14 17.6l-4.2 2.5 1.1-4.8-3.7-3.2 4.9-.4z" fill="currentColor" stroke="none"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- 1. the scene -->
+<div class="scene" aria-hidden="true">
+  <div class="linen"></div>
+  <svg class="fibre" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#fx-fibre)"/></svg>
+  <svg class="rosette"><use href="#rosette"/></svg>
+  <div class="hatch"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- 2. the app, inside the gold frame -->
+<div class="frame">
+  <svg class="corner tl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner tr" aria-hidden="true"><use href="#corner"/></svg>
+  <svg class="corner bl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner br" aria-hidden="true"><use href="#corner"/></svg>
+
+  <header class="bar">
+    <div class="brand"><span class="mark" data-logo="sm"></span><h1>CT <span>Ripz</span></h1></div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-home" aria-controls="home" aria-selected="true">Home</button>
+      <button role="tab" id="tab-store" aria-controls="store" aria-selected="false" tabindex="-1">Store</button>
+      <button role="tab" id="tab-inventory" aria-controls="inventory" aria-selected="false" tabindex="-1">Inventory</button>
+    </nav>
+    <div class="wallet" aria-label="380 coins. Next 1,000 coins in 42 seconds">
+      <svg aria-hidden="true"><use href="#coin"/></svg>
+      <div><span class="num">380</span><small>+1,000 in 0:42</small></div>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main>
+  <section class="view home" id="home" role="tabpanel" aria-labelledby="tab-home">
+    <div class="plate hero">
+      <svg class="seal" aria-hidden="true"><use href="#rosette"/></svg>
+      <div class="edge-hatch" aria-hidden="true"></div>
+      <svg class="corner tl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner tr" aria-hidden="true"><use href="#corner"/></svg>
+      <svg class="corner bl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner br" aria-hidden="true"><use href="#corner"/></svg>
+      <div>
+        <h2>Rip a <b class="foil-text">pack</b></h2>
+        <p>Eight themes, 800 cards, three pack sizes. Every pull goes in the vault.</p>
+        <div class="acts">
+          <button class="btn" data-go="store">Open the store</button>
+          <button class="btn sec" data-go="inventory">View inventory</button>
+        </div>
+      </div>
+      <span class="mark" data-logo="lg"></span>
+    </div>
+
+    <dl class="plate ledger">
+      <div><dt>Coins</dt><dd class="num gold">380</dd></div>
+      <div><dt>Cards collected</dt><dd class="num">137<i>of 800</i></dd><div class="bar-meter" aria-hidden="true"><i></i></div></div>
+      <div><dt>Next 1,000 coins</dt><dd class="num">0:42</dd></div>
+    </dl>
+
+    <div class="plate show" id="show">
+      <div>
+        <div class="rule"><h3>Legendaries</h3></div>
+        <p class="lg-name foil-text" id="lg-name">Solardrake</p>
+        <p class="lg-meta" id="lg-meta">Monsters, Dragon</p>
+        <p class="lg-fact">Four in every theme. 2% of pulls. Sells for 1,500 coins.</p>
+        <div class="acts">
+          <button class="btn sec" id="lg-pause" aria-pressed="false">Pause</button>
+          <button class="btn sec" id="lg-next">Next card</button>
+        </div>
+      </div>
+      <div class="deck" id="deck" aria-hidden="true"></div>
+    </div>
+
+    <div class="plate odds">
+      <div class="rule"><h3>Odds</h3></div>
+      <table>
+        <thead><tr><th scope="col">Rarity</th><th scope="col">Chance</th><th scope="col">Sells for</th></tr></thead>
+        <tbody>
+          <tr data-r="common"><td>Common</td><td class="num">55%</td><td class="num">10</td></tr>
+          <tr data-r="uncommon"><td>Uncommon</td><td class="num">25%</td><td class="num">30</td></tr>
+          <tr data-r="rare"><td>Rare</td><td class="num">12%</td><td class="num">90</td></tr>
+          <tr data-r="epic"><td>Epic</td><td class="num">6%</td><td class="num">300</td></tr>
+          <tr data-r="legendary"><td>Legendary</td><td class="num">2%</td><td class="num">1,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="plate case">
+      <div class="rule"><h3>Last pulls</h3></div>
+      <div class="row" id="last-pulls"></div>
+      <div class="lip" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- STORE -->
+  <section class="view" id="store" role="tabpanel" aria-labelledby="tab-store" hidden>
+    <div class="rule"><h2>Pick a theme</h2></div>
+    <div class="themes" role="radiogroup" aria-label="Theme" id="themes"></div>
+    <div class="shelf" id="shelf" data-theme="monsters">
+      <div class="back" id="packs"></div>
+      <div class="lip" aria-hidden="true"></div>
+      <div class="tags" id="tags"></div>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section class="view" id="inventory" role="tabpanel" aria-labelledby="tab-inventory" hidden>
+    <div class="inv-head">
+      <h2>Monsters</h2>
+      <p class="num">22<i> / 100 collected</i></p>
+    </div>
+    <div class="index" id="index" aria-label="Binder"></div>
+    <div class="album">
+      <div class="spine" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="page">
+        <div class="filters" aria-label="Show rarity">
+          <button aria-pressed="true">All</button>
+          <button aria-pressed="false" data-r="common">Common</button>
+          <button aria-pressed="false" data-r="uncommon">Uncommon</button>
+          <button aria-pressed="false" data-r="rare">Rare</button>
+          <button aria-pressed="false" data-r="epic">Epic</button>
+          <button aria-pressed="false" data-r="legendary">Legendary</button>
+        </div>
+        <div class="slots" id="slots"></div>
+        <div class="sell">
+          <p id="sell-msg"><b>6 duplicates</b> in this binder, worth 60 coins.</p>
+          <div class="acts" id="sell-ask"><button class="btn sec" id="sell-open">Sell duplicates</button></div>
+          <div class="acts" id="sell-confirm" hidden>
+            <button class="btn" id="sell-yes">Sell 6 for 60 coins</button>
+            <button class="btn sec" id="sell-no">Keep them</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<!-- OPENING OVERLAY -->
+<dialog class="rip" id="rip" aria-labelledby="rip-title">
+  <div class="stage">
+    <svg class="seal" aria-hidden="true"><use href="#rosette"/></svg>
+    <h2 id="rip-title">Triple pack<small id="rip-sub">Sample pull. Turn each card over.</small></h2>
+    <div class="pull" id="pull"></div>
+    <div class="acts">
+      <button class="btn" id="rip-all">Reveal all</button>
+      <button class="btn sec" id="rip-done">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- PACK ODDS POPUP -->
+<dialog class="oddsbox" id="oddsbox" aria-labelledby="odds-title">
+  <div class="plate">
+    <h2 id="odds-title">Pack odds</h2>
+    <p class="sub" id="odds-sub"></p>
+    <h3>Each card</h3>
+    <table><tbody id="odds-card"></tbody></table>
+    <h3>This pack: at least one</h3>
+    <table><tbody id="odds-pack"></tbody></table>
+    <p class="note" id="odds-note" hidden></p>
+    <button class="btn sec" id="odds-close">Close</button>
+  </div>
+</dialog>
+
+<!-- DESIGN SHEET -->
+<div class="sheet">
+  <h2>Design sheet</h2>
+  <p>The pieces the three screens above are built from. Numbers and pulls on this page are sample data; the game rules, card names, odds and prices are the real ones.</p>
+
+  <section>
+    <div class="rule"><h3>Colour tokens</h3></div>
+    <ul class="sw" id="swatches"></ul>
+  </section>
+
+  <section class="steps">
+    <div class="rule"><h3>Type steps</h3></div>
+    <p style="font:900 72px/1 var(--inline);text-transform:uppercase"><small>Inline Display 900. Wordmark and Home title only</small>CT Ripz</p>
+    <p class="num" style="font-size:64px"><small>Display 800. Prices and counts</small>1,500 &nbsp;425 &nbsp;0:42</p>
+    <p style="font:900 40px/1 var(--display);letter-spacing:.03em;text-transform:uppercase"><small>Display 900. Screen headings</small>Nice Cars</p>
+    <p style="font:800 28px/1 var(--display);letter-spacing:.08em;text-transform:uppercase"><small>Display 800. Pack and panel names</small>Mega pack</p>
+    <p style="font:800 20px/1 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hi)"><small>Display 800. Rule headings and tabs</small>Last pulls</p>
+    <p style="font-size:18px"><small>Libre Franklin 400, 18px. Lead text</small>Every pull goes in the vault.</p>
+    <p><small>Libre Franklin 400, 16px. Body</small>5 cards, at least one Rare or better.</p>
+    <p style="font:600 15px/1 var(--body);letter-spacing:.08em;text-transform:uppercase"><small>Libre Franklin 600, 15px. Buttons</small>Open the store</p>
+    <p style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)"><small>Libre Franklin 400, 13px. Labels</small>Cards collected</p>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Background layers</h3></div>
+    <div class="layers">
+      <figure><div style="background-image:var(--weave)"></div>1. Linen weave</figure>
+      <figure><div><svg style="aspect-ratio:1"><use href="#rosette"/></svg></div>2. Guilloch&eacute; rosette</figure>
+      <figure><div style="background-image:var(--hatch)"></div>3. Engraved crosshatch</figure>
+      <figure><div style="background:var(--navy-hi)"><svg viewBox="0 0 72 72" style="width:60%;color:var(--gold)"><use href="#corner"/></svg></div>4. Corner flourish</figure>
+      <figure><div style="background-image:var(--brush),var(--foil)"></div>Gold foil</figure>
+      <figure><div style="background-image:radial-gradient(ellipse 70% 62% at 50% 0%,color-mix(in srgb,var(--edge-hi) 55%,transparent),transparent 72%),repeating-linear-gradient(64deg,color-mix(in srgb,var(--white) 5%,transparent) 0 1px,transparent 1px 3px),repeating-linear-gradient(-64deg,color-mix(in srgb,var(--shadow) 70%,transparent) 0 1px,transparent 1px 3px);background-color:var(--navy-deep)"></div>Velvet stage</figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Buttons</h3></div>
+    <div class="plate demo">
+      <button class="btn">Primary</button>
+      <button class="btn" style="outline:2px solid var(--gold-hi);outline-offset:3px">Primary, focus</button>
+      <button class="btn" disabled>Primary, disabled</button>
+      <button class="btn sec">Secondary</button>
+      <button class="btn sec" style="outline:2px solid var(--gold-hi);outline-offset:3px">Secondary, focus</button>
+      <button class="btn sec" disabled>Secondary, disabled</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Logo: a legendary card</h3></div>
+    <div class="plate logos">
+      <figure><span class="mark" data-logo="sm" style="display:block;width:24px"></span>24px</figure>
+      <figure><span class="mark" data-logo="sm" style="display:block;width:48px"></span>48px</figure>
+      <figure><span class="mark" data-logo="lg" style="display:block;width:128px"></span>128px</figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>How each screen differs</h3></div>
+    <ul class="notes">
+      <li><b>Home</b>An engraved certificate. One large ornamented plate with the rosette as its seal, a ledger of big numerals, a stack of legendaries that slowly deals its top card to the back, the odds as a ruled table, and the last pulls in a display case with a foil lip.</li>
+      <li><b>Store</b>A shop shelf. Theme tiles carry a thin theme-colour edge; the three packs stand on a gold shelf strip with price-board numerals underneath. Each pack has an information button that opens its odds. A pack you cannot afford shows a muted button and how many coins short you are.</li>
+      <li><b>Inventory</b>An album page. Index tabs across the top, a stitched spine with ring holes, cards in recessed slots, empty slots hatched and numbered, and the sell confirmation built into the page.</li>
+      <li><b>Opening</b>A velvet stage under one light. Cards arrive face down with an engraved back and turn over one at a time; foil follows the pointer on Rare and better.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+  /* ---- guilloche: interlaced sine bands round a centre, drawn once into the shared symbol ---- */
+  const bands=[{R:262,a:20,n:16,k:6},{R:206,a:34,n:11,k:8},{R:140,a:30,n:8,k:7},{R:78,a:22,n:6,k:6},{R:34,a:12,n:5,k:4}];
+  let d='';
+  for(const b of bands){
+    for(let j=0;j<b.k;j++){
+      const ph=j*2*Math.PI/b.k; let p='';
+      for(let i=0;i<=360;i++){
+        const t=i*Math.PI/180, r=b.R+b.a*Math.sin(b.n*t+ph);
+        p+=(i?'L':'M')+(r*Math.cos(t)).toFixed(1)+' '+(r*Math.sin(t)).toFixed(1);
+      }
+      d+='<path d="'+p+'Z"/>';
+    }
+  }
+  d+='<circle r="292"/><circle r="288" stroke-dasharray="1 3"/><circle r="236"/><circle r="172"/><circle r="106"/><circle r="52"/>';
+  $('#rosette-paths').innerHTML=d;
+
+  /* ---- logo: a legendary card, two levels of detail ---- */
+  function logo(detail){
+    return '<svg viewBox="0 0 64 80" role="img" aria-label="CT Ripz"><g transform="rotate(7 32 44)">'
+      +'<rect x="15" y="9" width="38" height="56" rx="3.5" style="fill:var(--navy-raise);stroke:var(--gold-lo)" stroke-width="1.4"/></g>'
+      +'<g transform="rotate(-8 32 44)">'
+      +'<rect x="10" y="10" width="42" height="60" rx="4" fill="url(#lg-foil)"/>'
+      +'<rect x="10.5" y="10.5" width="41" height="59" rx="3.6" fill="none" style="stroke:var(--gold-ink)" stroke-width=".8"/>'
+      +'<rect x="14" y="14" width="34" height="52" rx="2.4" style="fill:var(--navy-deep)"/>'
+      +(detail?'<rect x="14" y="14" width="34" height="52" rx="2.4" fill="url(#pt-engrave)" style="color:var(--edge-hi)"/>'
+        +'<rect x="16.5" y="16.5" width="29" height="47" rx="1.4" fill="none" style="stroke:var(--gold-lo)" stroke-width=".5"/>'
+        +'<circle cx="31" cy="39" r="15" fill="none" style="stroke:var(--gold)" stroke-width=".5"/>'
+        +'<circle cx="31" cy="39" r="17" fill="none" style="stroke:var(--gold-lo)" stroke-width=".5" stroke-dasharray=".8 1.6"/>'
+        +'<path d="M18 60h26" style="stroke:var(--gold-lo)" stroke-width=".5"/>'
+        +'<text x="31" y="59" text-anchor="middle" style="font:900 6px var(--display);fill:var(--gold-hi);letter-spacing:.6px">CT</text>':'')
+      +'<path d="M36 10h12a4 4 0 0 1 4 4v7H41a5 5 0 0 1-5-5z" fill="url(#lg-foil)" style="stroke:var(--gold-ink)" stroke-width=".8"/>'
+      +'<path d="M31 27.5l2.9 7.6 8.1.4-6.3 5.1 2.1 7.8L31 44l-6.8 4.4 2.1-7.8-6.3-5.1 8.1-.4z" style="fill:var(--gold-hi);stroke:var(--gold-lo)" stroke-width=".6"/>'
+      +'</g></svg>';
+  }
+  $$('[data-logo]').forEach(el=>el.innerHTML=logo(el.dataset.logo==='lg'));
+
+  /* ---- sample data (names, themes and labels are the real ones from T) ---- */
+  const THEMES=[['monsters','Monsters'],['drugs','Drugs'],['sports','Sports'],['tech','Technology'],['crypto','Crypto & Stocks'],['cars','Nice Cars'],['vapes','Vapes'],['islam','Islam']];
+  const RN={common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary'};
+  const C=(theme,i,name,r,cat)=>({theme,i,name,r,cat});
+  const LAST=[C('monsters',96,'Solardrake','legendary','Dragon'),C('cars',68,'Porsche 911 Carrera','rare','Sports Car'),C('islam',68,'Blue Mosque','rare','Mosque'),C('sports',62,'Slam Dunk','uncommon','Basketball'),C('monsters',0,'Pebblit','common','Rock')];
+  const BINDER=['Pebblit','Gravlet','Dustmite','Cobblepup','Mudlump','Clodder','Leaflet','Sproutle','Mossback','Twiglet','Budkin','Fernip','Fizzbug','Nibblet','Skitterling'];
+  const CAT=i=>i<6?'Rock':i<12?'Grass':'Bug';
+  const OWN={0:3,4:1,9:1,10:2,11:1,12:4,13:1,14:1};
+  const PULL=[C('monsters',86,'Magmaw','epic','Fire'),C('monsters',12,'Fizzbug','common','Bug'),C('monsters',96,'Solardrake','legendary','Dragon'),C('monsters',9,'Twiglet','common','Grass'),C('monsters',14,'Skitterling','common','Bug')];
+
+  /* art: the real file when it exists, an engraved crest until then */
+  const crest='<svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice"><rect width="100" height="140" fill="url(#pt-engrave)"/><use href="#rosette" x="-20" y="0" width="140" height="140"/></svg>';
+  function card(c){
+    return '<span class="card" data-r="'+c.r+'"><span class="in"><span class="art">'+crest
+      +'<img src="../public/art/'+c.theme+'_'+c.i+'.jpg" alt="" loading="lazy" onerror="this.remove()"></span></span>'
+      +'<span class="nm">'+c.name+'</span><span class="tb">'+RN[c.r]+'</span><span class="bl">'+RN[c.r]+'</span><span class="br">'+c.cat+'</span><span class="sheen"></span></span>';
+  }
+  $('#last-pulls').innerHTML=LAST.map(card).join('');
+
+  /* ---- legendary showcase: every few seconds the top card slides off and tucks under the stack ---- */
+  const TN=Object.fromEntries(THEMES);
+  const LEG=[C('monsters',96,'Solardrake','legendary','Dragon'),C('cars',96,'Bugatti Chiron','legendary','Hypercar'),C('sports',96,'Super Bowl Ring','legendary','Football'),
+    C('monsters',97,'Voidwyrm','legendary','Dragon'),C('cars',97,'McLaren F1','legendary','Hypercar'),C('sports',97,'World Cup Trophy','legendary','Soccer'),
+    C('crypto',97,'Genesis Block','legendary','Coin'),C('cars',98,'Koenigsegg Jesko','legendary','Hypercar'),C('sports',98,'World Series Ring','legendary','Baseball'),
+    C('monsters',99,'Prismare','legendary','Cosmic'),C('cars',99,'Ferrari 250 GTO','legendary','Classic'),C('sports',99,'NBA Championship','legendary','Basketball')];
+  const deck=$('#deck'), still=matchMedia('(prefers-reduced-motion:reduce)');
+  let order=[0,1,2].map(k=>{const el=document.createElement('div');el.className='dc';el.dataset.pos=k;el.dataset.k=k;el.innerHTML=card(LEG[k]);deck.appendChild(el);return el});
+  let nextLeg=3, busy=false, paused=false, hover=false;
+  function label(){const c=LEG[+order[0].dataset.k];$('#lg-name').textContent=c.name;$('#lg-meta').textContent=TN[c.theme]+', '+c.cat}
+  function settle(top){
+    top.dataset.k=nextLeg; top.innerHTML=card(LEG[nextLeg]); nextLeg=(nextLeg+1)%LEG.length;
+    order=[order[1],order[2],top]; order.forEach((el,k)=>el.dataset.pos=k);
+    top.classList.remove('out','under'); label(); busy=false;
+  }
+  function deal(){
+    if(busy)return; busy=true; const top=order[0];
+    if(still.matches){settle(top);return}
+    top.classList.add('out');
+    setTimeout(()=>top.classList.add('under'),700);
+    setTimeout(()=>settle(top),950);
+  }
+  setInterval(()=>{if(!paused&&!hover&&!still.matches&&!document.hidden&&!$('#home').hidden)deal()},4500);
+  const showEl=$('#show');
+  showEl.addEventListener('pointerenter',()=>hover=true); showEl.addEventListener('pointerleave',()=>hover=false);
+  showEl.addEventListener('focusin',()=>hover=true); showEl.addEventListener('focusout',()=>hover=false);
+  $('#lg-next').onclick=deal;
+  $('#lg-pause').onclick=e=>{paused=!paused;e.currentTarget.setAttribute('aria-pressed',paused);e.currentTarget.textContent=paused?'Play':'Pause'};
+  if(still.matches){$('#lg-pause').hidden=true}
+
+  /* ---- store ---- */
+  const COINS=380, TIERS=[['Single',1,100,'1 card'],['Triple',3,270,'3 cards, save 10%'],['Mega',5,425,'5 cards, at least one Rare or better']];
+  const emblem='<svg class="em" aria-hidden="true"><use href="#rosette"/></svg>';
+  $('#themes').innerHTML=THEMES.map(([id,n],k)=>'<button role="radio" aria-checked="'+(k===0)+'" tabindex="'+(k?-1:0)+'" data-theme="'+id+'">'+n+'<small>100 cards</small></button>').join('');
+  function shelf(id,name){
+    $('#shelf').dataset.theme=id;
+    $('#packs').innerHTML=TIERS.map(t=>'<div class="offer"><button class="info" data-odds="'+t[0]+'" aria-label="'+t[0]+' pack odds"><span aria-hidden="true">i</span></button><div class="pack" aria-hidden="true">'+emblem+'<b>'+name+'</b><i>'+t[0]+'</i></div></div>').join('');
+    $('#tags').innerHTML=TIERS.map(t=>{const ok=COINS>=t[2];
+      return '<div class="tag"><h3>'+t[0]+'</h3><p>'+t[3]+'</p><div class="price"><b class="num">'+t[2]+'</b><span>coins</span></div>'
+        +'<button class="btn" data-buy="'+t[0]+'" data-n="'+t[1]+'"'+(ok?'':' disabled')+'>Rip '+t[0].toLowerCase()+'</button>'
+        +'<span class="short">'+(ok?'':(t[2]-COINS)+' coins short')+'</span></div>';}).join('');
+    $('#rip-sub').textContent='Sample pull. Turn each card over.';
+  }
+  shelf('monsters','Monsters');
+  const radios=$$('#themes button');
+  function pick(b){radios.forEach(x=>{x.setAttribute('aria-checked',x===b);x.tabIndex=x===b?0:-1});shelf(b.dataset.theme,b.firstChild.textContent)}
+  radios.forEach((b,k)=>{
+    b.addEventListener('click',()=>pick(b));
+    b.addEventListener('keydown',e=>{const s={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(!s)return;e.preventDefault();const n=radios[(k+s+radios.length)%radios.length];pick(n);n.focus()});
+  });
+
+  /* ---- pack odds popup: worked out from the real weights (R) and the Mega rule (min: Rare) ---- */
+  const RW=[['common','Common',55],['uncommon','Uncommon',25],['rare','Rare',12],['epic','Epic',6],['legendary','Legendary',2]];
+  const pct=x=>{const v=x*100;return (v>=99.95?'100':v<10?v.toFixed(1).replace(/\.0$/,''):v.toFixed(1).replace(/\.0$/,''))+'%'};
+  const tail=k=>RW.slice(k).reduce((n,r)=>n+r[2],0)/100;          /* chance one card is rarity k or better */
+  function atLeast(k,n,min){
+    let p=1-Math.pow(1-tail(k),n);
+    if(min!=null){const none=Math.pow(1-tail(min),n); p=k<=min?1:p+none*tail(k)/tail(min)}   /* last card re-rolled as Rare or better */
+    return p;
+  }
+  const oddsbox=$('#oddsbox'); let oddsFrom=null;
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-odds]'); if(!b)return;
+    const t=TIERS.find(x=>x[0]===b.dataset.odds), mega=t[0]==='Mega', min=mega?2:null;
+    $('#odds-title').textContent=t[0]+' pack odds';
+    $('#odds-sub').textContent=t[1]+(t[1]>1?' cards':' card')+' for '+t[2]+' coins';
+    $('#odds-card').innerHTML=RW.map(r=>'<tr data-r="'+r[0]+'"><th scope="row">'+r[1]+'</th><td class="num">'+r[2]+'%</td></tr>').join('');
+    $('#odds-pack').innerHTML=[[2,'Rare or better'],[3,'Epic or better'],[4,'Legendary']].map(([k,l])=>'<tr data-r="'+RW[k][0]+'"><th scope="row">'+l+'</th><td class="num">'+pct(atLeast(k,t[1],min))+'</td></tr>').join('');
+    const note=$('#odds-note'); note.hidden=!mega;
+    note.textContent=mega?'If none of the five cards is Rare or better, the last card is rolled again as Rare (60%), Epic (30%) or Legendary (10%).':'';
+    oddsFrom=b; oddsbox.showModal();
+  });
+  $('#odds-close').onclick=()=>oddsbox.close();
+  oddsbox.addEventListener('click',e=>{if(e.target===oddsbox)oddsbox.close()});
+  oddsbox.addEventListener('close',()=>{if(oddsFrom)oddsFrom.focus()});
+
+  /* ---- inventory ---- */
+  $('#index').innerHTML=THEMES.map(([id,n],k)=>'<button aria-pressed="'+(k===0)+'" data-theme="'+id+'">'+n+'</button>').join('');
+  $('#slots').innerHTML=BINDER.map((n,i)=>OWN[i]
+    ?'<div class="slot">'+(OWN[i]>1?'<span class="cnt" aria-label="'+OWN[i]+' copies">&times;'+OWN[i]+'</span>':'')+card(C('monsters',i,n,'common',CAT(i)))+'</div>'
+    :'<div class="slot empty"><div><span class="num" aria-label="Card '+(i+1)+', not collected">'+String(i+1).padStart(3,'0')+'</span></div></div>').join('');
+  $$('.filters button').forEach(b=>b.addEventListener('click',()=>$$('.filters button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+  $$('#index button').forEach(b=>b.addEventListener('click',()=>$$('#index button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+  const ask=$('#sell-ask'),conf=$('#sell-confirm');
+  $('#sell-open').onclick=()=>{ask.hidden=true;conf.hidden=false;$('#sell-yes').focus()};
+  $('#sell-no').onclick=()=>{conf.hidden=true;ask.hidden=false;$('#sell-open').focus()};
+  $('#sell-yes').onclick=()=>{conf.hidden=true;$('#sell-msg').innerHTML='<b>Sold.</b> 60 coins added.'};
+
+  /* ---- tabs ---- */
+  const tabs=$$('.tabs [role=tab]');
+  function go(id,focus){
+    tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;$('#'+t.getAttribute('aria-controls')).hidden=!on;if(on&&focus)t.focus()});
+    document.body.dataset.tab=id; window.scrollTo(0,0);
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click',()=>go(t.getAttribute('aria-controls')));
+    t.addEventListener('keydown',e=>{const s={ArrowRight:1,ArrowLeft:-1}[e.key];if(!s)return;e.preventDefault();go(tabs[(k+s+tabs.length)%tabs.length].getAttribute('aria-controls'),true)});
+  });
+  $$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go,true)));
+
+  /* ---- opening overlay ---- */
+  const rip=$('#rip');
+  const back='<span class="face backface"><svg class="seal2" aria-hidden="true"><use href="#rosette"/></svg><span class="mark">'+logo(false)+'</span></span>';
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-buy]'); if(!b)return;
+    $('#rip-title').firstChild.textContent=b.dataset.buy+' pack';
+    $('#pull').innerHTML=PULL.slice(0,+b.dataset.n).map(c=>'<button class="flip" aria-pressed="false" aria-label="Face-down card. Turn over"><span class="inner">'+back+'<span class="face front">'+card(c)+'</span></span></button>').join('');
+    rip.showModal();
+  });
+  function turn(f){f.setAttribute('aria-pressed','true');f.setAttribute('aria-label',f.querySelector('.nm').textContent+', '+f.querySelector('.tb').textContent)}
+  $('#pull').addEventListener('click',e=>{const f=e.target.closest('.flip');if(f)turn(f)});
+  $('#rip-all').onclick=()=>$$('#pull .flip').forEach(turn);
+  $('#rip-done').onclick=()=>rip.close();
+
+  /* ---- foil follows the pointer ---- */
+  document.addEventListener('pointermove',e=>{
+    const c=e.target.closest&&e.target.closest('.card'); if(!c)return;
+    const r=c.getBoundingClientRect();
+    c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(0)+'%');
+    c.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(0)+'%');
+  });
+
+  /* ---- sheet: swatches ---- */
+  $('#swatches').innerHTML=['navy-deep','navy','navy-hi','navy-raise','edge','edge-hi','gold-lo','gold','gold-hi','ink','common','uncommon','rare','epic','legendary']
+    .map(n=>'<li><i style="--c:var(--'+n+')"></i>--'+n+'</li>').join('');
+})();
+</script>
+</body>
+</html>
