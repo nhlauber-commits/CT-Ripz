@@ -111,9 +111,10 @@ figure{margin:0}
 .plate::before{content:'';position:absolute;inset:5px;border:1px solid var(--gold);pointer-events:none}
 /* hero: large, ornamented, rosette behind */
 .hero{grid-row:span 2;padding:62px 36px 36px;overflow:hidden;min-height:330px}
-.hero .rose{position:absolute;right:-34%;top:-30%;width:120%;aspect-ratio:1;color:var(--edge-hi)}
+.hero .rose{position:absolute;left:50%;top:50%;width:max(118%,560px);aspect-ratio:1;transform:translate(-50%,-50%);color:var(--edge-hi);opacity:.8}
 .hero .corner{width:46px;height:46px;color:var(--gold)}
 .hero>*:not(.rose):not(.corner){position:relative}
+.hero .logo{margin-bottom:12px}
 .hero .title{font-family:var(--inline);font-weight:900;font-size:clamp(44px,8vw,76px);line-height:.88;text-transform:uppercase;max-width:8ch}
 .hero .title span{color:var(--gold)}
 .hero p{color:var(--dim);margin:14px 0 22px;max-width:34ch}
@@ -168,9 +169,11 @@ figure{margin:0}
   .sheet{padding:34px 18px 28px;margin-top:16px}
   .layers{grid-template-columns:repeat(2,1fr)}
   .surfaces,.screens{grid-template-columns:1fr}
-  .controls{grid-template-columns:1fr 1fr}
+  /* one column on phones; each button shows its state as a small label above it */
+  .controls{grid-template-columns:1fr;justify-items:start;gap:10px}
   .controls small:first-child,.controls .head{display:none}
-  .controls .rowlabel{grid-column:1/-1}
+  .controls .rowlabel{margin-top:10px}
+  .controls .btn{max-width:100%;white-space:normal}
   .tile.big{height:260px}
   h2{font-size:28px}
 }
@@ -277,10 +280,12 @@ figure{margin:0}
     <div class="surfaces">
       <div class="plate hero">
         <svg class="rose guil" viewBox="-420 -420 840 840" data-rosette aria-hidden="true"></svg>
-        <svg class="corner tl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner br" aria-hidden="true"><use href="#corner"/></svg>
+        <svg class="corner tl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner tr" aria-hidden="true"><use href="#corner"/></svg>
+        <svg class="corner bl" aria-hidden="true"><use href="#corner"/></svg><svg class="corner br" aria-hidden="true"><use href="#corner"/></svg>
         <h3>Hero plate: Home</h3>
+        <span data-logo="84" data-detail="1"></span>
         <div class="title">Open the <span>vault</span></div>
-        <p>Certificate double rule, corner ornaments and the rosette behind the title.</p>
+        <p>Certificate double rule, four corner ornaments, the large logo and the rosette centred behind the title.</p>
         <button class="btn primary" type="button">Go to the store</button>
       </div>
       <div>

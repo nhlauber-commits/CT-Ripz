@@ -269,4 +269,7 @@ header{border-bottom:var(--rule);box-shadow:0 3px 0 -2px var(--gold),0 6px 0 var
   .binder{padding:14px 10px 14px 28px}
   .binder::before{width:18px}
   .back span{font-size:22px}
+  /* small cards: keep the NEW / DUPLICATE badge clear of the card name */
+  .slot{row-gap:28px;padding-top:14px}
+  .new,.dupe-badge{top:-19px;font-size:9px;padding:1px 6px}
 }
