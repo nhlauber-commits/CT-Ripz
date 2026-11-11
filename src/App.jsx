@@ -1,5 +1,7 @@
 import { ui, useGame } from './state/game.js'
 import Defs from './components/Defs.jsx'
+import Scene from './components/Scene.jsx'
+import Corners from './components/Corners.jsx'
 import TopBar from './components/TopBar.jsx'
 import Home from './components/Home.jsx'
 import Store from './components/Store.jsx'
@@ -14,8 +16,10 @@ export default function App() {
   return (
     <>
       <Defs />
+      <Scene view={view} />
       <TopBar />
       <div className="wrap">
+        <Corners />
         <div className="view" id="v-home" hidden={view != 'home'}>
           {view == 'home' && <Home />}
         </div>
