@@ -1,4 +1,12 @@
-@import "tailwindcss";
+/* Tailwind's theme and utility classes, without its reset (preflight): the reset changes
+   headings, buttons, lists and images, and the ported game in styles/game.css must look the
+   same as pack-rip.html. Switch to @import "tailwindcss" if the redesign wants the reset. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* The game's own styles sit in a layer below the utilities, so a Tailwind class on an element
+   wins over a plain rule such as button{font:inherit}. */
+@import "./styles/game.css" layer(components);
+@import "tailwindcss/utilities.css" layer(utilities);
 
 /* Tailwind colour tokens, taken from pack-rip.html's :root (the approved navy and gold).
    They become CSS variables (--color-navy, --color-gold ...) and classes such as
@@ -21,45 +29,3 @@
   --color-epic: #b370ff;
   --color-legendary: #f2be38;
 }
-
-/* Placeholder tokens matching the approved navy and gold look.
-   Copy the real values from pack-rip.html's :root when porting. */
-:root {
-  --navy-0: #0b1a33;
-  --navy-1: #11244a;
-  --gold: #c9a227;
-  --text: #f3efe4;
-  --gutter: max(16px, env(safe-area-inset-left));
-}
-
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--navy-0);
-  color: var(--text);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-}
-.bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px var(--gutter);
-  background: var(--navy-1);
-  border-bottom: 1px solid var(--gold);
-}
-h1 { font-family: 'Fraunces', serif; margin: 0; }
-h1 span { color: var(--gold); }
-.tab {
-  min-height: 40px;
-  padding: 0 14px;
-  background: transparent;
-  color: var(--text);
-  border: 1px solid transparent;
-  font: inherit;
-  cursor: pointer;
-}
-.tab.on { border-color: var(--gold); color: var(--gold); }
-.tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.view { padding: 24px var(--gutter); }
