@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
-import './styles.css'
+import './styles.css' // also brings in styles/game.css
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
