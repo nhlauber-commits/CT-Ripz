@@ -91,7 +91,7 @@ Replace the current square "C" mark with **an icon of a legendary card**:
   data-URI SVG. Heavy filters go in ONE shared `<defs>` and are referenced; never one filter per card.
 - **React version:** may also use texture images in `public/textures/` (JPEG or WebP, tileable,
   at most about 150 KB each, about 1 MB total). These are made with Higgsfield by Nick (see
-  `design/TEXTURES.md`). Until a file arrives, use the code-made version so nothing is blocked.
+  [`design/TEXTURES.md`](../design/TEXTURES.md)). Until a file arrives, use the code-made version so nothing is blocked.
 
 ## Buttons and controls
 - Primary: gold foil fill with navy text, engraved edge, sharp or 2–3px corners.
@@ -121,28 +121,11 @@ sit on the page (binder slots, display-case shelves, shadows that suit the surfa
 - Monsters theme: original creatures only. No Pokémon names, characters or likenesses.
 - Islam theme: no depictions of people; places, objects, geometric and calligraphic art only.
 
-## Image paths (one convention)
-All images live in `public/art/` in the repo. `pack-rip.html` loads them as `public/art/...`
-(it is opened from the repo root). The React app loads them as `art/...`, because Vite serves
-`public/` at the site root. Texture images for React go in `public/textures/`, loaded as `textures/...`.
+## Image paths
+See [images.md](images.md): card art in `public/art/`, React textures in `public/textures/`.
 
-## Hard technical rules for `pack-rip.html` (the page breaks or is refused otherwise)
-- One file. No `<!doctype>`, `<html>`, `<head>` or `<body>` tags. Keep `<title>CT Ripz</title>`
-  and the `claude:viewport-fit-sides` meta at the top.
-- No build step, no frameworks, no npm. Plain HTML, CSS, JS.
-- External resources: only Google Fonts stylesheets (`fonts.googleapis.com`). No external
-  images, no other hosts, no fetch. Local images only from `public/art/`.
-- Keep the single `<script>` block, with `<script>` and `</script>` each alone on its own line.
-- Keep this order inside the script: data (`T`, `R`, `TIERS`), helpers, art code, then the comment
-  line `/* ================= state ================= */`. Everything above that line must run
-  without a DOM. `art(card)` stays a pure function returning a string that starts with `<svg`,
-  with no `NaN` or `undefined`.
-- Performance: Inventory shows up to 100 cards at once. Keep the average card SVG under 16,000
-  bytes. Background textures are drawn once for the page, never per card.
-- Works at 375px wide with no horizontal page scroll; side gutters written as
-  `max(16px, env(safe-area-inset-*))`. Respect `prefers-reduced-motion`.
-- Every colour comes from CSS custom properties on `:root`.
-- Work in small, separate edits. Never rewrite the whole file in one edit.
+## Hard technical rules for `pack-rip.html`
+See [pack-rip.md](pack-rip.md). The page breaks or is refused if they are not followed.
 
 ## Check
 - `npm run check` must end with `CHECK OK` (it runs `check.sh`; do not edit `check.sh`).

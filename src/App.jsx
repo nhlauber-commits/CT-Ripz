@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 // Shell for the React version of CT Ripz.
 // The playable game still lives in ../pack-rip.html until it is ported here
-// (see PROMPT.md). Each tab becomes its own component in src/components/.
+// (see docs/prompts/). Each tab becomes its own component in src/components/.
 const TABS = ['Home', 'Store', 'Inventory']
 
 export default function App() {
