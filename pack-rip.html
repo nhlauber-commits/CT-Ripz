@@ -75,21 +75,67 @@ header{
   border-bottom-color:var(--gold);
 }
 .wallet{
-  margin-left:auto;display:flex;align-items:center;gap:10px;
+  margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0;
   background-color:var(--navy);
   background-image:var(--grain);
   border:1px solid color-mix(in srgb,var(--gold) 35%,var(--edge));
   border-radius:3px;padding:5px 10px;font-variant-numeric:tabular-nums;
 }
+.wallet.paused{
+  border-color:color-mix(in srgb,var(--gold) 65%,var(--edge));
+  background-color:var(--navy-hi);
+}
 .wallet .bal{
   font-family:var(--display);font-weight:700;font-size:16px;line-height:1;color:var(--gold-hi);white-space:nowrap;
-  padding-right:10px;border-right:1px solid var(--edge);
+  padding-right:10px;border-right:1px solid var(--edge);flex-shrink:0;
 }
-.wallet .next{display:flex;flex-direction:column;gap:3px;color:var(--dim);font-size:11px;line-height:1.1;white-space:nowrap}
+.wallet .next{display:flex;flex-direction:column;gap:2px;color:var(--dim);font-size:11px;line-height:1.15;min-width:0}
 .wallet .next b{color:var(--ink);font-weight:600}
+.wallet.paused .next b{color:var(--gold-hi)}
+.wallet .rule{font-size:10px;color:var(--muted);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wallet.paused .rule{color:var(--dim)}
 .meter{height:3px;border-radius:1px;background:var(--navy-deep);overflow:hidden}
 .meter i{display:block;height:100%;background:var(--gold)}
+.wallet.paused .meter{display:none}
 .view{display:flex;flex-direction:column;gap:32px}
+.home-cta{
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 45%,var(--edge));
+  border-left:3px solid var(--gold);
+  border-radius:4px;padding:16px 20px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;
+}
+.home-cta-text{display:flex;flex-direction:column;gap:2px}
+.home-cta-text b{font-family:var(--display);font-size:18px;font-weight:700;color:var(--ink)}
+.home-cta-text span{color:var(--dim);font-size:13.5px}
+.guide{
+  background-color:var(--navy-deep);
+  background-image:var(--grain);
+  border:1px solid color-mix(in srgb,var(--gold) 45%,var(--edge));
+  border-top:2px solid var(--gold);
+  border-radius:4px;padding:18px 20px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.guide-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.guide-head b{font-family:var(--display);font-size:17px;color:var(--gold-hi)}
+.guide-steps{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;
+  margin:0;padding:0;list-style:none;
+}
+.guide-steps li{
+  background-color:var(--navy-hi);
+  background-image:var(--grain);
+  border:1px solid var(--edge);border-radius:4px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--dim);
+}
+.guide-steps li b{font-family:var(--display);font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:7px}
+.guide-steps li i{
+  font-style:normal;font-family:var(--body);font-size:11px;font-weight:700;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--gold);color:var(--gold-ink);
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .stats div{
   position:relative;overflow:hidden;
@@ -340,7 +386,7 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
 .search:hover{border-color:color-mix(in srgb,var(--gold) 55%,var(--edge))}
 .search:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px;border-color:var(--gold);background-color:var(--navy-raise)}
 .search-clear{
-  position:absolute;right:4px;min-width:32px;min-height:32px;
+  position:absolute;right:0;min-width:40px;min-height:40px;
   background:none;border:0;border-radius:3px;color:var(--dim);font-size:16px;line-height:1;
   display:inline-flex;align-items:center;justify-content:center;
 }
@@ -543,12 +589,15 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
   text-align:center;
 }
 @media (max-width:600px){
-  header{gap:6px 10px;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-  .wallet{padding:4px 8px;gap:8px}
-  .wallet .bal{font-size:15px;padding-right:8px}
-  .wallet .next{font-size:10.5px}
+  header{gap:6px 8px;padding:6px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+  .wallet{padding:4px 7px;gap:6px;max-width:calc(100% - 112px)}
+  .wallet .bal{font-size:14px;padding-right:6px}
+  .wallet .next{font-size:10px}
+  .wallet .rule{font-size:9.5px}
   .nav{order:3;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--edge)}
   .nav button{min-height:40px;padding:8px 6px;font-size:13.5px}
+  .home-cta{padding:14px 16px}
+  .home-cta .primary{width:100%}
   .stats{gap:8px}
   .stats div{padding:10px}
   .rack{grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
@@ -593,15 +642,37 @@ button.pack:disabled{opacity:.72;filter:grayscale(.3)}
     <button type="button" data-v="store">Store</button>
     <button type="button" data-v="inv">Inventory</button>
   </nav>
-  <div class="wallet">
+  <div class="wallet" id="wallet">
     <div class="bal"><i class="coin"></i><span id="nCoins">0</span></div>
-    <div class="next"><span>+<b id="nPay"></b> coins in <b id="nNext">0:30</b></span><span class="meter"><i id="meter"></i></span></div>
+    <div class="next">
+      <span id="walletStatus">+<b id="nPay"></b>/min · <b id="nNext">1:00</b></span>
+      <span class="rule" id="walletRule">Free up to 5,000 cap</span>
+      <span class="meter"><i id="meter"></i></span>
+    </div>
   </div>
 </header>
 
 <div class="wrap">
 
   <div class="view" id="v-home">
+    <div class="home-cta">
+      <div class="home-cta-text">
+        <b id="homeCtaTitle">Ready to rip a pack?</b>
+        <span id="homeCtaSub">Pick from 8 collector themes and build your 800-card binder.</span>
+      </div>
+      <button class="primary" id="homeStoreBtn" type="button">Go to Store →</button>
+    </div>
+    <div class="guide" id="homeGuide" hidden>
+      <div class="guide-head">
+        <b>How CT Ripz works</b>
+        <button class="ghost" id="dismissGuide" type="button">Got it, dismiss</button>
+      </div>
+      <ol class="guide-steps">
+        <li><b><i>1</i>Earn coins</b><span>Start with 1,000 coins and earn +1,000 free every minute while your balance is under 5,000.</span></li>
+        <li><b><i>2</i>Open packs</b><span>Visit the Store to rip Single (100), Triple (270), or Mega (425, guaranteed Rare+) packs across 8 themes.</span></li>
+        <li><b><i>3</i>Sell duplicates</b><span>Every extra copy sells for coins (10 to 1,500 by rarity) to fund more packs and finish your binders.</span></li>
+      </ol>
+    </div>
     <div class="stats">
       <div><b id="nOpened">0</b><span class="label">Packs ripped</span></div>
       <div><b id="nFound">0</b><span class="label">Cards found</span></div>
@@ -975,7 +1046,7 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const $=id=>document.getElementById(id);
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BY={};T.forEach(t=>t.cards.forEach(c=>BY[c.key]=c));
-let cur=T[0],filter=-1,searchQuery='',ownedOnly=false,dupesOnly=false,sortBy='num',cardNavList=[],activeCard=null,busy=false,view='home';
+let cur=T.find(t=>t.id===S.theme)||T[0],filter=-1,searchQuery='',ownedOnly=false,dupesOnly=false,sortBy='num',cardNavList=[],activeCard=null,busy=false,view=['home','store','inv'].includes(S.view)?S.view:'home';
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 const own=c=>S.owned[c.key]||0;
 const found=t=>t.cards.filter(own).length;
@@ -1023,8 +1094,10 @@ function packEl(t,ti,tag){
 function renderWallet(){
   const capped=S.coins>=CAP,left=capped?WAIT:Math.max(0,WAIT-(Date.now()-S.last)),sec=Math.ceil(left/1000);
   $('nCoins').textContent=S.coins.toLocaleString('en-US');
-  const line=document.querySelector('.wallet .next span');
-  if(line)line.innerHTML=capped?`Free coins paused at <b>${CAP.toLocaleString('en-US')}</b>`:`+<b>${PAY.toLocaleString('en-US')}</b> coins in <b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>`;
+  const w=$('wallet'),st=$('walletStatus'),rl=$('walletRule');
+  if(w)w.classList.toggle('paused',capped);
+  if(st)st.innerHTML=capped?`<b>Paused at ${CAP.toLocaleString('en-US')}</b>`:`+<b>${PAY.toLocaleString('en-US')}</b>/min in <b>${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b>`;
+  if(rl)rl.textContent=capped?`Spend <${CAP.toLocaleString('en-US')} for +${PAY.toLocaleString('en-US')}/min`:`Free every min, pauses at ${CAP.toLocaleString('en-US')}`;
   $('meter').style.width=(capped?0:100-left/WAIT*100)+'%';
 }
 function tick(){
@@ -1044,12 +1117,19 @@ function renderRack(){
   });
 }
 function renderHome(){
+  const totFound=T.reduce((n,t)=>n+found(t),0);
   $('nOpened').textContent=S.opened;
-  $('nFound').textContent=T.reduce((n,t)=>n+found(t),0)+'/'+TOTAL;
+  $('nFound').textContent=totFound+'/'+TOTAL;
   $('nDupes').innerHTML=coins(dupeValue());
+  const ct=$('homeCtaTitle'),cs=$('homeCtaSub'),cb=$('homeStoreBtn');
+  if(ct)ct.textContent=totFound?`Keep building your ${cur.name} binder`:'Ready to rip your first pack?';
+  if(cs)cs.textContent=S.coins>=TIERS[0].cost?`You have ${S.coins.toLocaleString('en-US')} coins ready to spend in the Store.`:`You have ${S.coins.toLocaleString('en-US')} coins — free +1,000 coins arrive every minute.`;
+  if(cb)cb.textContent=totFound?`Open ${cur.name} packs in Store →`:'Go to the Store →';
+  const gd=$('homeGuide');
+  if(gd)gd.hidden=!!(totFound>0||S.guideDismissed);
   const rc=$('recent'),list=S.recent.map(k=>BY[k]).filter(c=>c&&own(c));rc.innerHTML='';
   if(list.length){rc.className='recent';list.forEach(c=>rc.append(cellEl(c,list)))}
-  else{rc.className='empty';rc.append(el('span','','No cards yet. Your newest pulls will show up here.'));const b=el('button','primary','Go to the store');b.type='button';b.onclick=()=>{view='store';refresh()};rc.append(b)}
+  else{rc.className='empty';rc.append(el('span','','No cards yet. Open a pack in the Store and your newest pulls will show up here.'))}
   fillOdds($('odds'));
 }
 function renderOffers(){
@@ -1145,6 +1225,7 @@ function renderBinder(){
   });
 }
 function refresh(){
+  S.view=view;S.theme=cur.id;save();
   renderWallet();
   document.querySelectorAll('#nav button').forEach(b=>{if(b.dataset.v==view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   ['home','store','inv'].forEach(v=>$('v-'+v).hidden=v!=view);
@@ -1289,6 +1370,8 @@ $('stage').addEventListener('pointerout',e=>{const f=e.target.closest&&e.target.
 /* ================= wallet + tabs ================= */
 setInterval(tick,1000);
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{view=b.dataset.v;refresh()});
+$('homeStoreBtn').onclick=()=>{view='store';refresh()};
+$('dismissGuide').onclick=()=>{S.guideDismissed=true;save();renderHome()};
 $('invSearch').oninput=function(){searchQuery=this.value;renderBinder()};
 $('invClear').onclick=()=>{searchQuery='';$('invSearch').value='';renderBinder();$('invSearch').focus()};
 $('invSort').onchange=function(){sortBy=this.value;renderBinder()};
