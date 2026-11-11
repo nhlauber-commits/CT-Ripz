@@ -1,0 +1,28 @@
+/* Tailwind's theme and utility classes, without its reset (preflight): the reset changes
+   headings, buttons, lists and images, and the ported game in styles/game.css must look the
+   same as pack-rip.html. Switch to @import "tailwindcss" if the redesign wants the reset. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Tailwind colour tokens, taken from pack-rip.html's :root (the approved navy and gold).
+   They become CSS variables (--color-navy, --color-gold ...) and classes such as
+   bg-navy, bg-navy-raise, text-gold, border-gold, text-ink, border-legendary. */
+@theme {
+  --color-navy-deep: #060c18;
+  --color-navy: #0b1528;
+  --color-navy-hi: #111f38;
+  --color-navy-raise: #182a4a;
+  --color-edge: #22365a;
+  --color-edge-hi: #314b78;
+  --color-gold: #d4af37;
+  --color-gold-hi: #ecd074;
+  --color-gold-lo: #7a5d17;
+  --color-gold-ink: #07101e;
+  --color-ink: #f4efe4;
+  --color-common: #9aa7b8;
+  --color-uncommon: #45c782;
+  --color-rare: #4a9eff;
+  --color-epic: #b370ff;
+  --color-legendary: #f2be38;
+}
