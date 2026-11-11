@@ -1,26 +1,23 @@
-// The logo: a legendary card pulled from a pack. `detail` adds engraving for large sizes.
+// The logo: a legendary card pulled from a pack. `detail` adds halftone and a burst for large sizes.
 export default function Logo({ detail = false }) {
+  const ink = { stroke: 'var(--ink)' }
   return (
     <svg viewBox="0 0 64 80" aria-hidden="true">
-      <g transform="rotate(7 32 44)">
-        <rect x="15" y="9" width="38" height="56" rx="3.5" strokeWidth="1.4" style={{ fill: 'var(--navy-raise)', stroke: 'var(--gold-lo)' }} />
+      <g transform="rotate(9 32 44)">
+        <rect x="15" y="9" width="38" height="56" rx="4" strokeWidth="2.4" style={{ fill: 'var(--cyan)', ...ink }} />
       </g>
       <g transform="rotate(-8 32 44)">
-        <rect x="10" y="10" width="42" height="60" rx="4" fill="url(#lg-foil)" />
-        <rect x="10.5" y="10.5" width="41" height="59" rx="3.6" fill="none" strokeWidth=".8" style={{ stroke: 'var(--gold-ink)' }} />
-        <rect x="14" y="14" width="34" height="52" rx="2.4" style={{ fill: 'var(--navy-deep)' }} />
+        <rect x="10" y="10" width="42" height="60" rx="4.5" strokeWidth="2.4" style={{ fill: 'var(--yellow)', ...ink }} />
+        <rect x="15" y="15" width="32" height="50" rx="2.4" strokeWidth="1.6" style={{ fill: 'var(--pink)', ...ink }} />
         {detail && (
           <>
-            <rect x="14" y="14" width="34" height="52" rx="2.4" fill="url(#pt-engrave)" style={{ color: 'var(--edge-hi)' }} />
-            <rect x="16.5" y="16.5" width="29" height="47" rx="1.4" fill="none" strokeWidth=".5" style={{ stroke: 'var(--gold-lo)' }} />
-            <circle cx="31" cy="39" r="15" fill="none" strokeWidth=".5" style={{ stroke: 'var(--gold)' }} />
-            <circle cx="31" cy="39" r="17" fill="none" strokeWidth=".5" strokeDasharray=".8 1.6" style={{ stroke: 'var(--gold-lo)' }} />
-            <path d="M18 60h26" strokeWidth=".5" style={{ stroke: 'var(--gold-lo)' }} />
-            <text x="31" y="59" textAnchor="middle" style={{ font: '900 6px var(--display)', fill: 'var(--gold-hi)', letterSpacing: '.6px' }}>CT</text>
+            <rect x="15" y="15" width="32" height="50" rx="2.4" fill="url(#pt-dots)" opacity=".45" />
+            <use href="#burst" x="13" y="22" width="36" height="36" style={{ color: 'var(--orange)' }} />
+            <text x="31" y="63" textAnchor="middle" style={{ font: '400 6.5px var(--display)', fill: 'var(--ink)', letterSpacing: '.8px' }}>CT</text>
           </>
         )}
-        <path d="M36 10h12a4 4 0 0 1 4 4v7H41a5 5 0 0 1-5-5z" fill="url(#lg-foil)" strokeWidth=".8" style={{ stroke: 'var(--gold-ink)' }} />
-        <path d="M31 27.5l2.9 7.6 8.1.4-6.3 5.1 2.1 7.8L31 44l-6.8 4.4 2.1-7.8-6.3-5.1 8.1-.4z" strokeWidth=".6" style={{ fill: 'var(--gold-hi)', stroke: 'var(--gold-lo)' }} />
+        <path d="M37 10h10.5a4.5 4.5 0 0 1 4.5 4.5V22H42a5 5 0 0 1-5-5z" strokeWidth="1.8" style={{ fill: 'var(--cyan)', ...ink }} />
+        <path d="M31 26.5l3.2 8 8.6.5-6.7 5.4 2.2 8.3L31 44l-7.3 4.7 2.2-8.3-6.7-5.4 8.6-.5z" strokeWidth="1.8" strokeLinejoin="round" style={{ fill: 'var(--cream)', ...ink }} />
       </g>
     </svg>
   )

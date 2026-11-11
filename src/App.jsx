@@ -1,22 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { T } from './data/game.js'
 import { openPack } from './state/game.js'
 import Defs from './components/Defs.jsx'
 import Scene from './components/Scene.jsx'
-import Corners from './components/Corners.jsx'
+import Ticker from './components/Ticker.jsx'
 import TopBar from './components/TopBar.jsx'
 import Home from './components/Home.jsx'
 import Store from './components/Store.jsx'
 import Inventory from './components/Inventory.jsx'
+import Stats from './components/Stats.jsx'
 import OpeningOverlay from './components/OpeningOverlay.jsx'
-import OddsDialog from './components/OddsDialog.jsx'
 
 export default function App() {
   const [tab, setTab] = useState('home')
   const [theme, setTheme] = useState(T[0])
   const [stage, setStage] = useState(null) // { kind: 'pull' | 'card', ... } while the overlay is open
-  const [oddsTi, setOddsTi] = useState(null)
-  const oddsFrom = useRef(null)
 
   useEffect(() => { document.body.dataset.tab = tab; window.scrollTo(0, 0) }, [tab])
 
@@ -44,18 +42,17 @@ export default function App() {
     <>
       <Defs />
       <Scene />
+      <Ticker />
       <div className="frame">
-        <Corners />
         <TopBar tab={tab} setTab={setTab} />
         <main>
           <Home active={tab === 'home'} go={go} showCard={showCard} />
-          <Store active={tab === 'store'} theme={theme} setTheme={setTheme} onBuy={(ti) => buy(theme, ti)}
-            onOdds={(ti, from) => { oddsFrom.current = from; setOddsTi(ti) }} />
+          <Store active={tab === 'store'} theme={theme} setTheme={setTheme} onBuy={(ti) => buy(theme, ti)} />
           <Inventory active={tab === 'inventory'} theme={theme} setTheme={setTheme} showCard={showCard} />
+          <Stats active={tab === 'stats'} go={go} showCard={showCard} />
         </main>
       </div>
       <OpeningOverlay stage={stage} onAgain={() => buy(stage.theme, stage.ti)} onClose={() => setStage(null)} />
-      <OddsDialog ti={oddsTi} onClose={() => { setOddsTi(null); oddsFrom.current?.focus() }} />
     </>
   )
 }

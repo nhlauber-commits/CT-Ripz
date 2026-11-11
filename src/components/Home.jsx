@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { R, TOTAL } from '../data/game.js'
 import { useGame, BY, own, totalFound, dupeValue, reset } from '../state/game.js'
 import Card from './Card.jsx'
-import Corners from './Corners.jsx'
+import Burst from './Burst.jsx'
 import Logo from './Logo.jsx'
 import Legendaries from './Legendaries.jsx'
 
@@ -23,46 +23,48 @@ export default function Home({ active, go, showCard }) {
 
   return (
     <section className="view home" id="home" role="tabpanel" aria-labelledby="tab-home" hidden={!active}>
-      <div className="plate hero">
-        <svg className="seal" aria-hidden="true"><use href="#rosette" /></svg>
-        <div className="edge-hatch" aria-hidden="true" />
-        <Corners />
+      <div className="sticker hero paper">
+        <div className="ht" aria-hidden="true" />
         <div>
-          <h2>Rip a <b className="foil-text">pack</b></h2>
-          <p>Eight themes, 800 cards, three pack sizes. Every pull goes in the vault.</p>
+          <h2 className="misreg">Rip a <b className="misreg">pack</b></h2>
+          <p>Eight themes, 800 cards, three pack sizes. Every pull goes in your binder.</p>
           <div className="acts">
             <button type="button" className="btn" onClick={() => go('store')}>Open the store</button>
             <button type="button" className="btn sec" onClick={() => go('inventory')}>View inventory</button>
           </div>
         </div>
-        <span className="mark"><Logo detail /></span>
+        <div className="hero-art" aria-hidden="true">
+          <Burst />
+          <span className="mark"><Logo detail /></span>
+          <span className="badge">{TOTAL}<small>cards</small></span>
+        </div>
       </div>
 
-      <dl className="plate ledger">
-        <div>
+      <dl className="ledger paper">
+        <div className="tile">
           <dt>Cards collected</dt>
           <dd className="num">{got}<i>of {TOTAL}</i></dd>
-          <div className="bar-meter" aria-hidden="true"><i style={{ width: (got / TOTAL) * 100 + '%' }} /></div>
+          <div className="meter" aria-hidden="true"><i style={{ width: (got / TOTAL) * 100 + '%' }} /></div>
         </div>
-        <div><dt>Packs opened</dt><dd className="num">{fmt(S.opened)}</dd></div>
-        <div><dt>Duplicates worth</dt><dd className="num coins">{fmt(dupeValue())}<i>coins</i></dd></div>
+        <div className="tile"><dt>Packs ripped</dt><dd className="num">{fmt(S.opened)}</dd></div>
+        <div className="tile"><dt>Duplicates worth</dt><dd className="num">{fmt(dupeValue())}<i>coins</i></dd></div>
       </dl>
 
       <Legendaries active={active} />
 
-      <div className="plate odds">
+      <div className="sticker odds paper">
         <div className="rule"><h3>Odds</h3></div>
         <table>
           <thead><tr><th scope="col">Rarity</th><th scope="col">Chance</th><th scope="col">Sells for</th></tr></thead>
           <tbody>
             {R.map((r) => (
-              <tr key={r.id} data-r={r.id}><td>{r.name}</td><td className="num">{r.w}%</td><td className="num">{fmt(r.sell)}</td></tr>
+              <tr key={r.id} data-r={r.id} style={{ '--w': r.w + '%' }}><td>{r.name}</td><td className="num">{r.w}%</td><td className="num">{fmt(r.sell)}</td></tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="plate case">
+      <div className="sticker case">
         <div className="rule"><h3>Last pulls</h3></div>
         {recent.length ? (
           <div className="row">

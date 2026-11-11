@@ -1,7 +1,7 @@
 import Logo from './Logo.jsx'
 import Wallet from './Wallet.jsx'
 
-export const TABS = [['home', 'Home'], ['store', 'Store'], ['inventory', 'Inventory']]
+export const TABS = [['home', 'Home'], ['store', 'Store'], ['inventory', 'Inventory'], ['stats', 'Stats']]
 
 export default function TopBar({ tab, setTab }) {
   const onKey = (e, k) => {
@@ -16,7 +16,7 @@ export default function TopBar({ tab, setTab }) {
     <header className="bar">
       <div className="brand">
         <span className="mark"><Logo /></span>
-        <h1>CT <span>Ripz</span></h1>
+        <h1 className="misreg">CT <span>Ripz</span></h1>
       </div>
       <nav className="tabs" role="tablist" aria-label="Sections">
         {TABS.map(([id, name], k) => (

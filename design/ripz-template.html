@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>CT Ripz: Hyperprint template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Dela+Gothic+One&display=swap">
+<style>
+/* =====================================================================
+   CT Ripz, "Hyperprint": design template (review page, not shipped).
+   A total redesign: overprinted ink, halftone, die-cut stickers, holo foil.
+   Static sample data. Every colour is a custom property from :root.
+   ===================================================================== */
+:root{
+  /* ink and paper */
+  --ink:#0c0420; --ink-2:#1a0b38; --cream:#fff3d6; --paper:#ffe9b8; --white:#ffffff;
+  /* the five print colours */
+  --pink:#ff2e88; --pink-hi:#ff5fa6; --pink-lo:#c4005c;
+  --cyan:#00e0ff; --cyan-lo:#008fb3;
+  --yellow:#ffe500; --yellow-lo:#f5a800;
+  --orange:#ff6a1a; --lime:#a6ff1f; --violet:#7a2bff;
+  /* scene tones, one pair per tab */
+  --home-a:#34107a; --home-b:#240a58; --store-a:#075a70; --store-b:#053f52; --inv-a:#8a124f; --inv-b:#650a3a;
+  /* rarity */
+  --common:#c3cbdb; --uncommon:#2bff88; --rare:#2aa5ff; --epic:#c655ff; --legendary:#ffd60a;
+  /* theme pairs: packs, theme tiles, binder tabs */
+  --t-monsters-a:#ff3b1f; --t-monsters-b:#ffb300; --t-drugs-a:#8a2bff; --t-drugs-b:#00e6a0;
+  --t-sports-a:#0d5bff; --t-sports-b:#ff2d2d; --t-tech-a:#1f4dff; --t-tech-b:#00e0ff;
+  --t-crypto-a:#ff8a00; --t-crypto-b:#00c46a; --t-cars-a:#e6002e; --t-cars-b:#2b2f3a;
+  --t-vapes-a:#a03cff; --t-vapes-b:#ff4fa3; --t-islam-a:#00a383; --t-islam-b:#e6b800;
+  /* type */
+  --mark:"Dela Gothic One","Arial Black",Impact,sans-serif;
+  --display:"Anton","Arial Narrow",Impact,sans-serif;
+  --body:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  /* textures (all code-made) */
+  --dots-ink:radial-gradient(circle at 50% 50%,var(--ink) 0 1.7px,transparent 2.1px);
+  --dots-cream:radial-gradient(circle at 50% 50%,var(--cream) 0 1.5px,transparent 1.9px);
+  --dots-pink:radial-gradient(circle at 50% 50%,var(--pink) 0 2.2px,transparent 2.6px);
+  --dots-cyan:radial-gradient(circle at 50% 50%,var(--cyan) 0 2.2px,transparent 2.6px);
+  --stripe:repeating-linear-gradient(-45deg,var(--ink) 0 7px,var(--yellow) 7px 14px);
+  --stripe-pink:repeating-linear-gradient(-45deg,var(--pink) 0 7px,var(--cream) 7px 14px);
+  --check:conic-gradient(var(--ink) 25%,var(--pink) 0 50%,var(--ink) 0 75%,var(--pink) 0);
+  --holo:linear-gradient(115deg,var(--yellow),var(--orange) 18%,var(--pink) 36%,var(--violet) 54%,var(--cyan) 72%,var(--lime) 88%,var(--yellow));
+  --zig:conic-gradient(from -45deg at bottom,transparent,var(--ink) 1deg 89deg,transparent 90deg) 50%/14px 100%;
+  --gutter:clamp(16px,3.2vw,40px);
+  --sh:var(--pink); --focus:var(--white); --dim:color-mix(in srgb,var(--cream) 74%,var(--ink));
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--cream);font:500 16px/1.45 var(--body);overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4,p,ul,ol,dl,dd,figure{margin:0;padding:0}
+ul,ol{list-style:none}
+button{font:inherit;color:inherit;cursor:pointer}
+img,svg{display:block;max-width:100%}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+[hidden]{display:none!important}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;line-height:.9}
+/* light surfaces flip the ink */
+.paper{color:var(--ink);--focus:var(--ink);--dim:color-mix(in srgb,var(--ink) 74%,var(--cream))}
+/* die-cut sticker: cream keyline, hard offset shadow */
+.sticker{position:relative;border:4px solid var(--cream);box-shadow:8px 8px 0 var(--sh)}
+/* misregistered print: one colour slips off the black */
+.misreg{text-shadow:.045em .045em 0 var(--ink),.1em .1em 0 var(--mis,var(--cyan))}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin-c{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes slide{to{transform:translateX(-50%)}}
+@keyframes wobble{0%,100%{transform:rotate(var(--tilt,0deg))}35%{transform:rotate(calc(var(--tilt,0deg) - 4deg)) translateY(-8px)}70%{transform:rotate(calc(var(--tilt,0deg) + 3deg)) translateY(-4px)}}
+@keyframes shine{to{background-position:200% 0}}
+
+/* ---------- 1. the scene: spinning rays, two halftone fields, grain ---------- */
+body{--sa:var(--home-a);--sb:var(--home-b)}
+body[data-tab=store]{--sa:var(--store-a);--sb:var(--store-b)}
+body[data-tab=inventory]{--sa:var(--inv-a);--sb:var(--inv-b)}
+.scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:var(--sb)}
+.scene>*{position:absolute;inset:0}
+.scene .rays{inset:auto;left:72%;top:30%;width:240vmax;height:240vmax;transform:translate(-50%,-50%);
+  background:repeating-conic-gradient(var(--sa) 0 7.5deg,var(--sb) 7.5deg 15deg);animation:spin-c 140s linear infinite}
+.scene .ht-a{background:var(--dots-pink) 0 0/13px 13px;
+  -webkit-mask-image:linear-gradient(35deg,var(--ink),transparent 46%);mask-image:linear-gradient(35deg,var(--ink),transparent 46%)}
+.scene .ht-b{background:var(--dots-cyan) 0 0/13px 13px;
+  -webkit-mask-image:linear-gradient(215deg,var(--ink),transparent 40%);mask-image:linear-gradient(215deg,var(--ink),transparent 40%)}
+.scene .grain{width:100%;height:100%;opacity:.5;mix-blend-mode:overlay}
+.scene .shade{background:radial-gradient(ellipse 90% 80% at 50% 40%,transparent 40%,color-mix(in srgb,var(--ink) 78%,transparent))}
+
+/* ---------- 2. ticker and top bar ---------- */
+.ticker{position:relative;z-index:2;overflow:hidden;background:var(--yellow);color:var(--ink);border-bottom:4px solid var(--ink);
+  font:400 17px/1 var(--display);letter-spacing:.1em;text-transform:uppercase}
+.ticker div{display:flex;width:max-content;animation:slide 40s linear infinite}
+.ticker span{flex:none;padding:9px 16px 8px}
+.ticker span:nth-child(3n+1){color:var(--pink-lo)}
+.frame{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 var(--gutter) 48px}
+.bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px 24px;padding:20px 0 0}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:38px;flex:none;transform:rotate(-6deg)}
+.brand h1{font:400 30px/1 var(--mark);text-transform:uppercase;color:var(--yellow);--mis:var(--pink)}
+.brand h1 span{color:var(--cyan)}
+.tabs{display:flex;justify-self:center;gap:10px}
+.tabs button{min-height:48px;padding:0 24px;background:var(--cream);color:var(--ink);border:3px solid var(--ink);
+  font:400 22px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;box-shadow:4px 4px 0 var(--cyan);transition:transform .12s}
+.tabs button:nth-child(2){box-shadow:4px 4px 0 var(--pink)}
+.tabs button:nth-child(3){box-shadow:4px 4px 0 var(--lime)}
+.tabs button:hover{transform:translateY(-3px) rotate(-1.5deg)}
+.tabs button[aria-selected=true]{background:var(--yellow);transform:rotate(-2.5deg) scale(1.06);box-shadow:5px 5px 0 var(--ink),5px 5px 0 3px var(--cream)}
+.wallet{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 8px;background:var(--ink);border:3px solid var(--yellow);box-shadow:4px 4px 0 var(--pink);transform:rotate(1.5deg)}
+.wallet svg{width:32px;height:32px;color:var(--yellow)}
+.wallet .num{font-size:32px;color:var(--yellow)}
+.wallet small{display:block;margin-top:2px;font-size:11px;font-weight:600;line-height:1.2;color:var(--cyan);letter-spacing:.04em}
+@media (max-width:760px){
+  .bar{grid-template-columns:1fr auto;padding-top:14px}
+  .tabs{grid-column:1/-1;grid-row:2;justify-self:stretch;gap:8px}
+  .tabs button{flex:1;padding:0 4px;font-size:19px}
+  .wallet .num{font-size:26px}.wallet svg{width:26px;height:26px}
+  .brand h1{font-size:24px}.brand .mark{width:32px}
+  .sticker{box-shadow:5px 5px 0 var(--sh)}
+}
+
+/* ---------- 3. shared pieces ---------- */
+.view{padding:clamp(22px,3vw,36px) 0 0}
+.rule{display:flex;align-items:center;gap:14px;margin:0 0 16px}
+.rule::after{content:"";flex:1;height:12px;background:var(--stripe);border:2px solid var(--ink)}
+.rule h2,.rule h3{flex:none;padding:6px 14px 5px;background:var(--yellow);color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--pink);transform:rotate(-1.5deg);
+  font:400 22px/1 var(--display);letter-spacing:.08em;text-transform:uppercase}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;
+  font:400 19px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink);background:var(--yellow);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--bs,var(--ink)),5px 5px 0 2px var(--cream);
+  transition:transform .08s,box-shadow .08s,background-color .12s}
+.paper .btn{box-shadow:5px 5px 0 var(--ink)}
+.btn:hover{background:var(--lime)}
+.btn:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--ink)}
+.btn.sec{background:var(--cream)}
+.btn.sec:hover{background:var(--cyan)}
+.btn:disabled{cursor:not-allowed;color:color-mix(in srgb,var(--ink) 55%,var(--cream));
+  background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--ink) 16%,var(--cream)) 0 6px,color-mix(in srgb,var(--ink) 28%,var(--cream)) 6px 12px);
+  border-style:dashed;box-shadow:none;transform:none}
+.burst{color:var(--yellow)}
+.burst use,.burst polygon{stroke:var(--ink);stroke-width:5;stroke-linejoin:round}
+
+/* ---------- 4. the card (same layout: name top-left, notched tab top-right, rarity bottom-left) ---------- */
+[data-r=common]{--rc:var(--common)}[data-r=uncommon]{--rc:var(--uncommon)}[data-r=rare]{--rc:var(--rare)}
+[data-r=epic]{--rc:var(--epic)}[data-r=legendary]{--rc:var(--legendary)}
+.card{position:relative;display:block;aspect-ratio:5/7;width:100%;container-type:inline-size;border-radius:6%/4.3%;overflow:hidden;text-align:left;
+  background:var(--rc);box-shadow:0 0 0 3px var(--ink),6px 7px 0 color-mix(in srgb,var(--ink) 80%,transparent)}
+.card::before{content:"";position:absolute;inset:0;background:var(--dots-ink) 0 0/6px 6px;opacity:.28}
+.card[data-r=legendary]{background:var(--holo);background-size:200% 100%;animation:shine 6s linear infinite}
+.card .in{position:absolute;inset:4cqw;border-radius:3.4cqw;overflow:hidden;background:var(--ink);box-shadow:0 0 0 .9cqw var(--ink)}
+.card .art{position:absolute;inset:0}
+.card .art svg,.card .art img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover}
+.card .in::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 70%,transparent),transparent 26%,transparent 78%,color-mix(in srgb,var(--ink) 78%,transparent))}
+.card .nm,.card .tb,.card .bl,.card .br{position:absolute;z-index:2}
+.card .nm{left:6cqw;top:5.4cqw;max-width:58cqw;font:400 10.5cqw/1 var(--display);letter-spacing:.02em;text-transform:uppercase;color:var(--cream);overflow-wrap:anywhere;
+  text-shadow:.6cqw .6cqw 0 var(--ink),-.3cqw -.3cqw 0 var(--ink),0 0 1.4cqw var(--ink)}
+.card .tb{top:0;right:0;padding:2cqw 4cqw 2.2cqw 4.6cqw;border-bottom-left-radius:3.6cqw;background:var(--rc);
+  border-left:.9cqw solid var(--ink);border-bottom:.9cqw solid var(--ink);
+  font:800 4.6cqw/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.card[data-r=legendary] .tb{background:var(--yellow)}
+.card .bl{left:5.4cqw;bottom:5cqw;padding:1.3cqw 2.4cqw 1.1cqw;background:var(--ink);font:400 5.6cqw/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--rc)}
+.card .br{right:6cqw;bottom:6cqw;font:700 4cqw/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--cream);text-shadow:0 .3cqw 1cqw var(--ink)}
+.card .sheen{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:0;transition:opacity .2s;
+  background:linear-gradient(115deg,transparent 10%,var(--pink) 30%,var(--cyan) 44%,var(--yellow) 57%,var(--lime) 68%,transparent 86%);
+  background-size:260% 260%;background-position:var(--mx,30%) var(--my,30%)}
+.card:hover .sheen{opacity:var(--fo,.22)}
+.card[data-r=rare]{--fo:.45}.card[data-r=epic]{--fo:.6}.card[data-r=legendary]{--fo:.8}
+
+/* ---------- 5. HOME ---------- */
+.home{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(22px,2.8vw,34px)}
+.hero{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;overflow:hidden;
+  padding:clamp(26px,5vw,60px) clamp(20px,4.5vw,60px);--sh:var(--cyan);
+  background:repeating-conic-gradient(from 0deg at 80% 52%,var(--pink) 0 8deg,var(--pink-hi) 8deg 16deg)}
+.hero .ht{position:absolute;inset:0;background:var(--dots-ink) 0 0/10px 10px;opacity:.55;pointer-events:none;
+  -webkit-mask-image:linear-gradient(60deg,var(--ink),transparent 45%);mask-image:linear-gradient(60deg,var(--ink),transparent 45%)}
+.hero>*:not(.ht){position:relative}
+.hero h2{font:400 clamp(54px,12.5vw,150px)/.86 var(--mark);text-transform:uppercase;color:var(--cream);--mis:var(--cyan)}
+.hero h2 b{display:block;font-weight:400;color:var(--yellow);--mis:var(--violet)}
+.hero p{max-width:30ch;margin:22px 0 26px;padding:10px 14px;background:var(--ink);color:var(--cream);font-size:18px;font-weight:600;transform:rotate(-1deg);width:fit-content}
+.acts{display:flex;flex-wrap:wrap;gap:14px}
+.hero-art{position:relative;width:clamp(190px,27vw,340px);aspect-ratio:1;margin-right:clamp(0px,2vw,30px)}
+.hero-art .burst{position:absolute;inset:0;width:100%;height:100%;animation:spin 50s linear infinite}
+.hero-art .mark{position:absolute;left:50%;top:50%;width:52%;transform:translate(-50%,-50%);filter:drop-shadow(7px 8px 0 var(--ink))}
+.hero-art .badge{position:absolute;right:-4%;bottom:4%;width:38%;aspect-ratio:1;display:grid;place-content:center;text-align:center;border-radius:50%;
+  background:var(--cyan);color:var(--ink);border:4px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transform:rotate(12deg);font:400 clamp(26px,3.6vw,44px)/.85 var(--display)}
+.hero-art .badge small{display:block;font:800 clamp(10px,1.1vw,13px)/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase}
+
+.ledger{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,2.4vw,30px)}
+.tile{position:relative;padding:18px 20px 16px;overflow:hidden;border:4px solid var(--ink);box-shadow:0 0 0 3px var(--cream),9px 9px 0 3px var(--sh)}
+.tile::after{content:"";position:absolute;right:0;bottom:0;width:60%;height:100%;background:var(--dots-ink) 0 0/8px 8px;opacity:.35;pointer-events:none;
+  -webkit-mask-image:linear-gradient(315deg,var(--ink),transparent 60%);mask-image:linear-gradient(315deg,var(--ink),transparent 60%)}
+.tile:nth-child(1){background:var(--yellow);--sh:var(--pink);transform:rotate(-1deg)}
+.tile:nth-child(2){background:var(--cyan);--sh:var(--yellow)}
+.tile:nth-child(3){background:var(--lime);--sh:var(--violet);transform:rotate(1deg)}
+.tile dt{font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+.tile .num{font-size:clamp(54px,8vw,104px);position:relative;z-index:1}
+.tile .num i{display:inline-block;margin-left:10px;font:800 13px/1 var(--body);font-style:normal;letter-spacing:.14em;text-transform:uppercase;vertical-align:baseline}
+.meter{position:relative;z-index:1;height:14px;margin-top:10px;background:var(--cream);border:3px solid var(--ink)}
+.meter i{display:block;height:100%;width:17%;background:var(--stripe-pink);border-right:3px solid var(--ink)}
+
+.show{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:22px 26px 22px;overflow:hidden;--sh:var(--yellow);
+  background:var(--ink-2)}
+.show::before{content:"";position:absolute;inset:0;background:var(--dots-pink) 0 0/12px 12px;opacity:.5;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse at 78% 50%,var(--ink),transparent 62%);mask-image:radial-gradient(ellipse at 78% 50%,var(--ink),transparent 62%)}
+.show>*{position:relative}
+.show .lg-name{font:400 clamp(34px,4vw,56px)/.95 var(--display);letter-spacing:.02em;text-transform:uppercase;min-height:1.9em;overflow-wrap:break-word;color:var(--yellow);--mis:var(--pink)}
+.show .lg-meta{margin:10px 0 6px;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.show .lg-fact{color:var(--dim);max-width:30ch;margin-bottom:18px}
+.show .btn{--bs:var(--pink)}
+.deck{position:relative;width:clamp(140px,17vw,200px);aspect-ratio:5/7;margin:26px clamp(34px,5vw,60px) 16px clamp(70px,9vw,120px)}
+.deck .dc{position:absolute;inset:0;transition:transform .7s cubic-bezier(.3,1.3,.4,1),filter .7s}
+.deck .dc[data-pos="0"]{z-index:3;transform:rotate(-3deg)}
+.deck .dc[data-pos="1"]{z-index:2;transform:translate(11%,-4%) rotate(7deg);filter:brightness(.8)}
+.deck .dc[data-pos="2"]{z-index:1;transform:translate(21%,-7%) rotate(15deg);filter:brightness(.6)}
+.deck .dc.out{transform:translate(-70%,3%) rotate(-18deg)}
+.deck .dc.under{z-index:0}
+
+.odds{padding:22px 22px 14px;background:var(--cream);--sh:var(--violet);
+  background-image:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--ink) 16%,transparent) 0 1px,transparent 1.4px);background-size:14px 14px}
+.odds table,.oddsbox table{width:100%;border-collapse:separate;border-spacing:0 6px}
+.odds th{font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-align:right;padding:0 10px 2px}
+.odds th:first-child{text-align:left}
+.odds tbody tr,.oddsbox tr[data-r]{background:linear-gradient(90deg,var(--rc) var(--w,0%),var(--white) 0)}
+.odds td,.oddsbox tr[data-r]>*{padding:7px 10px;text-align:right;border-block:3px solid var(--ink)}
+.odds td:first-child,.oddsbox tr[data-r]>:first-child{text-align:left;font-weight:800;border-left:3px solid var(--ink)}
+.odds td:last-child,.oddsbox tr[data-r]>:last-child{border-right:3px solid var(--ink)}
+.odds td.num,.oddsbox td.num{font-size:26px}
+
+.case{grid-column:1/-1;padding:22px clamp(16px,3vw,30px) 0;background:var(--ink);--sh:var(--lime);overflow:hidden}
+.case .row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,2vw,26px);padding:4px clamp(0px,2vw,24px) 0}
+.case .row>*:nth-child(odd){transform:rotate(-2deg)}.case .row>*:nth-child(even){transform:rotate(2deg) translateY(6px)}
+.case .row>*{transition:transform .15s}
+.case .row>*:hover{transform:rotate(0) translateY(-8px) scale(1.04)}
+.lip{height:22px;margin:22px calc(-1 * clamp(16px,3vw,30px)) 0;background:var(--check) 0 0/22px 22px;border-top:4px solid var(--cream)}
+@media (max-width:860px){
+  .home{grid-template-columns:minmax(0,1fr)}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .hero-art{order:-1;width:170px;margin:0 0 0 auto}
+  .ledger{grid-template-columns:minmax(0,1fr)}
+  .tile{transform:none!important}
+  .show{grid-template-columns:minmax(0,1fr)}
+  .show .deck{order:-1;margin:22px auto 22px;left:-6px}
+  .case .row{grid-template-columns:repeat(5,minmax(118px,1fr));overflow-x:auto;padding:8px 6px 14px}
+}
+
+/* ---------- 6. STORE ---------- */
+[data-theme=monsters]{--ta:var(--t-monsters-a);--tb:var(--t-monsters-b)}[data-theme=drugs]{--ta:var(--t-drugs-a);--tb:var(--t-drugs-b)}
+[data-theme=sports]{--ta:var(--t-sports-a);--tb:var(--t-sports-b)}[data-theme=tech]{--ta:var(--t-tech-a);--tb:var(--t-tech-b)}
+[data-theme=crypto]{--ta:var(--t-crypto-a);--tb:var(--t-crypto-b)}[data-theme=cars]{--ta:var(--t-cars-a);--tb:var(--t-cars-b)}
+[data-theme=vapes]{--ta:var(--t-vapes-a);--tb:var(--t-vapes-b)}[data-theme=islam]{--ta:var(--t-islam-a);--tb:var(--t-islam-b)}
+.themes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:clamp(24px,3vw,34px)}
+.themes button{position:relative;min-height:74px;padding:12px 10px 10px 14px;text-align:left;overflow:hidden;
+  background:linear-gradient(120deg,var(--ta) 0 58%,var(--tb) 58%);border:3px solid var(--ink);box-shadow:0 0 0 2px var(--cream),5px 5px 0 2px var(--ink);
+  font:400 24px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--white);text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink);transition:transform .12s}
+.themes button::before{content:"";position:absolute;inset:0;background:var(--dots-ink) 0 0/7px 7px;opacity:.3;
+  -webkit-mask-image:linear-gradient(120deg,transparent 40%,var(--ink));mask-image:linear-gradient(120deg,transparent 40%,var(--ink))}
+.themes button small{position:relative;display:block;margin-top:6px;font:700 12px/1 var(--body);letter-spacing:.06em;text-transform:none;text-shadow:none;
+  width:fit-content;padding:3px 6px;background:var(--ink);color:var(--cream)}
+.themes button:hover{transform:translateY(-4px) rotate(-1deg)}
+.themes button[aria-checked=true]{transform:rotate(-2deg) scale(1.04);box-shadow:0 0 0 4px var(--yellow),7px 7px 0 4px var(--ink);z-index:1}
+.themes button[aria-checked=true] small{background:var(--yellow);color:var(--ink)}
+.shelf{--sh:var(--tb);background:var(--ink)}
+.shelf .back{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;overflow:hidden;
+  padding:clamp(34px,5vw,60px) clamp(10px,3vw,40px) clamp(22px,3vw,34px);
+  background:repeating-conic-gradient(from 0deg at 50% 110%,color-mix(in srgb,var(--ta) 78%,var(--ink)) 0 6deg,color-mix(in srgb,var(--tb) 70%,var(--ink)) 6deg 12deg)}
+.shelf .back::before{content:"";position:absolute;inset:0;background:var(--dots-ink) 0 0/9px 9px;opacity:.5;
+  -webkit-mask-image:linear-gradient(180deg,var(--ink),transparent 65%);mask-image:linear-gradient(180deg,var(--ink),transparent 65%)}
+.offer{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 8px}
+.pack{position:relative;width:min(100%,clamp(92px,15vw,180px));aspect-ratio:5/7.4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5%;
+  color:var(--white);text-align:center;container-type:inline-size;transform:rotate(var(--tilt,0deg));
+  background:
+    linear-gradient(100deg,color-mix(in srgb,var(--ink) 40%,transparent),transparent 16%,color-mix(in srgb,var(--white) 50%,transparent) 40%,transparent 54%,color-mix(in srgb,var(--ink) 34%,transparent)),
+    var(--dots-ink) 0 0/6px 6px,
+    linear-gradient(160deg,var(--ta) 0 52%,var(--tb) 52%);
+  filter:drop-shadow(0 0 0 var(--ink)) drop-shadow(7px 8px 0 var(--ink));
+  -webkit-mask:var(--zig),conic-gradient(from 135deg at top,transparent,var(--ink) 1deg 89deg,transparent 90deg) 50%/14px 100%;
+  -webkit-mask-composite:source-in;mask:var(--zig),conic-gradient(from 135deg at top,transparent,var(--ink) 1deg 89deg,transparent 90deg) 50%/14px 100%;mask-composite:intersect}
+.offer:hover .pack{animation:wobble .6s ease}
+.pack .em{width:58%;aspect-ratio:1;flex:none;color:var(--yellow)}
+.pack b{font:400 17cqw/.9 var(--display);letter-spacing:.03em;text-transform:uppercase;padding:0 6%;text-shadow:3px 3px 0 var(--ink),-1px -1px 0 var(--ink)}
+.pack i{font-style:normal;width:100%;padding:4% 0 3%;font:400 11cqw/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--yellow);border-block:3px solid var(--ink)}
+.offer:nth-child(1){--tilt:-5deg}.offer:nth-child(2){--tilt:2deg}.offer:nth-child(3){--tilt:6deg}
+.offer:nth-child(3) .pack{width:min(100%,clamp(100px,17vw,200px))}
+.info{position:absolute;top:-22px;right:clamp(0px,2vw,18px);z-index:2;width:46px;height:46px;padding:0;display:grid;place-items:center;background:none;border:0;border-radius:50%}
+.info span{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--cyan);color:var(--ink);border:3px solid var(--ink);
+  font:400 20px/1 var(--display);box-shadow:3px 3px 0 var(--ink);transition:transform .12s,background-color .12s}
+.info:hover span{background:var(--yellow);transform:rotate(14deg) scale(1.12)}
+.tags{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--cream);border-top:4px solid var(--ink)}
+.tag{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 8px 20px;text-align:center}
+.tag+.tag{border-left:3px dashed var(--ink)}
+.tag h3{font:400 30px/1 var(--display);letter-spacing:.06em;text-transform:uppercase}
+.tag p{font-size:14px;font-weight:600;color:var(--dim);min-height:2.9em;max-width:22ch}
+.tag .price{display:flex;align-items:baseline;gap:6px;padding:4px 14px 2px;background:var(--pink);color:var(--white);border:3px solid var(--ink);transform:rotate(-2deg);box-shadow:4px 4px 0 var(--ink)}
+.tag:nth-child(2) .price{background:var(--violet);transform:rotate(1.5deg)}.tag:nth-child(3) .price{background:var(--orange);color:var(--ink)}
+.tag .price .num{font-size:clamp(40px,6vw,68px)}
+.tag .price span{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+.tag .btn{width:min(100%,200px);margin-top:10px;padding:0 8px}
+.tag .short{font-size:13px;font-weight:700;color:var(--pink-lo);min-height:1.5em}
+dialog.oddsbox{width:min(440px,calc(100vw - 28px));max-height:calc(100dvh - 24px);padding:0 8px 8px 0;border:0;background:none;overflow:visible}
+dialog.oddsbox::backdrop{background:color-mix(in srgb,var(--ink) 80%,transparent)}
+.oddsbox .sticker{padding:24px 22px 22px;max-height:calc(100dvh - 40px);overflow:auto;background:var(--cream);border-color:var(--ink);--sh:var(--pink)}
+.oddsbox h2{font:400 44px/.95 var(--display);letter-spacing:.03em;text-transform:uppercase}
+.oddsbox .sub{margin:8px 0 14px;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--pink-lo)}
+.oddsbox h3{margin:14px 0 0;width:fit-content;padding:4px 10px 3px;background:var(--ink);color:var(--yellow);font:400 18px/1 var(--display);letter-spacing:.1em;text-transform:uppercase}
+.oddsbox .note{margin-top:12px;padding:10px 12px;border:3px dashed var(--ink);font-size:14px;font-weight:600}
+.oddsbox .btn{margin-top:18px;width:100%}
+@media (max-width:760px){
+  .themes{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .themes button{min-height:64px;font-size:21px}
+  .tag .price{flex-direction:column;align-items:center;gap:0;padding:4px 8px}
+  .tag h3{font-size:24px}.tag p{font-size:13px;min-height:4.4em}
+  .tag .btn{letter-spacing:.03em;font-size:16px}
+}
+
+/* ---------- 7. INVENTORY ---------- */
+.inv-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px 24px;margin-bottom:20px}
+.inv-head h2{font:400 clamp(48px,9vw,96px)/.9 var(--mark);text-transform:uppercase;color:var(--yellow);--mis:var(--cyan)}
+.inv-head p{padding:6px 12px 4px;background:var(--cream);color:var(--ink);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--lime);transform:rotate(1.5deg);font-size:40px}
+.inv-head .num i{font:800 13px/1 var(--body);font-style:normal;letter-spacing:.1em;text-transform:uppercase}
+.index{display:flex;gap:4px;overflow-x:auto;padding:8px 6px 0;margin:0 0 -4px 40px;position:relative;z-index:2}
+.index button{flex:none;min-height:44px;padding:0 14px;background:var(--ta);color:var(--white);border:3px solid var(--ink);border-bottom:0;border-radius:10px 10px 0 0;
+  font:400 18px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;text-shadow:1.5px 1.5px 0 var(--ink)}
+.index button[aria-pressed=true]{background:var(--cream);color:var(--ink);text-shadow:none;min-height:52px;margin-top:-8px;box-shadow:inset 0 6px 0 var(--ta)}
+.album{display:grid;grid-template-columns:40px minmax(0,1fr);background:var(--cream);--sh:var(--cyan);
+  background-image:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--ink) 18%,transparent) 0 1px,transparent 1.4px);background-size:14px 14px}
+.spine{position:relative;background:var(--stripe);border-right:4px solid var(--ink)}
+.spine i{position:absolute;left:8px;width:22px;height:22px;border-radius:50%;background:var(--cream);border:4px solid var(--ink)}
+.spine i:nth-child(1){top:12%}.spine i:nth-child(2){top:50%}.spine i:nth-child(3){top:88%}
+.page{padding:clamp(14px,2.4vw,26px)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.filters button{min-height:42px;padding:0 13px;background:var(--white);border:3px solid var(--ink);font:800 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.filters button::before{content:"";display:inline-block;width:12px;height:12px;margin-right:8px;vertical-align:-1px;background:var(--rc,var(--pink));border:2px solid var(--ink)}
+.filters button:hover{background:var(--yellow)}
+.filters button[aria-pressed=true]{background:var(--ink);color:var(--yellow);box-shadow:3px 3px 0 var(--pink);transform:rotate(-2deg)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:clamp(14px,1.8vw,22px)}
+.slot{position:relative;padding:8px;background:color-mix(in srgb,var(--ink) 10%,var(--cream));border:3px dashed var(--ink)}
+.slot .card{transition:transform .15s}.slot:hover .card{transform:rotate(-3deg) scale(1.05)}
+.slot .cnt{position:absolute;top:-12px;right:-10px;z-index:3;min-width:38px;height:38px;display:grid;place-items:center;border-radius:50%;
+  font:400 19px/1 var(--display);color:var(--white);background:var(--pink);border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);transform:rotate(10deg)}
+.slot.empty>div{aspect-ratio:5/7;display:grid;place-items:center;background:var(--dots-ink) 0 0/8px 8px;
+  -webkit-mask-image:radial-gradient(ellipse,var(--ink) 30%,color-mix(in srgb,var(--ink) 35%,transparent));mask-image:radial-gradient(ellipse,var(--ink) 30%,color-mix(in srgb,var(--ink) 35%,transparent))}
+.slot.empty .num{padding:4px 8px 2px;background:var(--cream);border:3px solid var(--ink);font-size:30px}
+.sell{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding:14px 16px;background:var(--yellow);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}
+.sell p{font-weight:600}.sell p b{font-weight:800}
+@media (max-width:600px){
+  .album{grid-template-columns:20px minmax(0,1fr)}.index{margin-left:20px}
+  .spine i{left:1px;width:12px;height:12px;border-width:3px}
+  .slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .filters button{flex:1 1 30%;padding:0 6px}
+  .inv-head p{font-size:30px}
+}
+
+/* ---------- 8. OPENING OVERLAY ---------- */
+dialog.rip{width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;color:var(--cream);background:var(--ink)}
+dialog.rip::backdrop{background:var(--ink)}
+.stage{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(20px,3.4vh,38px);padding:28px 16px;overflow:hidden;background:var(--pink-lo)}
+.stage .rays{position:absolute;left:50%;top:50%;width:240vmax;height:240vmax;transform:translate(-50%,-50%);pointer-events:none;
+  background:repeating-conic-gradient(var(--pink) 0 6deg,var(--violet) 6deg 12deg);animation:spin-c 60s linear infinite}
+.stage .ht{position:absolute;inset:0;background:var(--dots-ink) 0 0/11px 11px;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse,transparent 30%,var(--ink) 95%);mask-image:radial-gradient(ellipse,transparent 30%,var(--ink) 95%)}
+.stage>*:not(.rays):not(.ht){position:relative}
+.stage h2{font:400 clamp(44px,9vw,96px)/.9 var(--mark);text-transform:uppercase;text-align:center;color:var(--yellow);--mis:var(--cyan)}
+.stage h2 small{display:block;width:fit-content;margin:16px auto 0;padding:6px 12px;background:var(--ink);color:var(--cream);font:700 14px/1.3 var(--body);letter-spacing:.1em;text-shadow:none}
+.pull{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(12px,2vw,24px);width:100%;max-width:1040px}
+.flip{flex:0 1 178px;min-width:124px;aspect-ratio:5/7;padding:0;border:0;background:none;perspective:900px;border-radius:9px;transition:transform .15s}
+.flip:nth-child(odd){transform:rotate(-3deg)}.flip:nth-child(even){transform:rotate(3deg)}
+.flip:hover,.flip[aria-pressed=true]{transform:rotate(0) translateY(-6px)}
+.flip .inner{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.3,1.5,.4,1)}
+.flip[aria-pressed=true] .inner{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:block}
+.flip .front{transform:rotateY(180deg)}
+.backface{border-radius:6%/4.3%;overflow:hidden;border:5px solid var(--cream);box-shadow:0 0 0 3px var(--ink),6px 7px 0 var(--ink);
+  background:conic-gradient(var(--yellow) 25%,var(--cyan) 0 50%,var(--yellow) 0 75%,var(--cyan) 0) 0 0/28px 28px}
+.backface .burst{position:absolute;left:50%;top:50%;width:92%;aspect-ratio:1;transform:translate(-50%,-50%);color:var(--pink)}
+.backface .mark{position:absolute;left:50%;top:50%;width:44%;transform:translate(-50%,-50%)}
+@media (max-width:600px){.flip{flex:0 1 30%;min-width:98px}}
+
+/* ---------- 9. DESIGN SHEET ---------- */
+.sheet{position:relative;z-index:1;max-width:1240px;margin:20px auto 60px;padding:0 var(--gutter)}
+.sheet>h2{font:400 clamp(44px,8vw,84px)/.9 var(--mark);text-transform:uppercase;color:var(--cyan);--mis:var(--pink);margin-bottom:14px}
+.sheet>p{max-width:70ch;margin-bottom:28px;font-size:17px}
+.sheet section{margin-bottom:38px}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
+.sw li{font-size:12px;font-weight:700}
+.sw i{display:block;height:58px;margin-bottom:6px;background:var(--c);border:3px solid var(--ink);box-shadow:0 0 0 2px var(--cream)}
+.steps p{display:flex;align-items:baseline;gap:16px;border-top:3px dashed color-mix(in srgb,var(--cream) 40%,transparent);padding:10px 0;overflow:hidden;white-space:nowrap}
+.steps small{flex:0 0 150px;font:600 12px/1.2 var(--body);color:var(--cyan);letter-spacing:.04em;text-transform:none;white-space:normal;text-shadow:none}
+.layers{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.layers figure{font-size:13px;font-weight:700}
+.layers figure>div{position:relative;height:150px;margin-bottom:8px;overflow:hidden;background-color:var(--cream);border:3px solid var(--ink);box-shadow:0 0 0 2px var(--cream)}
+.demo{display:flex;flex-wrap:wrap;align-items:center;gap:20px 24px;padding:24px;background:var(--ink-2);--sh:var(--cyan)}
+.demo.paper{background:var(--cream);--sh:var(--pink);margin-top:22px}
+.logos{display:flex;align-items:flex-end;gap:28px;padding:24px;background:var(--violet);--sh:var(--lime)}
+.logos figure{font-size:12px;font-weight:800;text-align:center}
+.logos .mark{margin:0 auto 8px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.notes li{padding:16px 18px;background:var(--cream);color:var(--ink);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--sh);font-size:14px;font-weight:600}
+.notes li:nth-child(2){--sh:var(--cyan)}.notes li:nth-child(3){--sh:var(--lime)}.notes li:nth-child(4){--sh:var(--yellow)}
+.notes b{display:block;margin-bottom:6px;font:400 24px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--pink-lo)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .card:hover .sheen{opacity:0}
+}
+</style>
+</head>
+<body data-tab="home">
+
+<!-- One shared <defs>: the grain filter, dot pattern and ornaments are defined once and referenced. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="fx-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="11" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 -.25"/>
+    </filter>
+    <pattern id="pt-dots" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+      <circle cx="2.5" cy="2.5" r="1.1" style="fill:var(--ink)"/>
+    </pattern>
+    <!-- starburst: points are drawn by script into this symbol -->
+    <symbol id="burst" viewBox="-110 -110 220 220"><polygon id="burst-shape" fill="currentColor"/></symbol>
+    <symbol id="coin" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="12" fill="currentColor" style="stroke:var(--ink)" stroke-width="2"/>
+      <circle cx="14" cy="14" r="8.6" fill="none" style="stroke:var(--ink)" stroke-width="1.2" stroke-dasharray="1.6 1.6"/>
+      <path d="M14 7.4l1.9 4.3 4.7.4-3.6 3.1 1.1 4.6L14 17.3l-4.1 2.5 1.1-4.6-3.6-3.1 4.7-.4z" style="fill:var(--ink)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- 1. the scene -->
+<div class="scene" aria-hidden="true">
+  <div class="rays"></div>
+  <div class="ht-a"></div>
+  <div class="ht-b"></div>
+  <svg class="grain" preserveAspectRatio="none"><rect width="100%" height="100%" filter="url(#fx-grain)"/></svg>
+  <div class="shade"></div>
+</div>
+
+<div class="ticker" aria-hidden="true"><div id="ticker"></div></div>
+
+<!-- 2. the app -->
+<div class="frame">
+  <header class="bar">
+    <div class="brand"><span class="mark" data-logo="sm"></span><h1 class="misreg">CT <span>Ripz</span></h1></div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" id="tab-home" aria-controls="home" aria-selected="true">Home</button>
+      <button role="tab" id="tab-store" aria-controls="store" aria-selected="false" tabindex="-1">Store</button>
+      <button role="tab" id="tab-inventory" aria-controls="inventory" aria-selected="false" tabindex="-1">Inventory</button>
+    </nav>
+    <div class="wallet" aria-label="380 coins. Next 1,000 coins in 42 seconds">
+      <svg aria-hidden="true"><use href="#coin"/></svg>
+      <div><span class="num">380</span><small>+1,000 in 0:42</small></div>
+    </div>
+  </header>
+
+  <main>
+  <!-- HOME -->
+  <section class="view home" id="home" role="tabpanel" aria-labelledby="tab-home">
+    <div class="sticker hero paper">
+      <div class="ht" aria-hidden="true"></div>
+      <div>
+        <h2 class="misreg">Rip a <b class="misreg">pack</b></h2>
+        <p>Eight themes, 800 cards, three pack sizes. Every pull goes in your binder.</p>
+        <div class="acts">
+          <button class="btn" data-go="store">Open the store</button>
+          <button class="btn sec" data-go="inventory">View inventory</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg class="burst" viewBox="-110 -110 220 220"><use href="#burst" x="-110" y="-110" width="220" height="220"/></svg>
+        <span class="mark" data-logo="lg"></span>
+        <span class="badge">800<small>cards</small></span>
+      </div>
+    </div>
+
+    <dl class="ledger paper">
+      <div class="tile"><dt>Coins</dt><dd class="num">380</dd></div>
+      <div class="tile"><dt>Cards collected</dt><dd class="num">137<i>of 800</i></dd><div class="meter" aria-hidden="true"><i></i></div></div>
+      <div class="tile"><dt>Next 1,000 coins</dt><dd class="num">0:42</dd></div>
+    </dl>
+
+    <div class="sticker show" id="show">
+      <div>
+        <div class="rule"><h3>Legendaries</h3></div>
+        <p class="lg-name misreg" id="lg-name">Solardrake</p>
+        <p class="lg-meta" id="lg-meta">Monsters, Dragon</p>
+        <p class="lg-fact">Four in every theme. 2% of pulls. Sells for 1,500 coins.</p>
+        <div class="acts">
+          <button class="btn sec" id="lg-pause" aria-pressed="false">Pause</button>
+          <button class="btn" id="lg-next">Next card</button>
+        </div>
+      </div>
+      <div class="deck" id="deck" aria-hidden="true"></div>
+    </div>
+
+    <div class="sticker odds paper">
+      <div class="rule"><h3>Odds</h3></div>
+      <table>
+        <thead><tr><th scope="col">Rarity</th><th scope="col">Chance</th><th scope="col">Sells for</th></tr></thead>
+        <tbody>
+          <tr data-r="common" style="--w:55%"><td>Common</td><td class="num">55%</td><td class="num">10</td></tr>
+          <tr data-r="uncommon" style="--w:25%"><td>Uncommon</td><td class="num">25%</td><td class="num">30</td></tr>
+          <tr data-r="rare" style="--w:12%"><td>Rare</td><td class="num">12%</td><td class="num">90</td></tr>
+          <tr data-r="epic" style="--w:6%"><td>Epic</td><td class="num">6%</td><td class="num">300</td></tr>
+          <tr data-r="legendary" style="--w:2%"><td>Legendary</td><td class="num">2%</td><td class="num">1,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sticker case">
+      <div class="rule"><h3>Last pulls</h3></div>
+      <div class="row" id="last-pulls"></div>
+      <div class="lip" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- STORE -->
+  <section class="view" id="store" role="tabpanel" aria-labelledby="tab-store" hidden>
+    <div class="rule"><h2>Pick a theme</h2></div>
+    <div class="themes" role="radiogroup" aria-label="Theme" id="themes"></div>
+    <div class="sticker shelf" id="shelf" data-theme="monsters">
+      <div class="back" id="packs"></div>
+      <div class="tags paper" id="tags"></div>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section class="view" id="inventory" role="tabpanel" aria-labelledby="tab-inventory" hidden>
+    <div class="inv-head">
+      <h2 class="misreg">Monsters</h2>
+      <p class="num">22<i> / 100 collected</i></p>
+    </div>
+    <div class="index" id="index" aria-label="Binder"></div>
+    <div class="sticker album paper">
+      <div class="spine" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="page">
+        <div class="filters" aria-label="Show rarity">
+          <button aria-pressed="true">All</button>
+          <button aria-pressed="false" data-r="common">Common</button>
+          <button aria-pressed="false" data-r="uncommon">Uncommon</button>
+          <button aria-pressed="false" data-r="rare">Rare</button>
+          <button aria-pressed="false" data-r="epic">Epic</button>
+          <button aria-pressed="false" data-r="legendary">Legendary</button>
+        </div>
+        <div class="slots" id="slots"></div>
+        <div class="sell">
+          <p id="sell-msg"><b>6 duplicates</b> in this binder, worth 60 coins.</p>
+          <div class="acts" id="sell-ask"><button class="btn sec" id="sell-open">Sell duplicates</button></div>
+          <div class="acts" id="sell-confirm" hidden>
+            <button class="btn sec" id="sell-yes">Sell 6 for 60 coins</button>
+            <button class="btn sec" id="sell-no">Keep them</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<!-- OPENING OVERLAY -->
+<dialog class="rip" id="rip" aria-labelledby="rip-title">
+  <div class="stage">
+    <div class="rays" aria-hidden="true"></div>
+    <div class="ht" aria-hidden="true"></div>
+    <h2 class="misreg" id="rip-title">Triple pack<small id="rip-sub">Sample pull. Turn each card over.</small></h2>
+    <div class="pull" id="pull"></div>
+    <div class="acts">
+      <button class="btn" id="rip-all">Reveal all</button>
+      <button class="btn sec" id="rip-done">Done</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- PACK ODDS POPUP -->
+<dialog class="oddsbox" id="oddsbox" aria-labelledby="odds-title">
+  <div class="sticker paper">
+    <h2 id="odds-title">Pack odds</h2>
+    <p class="sub" id="odds-sub"></p>
+    <h3>Each card</h3>
+    <table><tbody id="odds-card"></tbody></table>
+    <h3>This pack: at least one</h3>
+    <table><tbody id="odds-pack"></tbody></table>
+    <p class="note" id="odds-note" hidden></p>
+    <button class="btn" id="odds-close">Close</button>
+  </div>
+</dialog>
+
+<!-- DESIGN SHEET -->
+<div class="sheet">
+  <h2 class="misreg">Design sheet</h2>
+  <p>The pieces the three screens above are built from. Numbers and pulls on this page are sample data; the game rules, card names, odds and prices are the real ones.</p>
+
+  <section>
+    <div class="rule"><h3>Colour tokens</h3></div>
+    <ul class="sw" id="swatches"></ul>
+  </section>
+
+  <section class="steps">
+    <div class="rule"><h3>Type steps</h3></div>
+    <p class="misreg" style="font:400 68px/1.1 var(--mark);text-transform:uppercase;color:var(--yellow);--mis:var(--pink)"><small>Dela Gothic One. Wordmark and screen titles</small>CT Ripz</p>
+    <p class="num" style="font-size:68px"><small>Anton. Prices and counts</small>1,500 &nbsp;425 &nbsp;0:42</p>
+    <p style="font:400 40px/1 var(--display);letter-spacing:.03em;text-transform:uppercase"><small>Anton 40. Card and pack names</small>Nice Cars</p>
+    <p style="font:400 22px/1 var(--display);letter-spacing:.08em;text-transform:uppercase"><small>Anton 22. Labels, tabs, buttons</small>Last pulls</p>
+    <p style="font-size:18px;font-weight:600"><small>Bricolage Grotesque 600, 18px. Lead text</small>Every pull goes in your binder.</p>
+    <p><small>Bricolage Grotesque 500, 16px. Body</small>5 cards, at least one Rare or better.</p>
+    <p style="font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase"><small>Bricolage Grotesque 800, 13px. Small caps labels</small>Cards collected</p>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Textures, all made in code</h3></div>
+    <div class="layers">
+      <figure><div style="background:repeating-conic-gradient(var(--pink) 0 8deg,var(--pink-hi) 8deg 16deg)"></div>Sunburst rays</figure>
+      <figure><div style="background:var(--dots-ink) 0 0/10px 10px,var(--yellow);-webkit-mask-image:none"></div>Halftone dots</figure>
+      <figure><div style="background:var(--stripe)"></div>Hazard stripe</figure>
+      <figure><div style="background:var(--check) 0 0/30px 30px"></div>Checker</figure>
+      <figure><div style="background:var(--holo)"></div>Holo foil</figure>
+      <figure><div style="background:var(--violet)"><svg style="width:100%;height:100%;mix-blend-mode:overlay"><rect width="100%" height="100%" filter="url(#fx-grain)"/></svg></div>Print grain</figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Buttons</h3></div>
+    <div class="sticker demo">
+      <button class="btn">Primary</button>
+      <button class="btn" style="outline:3px solid var(--white);outline-offset:3px">Primary, focus</button>
+      <button class="btn" disabled>Primary, disabled</button>
+      <button class="btn sec">Secondary</button>
+      <button class="btn sec" disabled>Secondary, disabled</button>
+    </div>
+    <div class="sticker demo paper">
+      <button class="btn">On paper</button>
+      <button class="btn" style="outline:3px solid var(--ink);outline-offset:3px">On paper, focus</button>
+      <button class="btn sec">Secondary</button>
+      <button class="btn" disabled>Disabled</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>Logo: a legendary card</h3></div>
+    <div class="sticker logos">
+      <figure><span class="mark" data-logo="sm" style="display:block;width:24px"></span>24px</figure>
+      <figure><span class="mark" data-logo="sm" style="display:block;width:48px"></span>48px</figure>
+      <figure><span class="mark" data-logo="lg" style="display:block;width:128px"></span>128px</figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule"><h3>How each screen differs</h3></div>
+    <ul class="notes">
+      <li><b>Home</b>A gig poster on a violet sunburst. Hot-pink hero with the title printed out of register, three ledger tiles in yellow, cyan and lime, a fanned stack of legendaries, odds drawn as rarity-coloured bars, and the last pulls tossed onto a checkered counter.</li>
+      <li><b>Store</b>The backdrop turns teal. Theme tiles are split in each theme's two colours; the chosen one tips over and gets a yellow keyline. Packs are crimped foil wrappers standing in a sunburst of the theme's colours, with slanted price stickers on a perforated ticket strip.</li>
+      <li><b>Inventory</b>The backdrop turns magenta. A dot-grid album page with a hazard-stripe spine, theme-coloured index tabs, dashed card slots, halftone empty slots and pink duplicate counters. The sell confirmation is built into a yellow strip.</li>
+      <li><b>Opening</b>A fast pink and violet sunburst. Cards land face down and crooked on a yellow and cyan checker back, straighten and flip with a bounce; holo foil follows the pointer.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+  /* ---- starburst: drawn once into the shared symbol ---- */
+  let pts='';
+  for(let i=0;i<40;i++){const r=i%2?80:104,t=i*Math.PI/20;pts+=(r*Math.cos(t)).toFixed(1)+','+(r*Math.sin(t)).toFixed(1)+' '}
+  $('#burst-shape').setAttribute('points',pts);
+
+  /* ---- ticker: real numbers from the rules, repeated so the loop is seamless ---- */
+  const tick=['8 themes','800 cards','Single 100','Triple 270','Mega 425','Legendary 2%','Rip it','+1,000 coins every 60 seconds'];
+  $('#ticker').innerHTML=[...tick,...tick,...tick,...tick].map(t=>'<span>'+t+'</span><span>&#10038;</span>').join('');
+
+  /* ---- logo: a legendary card, two levels of detail ---- */
+  function logo(detail){
+    return '<svg viewBox="0 0 64 80" role="img" aria-label="CT Ripz"><g transform="rotate(9 32 44)">'
+      +'<rect x="15" y="9" width="38" height="56" rx="4" style="fill:var(--cyan);stroke:var(--ink)" stroke-width="2.4"/></g>'
+      +'<g transform="rotate(-8 32 44)">'
+      +'<rect x="10" y="10" width="42" height="60" rx="4.5" style="fill:var(--yellow);stroke:var(--ink)" stroke-width="2.4"/>'
+      +'<rect x="15" y="15" width="32" height="50" rx="2.4" style="fill:var(--pink);stroke:var(--ink)" stroke-width="1.6"/>'
+      +(detail?'<rect x="15" y="15" width="32" height="50" rx="2.4" fill="url(#pt-dots)" opacity=".45"/>'
+        +'<use href="#burst" x="13" y="22" width="36" height="36" style="color:var(--orange)"/>'
+        +'<text x="31" y="63" text-anchor="middle" style="font:400 6.5px var(--display);fill:var(--ink);letter-spacing:.8px">CT</text>':'')
+      +'<path d="M37 10h10.5a4.5 4.5 0 0 1 4.5 4.5V22H42a5 5 0 0 1-5-5z" style="fill:var(--cyan);stroke:var(--ink)" stroke-width="1.8"/>'
+      +'<path d="M31 26.5l3.2 8 8.6.5-6.7 5.4 2.2 8.3L31 44l-7.3 4.7 2.2-8.3-6.7-5.4 8.6-.5z" style="fill:var(--cream);stroke:var(--ink)" stroke-width="1.8" stroke-linejoin="round"/>'
+      +'</g></svg>';
+  }
+  $$('[data-logo]').forEach(el=>el.innerHTML=logo(el.dataset.logo==='lg'));
+
+  /* ---- sample data (names, themes and labels are the real ones from T) ---- */
+  const THEMES=[['monsters','Monsters'],['drugs','Drugs'],['sports','Sports'],['tech','Technology'],['crypto','Crypto & Stocks'],['cars','Nice Cars'],['vapes','Vapes'],['islam','Islam']];
+  const RN={common:'Common',uncommon:'Uncommon',rare:'Rare',epic:'Epic',legendary:'Legendary'};
+  const C=(theme,i,name,r,cat)=>({theme,i,name,r,cat});
+  const LAST=[C('monsters',96,'Solardrake','legendary','Dragon'),C('cars',68,'Porsche 911 Carrera','rare','Sports Car'),C('islam',68,'Blue Mosque','rare','Mosque'),C('sports',62,'Slam Dunk','uncommon','Basketball'),C('monsters',0,'Pebblit','common','Rock')];
+  const BINDER=['Pebblit','Gravlet','Dustmite','Cobblepup','Mudlump','Clodder','Leaflet','Sproutle','Mossback','Twiglet','Budkin','Fernip','Fizzbug','Nibblet','Skitterling'];
+  const CAT=i=>i<6?'Rock':i<12?'Grass':'Bug';
+  const OWN={0:3,4:1,9:1,10:2,11:1,12:4,13:1,14:1};
+  const PULL=[C('monsters',86,'Magmaw','epic','Fire'),C('monsters',12,'Fizzbug','common','Bug'),C('monsters',96,'Solardrake','legendary','Dragon'),C('monsters',9,'Twiglet','common','Grass'),C('monsters',14,'Skitterling','common','Bug')];
+
+  /* art: the real file when it exists, a halftone burst in the rarity colour until then */
+  const crest='<svg viewBox="0 0 100 140" preserveAspectRatio="xMidYMid slice"><rect width="100" height="140" style="fill:var(--ink-2)"/>'
+    +'<use href="#burst" x="-15" y="5" width="130" height="130" style="color:var(--rc)"/><rect width="100" height="140" fill="url(#pt-dots)" opacity=".4"/>'
+    +'<use href="#burst" x="28" y="48" width="44" height="44" style="color:var(--cream)"/></svg>';
+  function card(c){
+    return '<span class="card" data-r="'+c.r+'"><span class="in"><span class="art">'+crest
+      +'<img src="../public/art/'+c.theme+'_'+c.i+'.jpg" alt="" loading="lazy" onerror="this.remove()"></span></span>'
+      +'<span class="nm">'+c.name+'</span><span class="tb">'+RN[c.r]+'</span><span class="bl">'+RN[c.r]+'</span><span class="br">'+c.cat+'</span><span class="sheen"></span></span>';
+  }
+  $('#last-pulls').innerHTML=LAST.map(card).join('');
+
+  /* ---- legendary showcase: every few seconds the top card slides off and tucks under the stack ---- */
+  const TN=Object.fromEntries(THEMES);
+  const LEG=[C('monsters',96,'Solardrake','legendary','Dragon'),C('cars',96,'Bugatti Chiron','legendary','Hypercar'),C('sports',96,'Super Bowl Ring','legendary','Football'),
+    C('monsters',97,'Voidwyrm','legendary','Dragon'),C('cars',97,'McLaren F1','legendary','Hypercar'),C('sports',97,'World Cup Trophy','legendary','Soccer'),
+    C('crypto',97,'Genesis Block','legendary','Coin'),C('cars',98,'Koenigsegg Jesko','legendary','Hypercar'),C('sports',98,'World Series Ring','legendary','Baseball'),
+    C('monsters',99,'Prismare','legendary','Cosmic'),C('cars',99,'Ferrari 250 GTO','legendary','Classic'),C('sports',99,'NBA Championship','legendary','Basketball')];
+  const deck=$('#deck'), still=matchMedia('(prefers-reduced-motion:reduce)');
+  let order=[0,1,2].map(k=>{const el=document.createElement('div');el.className='dc';el.dataset.pos=k;el.dataset.k=k;el.innerHTML=card(LEG[k]);deck.appendChild(el);return el});
+  let nextLeg=3, busy=false, paused=false, hover=false;
+  function label(){const c=LEG[+order[0].dataset.k];$('#lg-name').textContent=c.name;$('#lg-meta').textContent=TN[c.theme]+', '+c.cat}
+  function settle(top){
+    top.dataset.k=nextLeg; top.innerHTML=card(LEG[nextLeg]); nextLeg=(nextLeg+1)%LEG.length;
+    order=[order[1],order[2],top]; order.forEach((el,k)=>el.dataset.pos=k);
+    top.classList.remove('out','under'); label(); busy=false;
+  }
+  function deal(){
+    if(busy)return; busy=true; const top=order[0];
+    if(still.matches){settle(top);return}
+    top.classList.add('out');
+    setTimeout(()=>top.classList.add('under'),500);
+    setTimeout(()=>settle(top),750);
+  }
+  setInterval(()=>{if(!paused&&!hover&&!still.matches&&!document.hidden&&!$('#home').hidden)deal()},3500);
+  const showEl=$('#show');
+  showEl.addEventListener('pointerenter',()=>hover=true); showEl.addEventListener('pointerleave',()=>hover=false);
+  showEl.addEventListener('focusin',()=>hover=true); showEl.addEventListener('focusout',()=>hover=false);
+  $('#lg-next').onclick=deal;
+  $('#lg-pause').onclick=e=>{paused=!paused;e.currentTarget.setAttribute('aria-pressed',paused);e.currentTarget.textContent=paused?'Play':'Pause'};
+  if(still.matches){$('#lg-pause').hidden=true}
+
+  /* ---- store ---- */
+  const COINS=380, TIERS=[['Single',1,100,'1 card'],['Triple',3,270,'3 cards, save 10%'],['Mega',5,425,'5 cards, at least one Rare or better']];
+  const emblem='<svg class="em burst" viewBox="-110 -110 220 220" aria-hidden="true"><use href="#burst" x="-110" y="-110" width="220" height="220"/></svg>';
+  $('#themes').innerHTML=THEMES.map(([id,n],k)=>'<button role="radio" aria-checked="'+(k===0)+'" tabindex="'+(k?-1:0)+'" data-theme="'+id+'">'+n+'<small>100 cards</small></button>').join('');
+  function shelf(id,name){
+    $('#shelf').dataset.theme=id;
+    $('#packs').innerHTML=TIERS.map(t=>'<div class="offer"><button class="info" data-odds="'+t[0]+'" aria-label="'+t[0]+' pack odds"><span aria-hidden="true">i</span></button><div class="pack" aria-hidden="true">'+emblem+'<b>'+name+'</b><i>'+t[0]+'</i></div></div>').join('');
+    $('#tags').innerHTML=TIERS.map(t=>{const ok=COINS>=t[2];
+      return '<div class="tag"><h3>'+t[0]+'</h3><p>'+t[3]+'</p><div class="price"><b class="num">'+t[2]+'</b><span>coins</span></div>'
+        +'<button class="btn" data-buy="'+t[0]+'" data-n="'+t[1]+'"'+(ok?'':' disabled')+'>Rip '+t[0].toLowerCase()+'</button>'
+        +'<span class="short">'+(ok?'':(t[2]-COINS)+' coins short')+'</span></div>';}).join('');
+  }
+  shelf('monsters','Monsters');
+  const radios=$$('#themes button');
+  function pick(b){radios.forEach(x=>{x.setAttribute('aria-checked',x===b);x.tabIndex=x===b?0:-1});shelf(b.dataset.theme,b.firstChild.textContent)}
+  radios.forEach((b,k)=>{
+    b.addEventListener('click',()=>pick(b));
+    b.addEventListener('keydown',e=>{const s={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(!s)return;e.preventDefault();const n=radios[(k+s+radios.length)%radios.length];pick(n);n.focus()});
+  });
+
+  /* ---- pack odds popup: worked out from the real weights (R) and the Mega rule (min: Rare) ---- */
+  const RW=[['common','Common',55],['uncommon','Uncommon',25],['rare','Rare',12],['epic','Epic',6],['legendary','Legendary',2]];
+  const pct=x=>{const v=x*100;return (v>=99.95?'100':v.toFixed(1).replace(/\.0$/,''))+'%'};
+  const tail=k=>RW.slice(k).reduce((n,r)=>n+r[2],0)/100;          /* chance one card is rarity k or better */
+  function atLeast(k,n,min){
+    let p=1-Math.pow(1-tail(k),n);
+    if(min!=null){const none=Math.pow(1-tail(min),n); p=k<=min?1:p+none*tail(k)/tail(min)}   /* last card re-rolled as Rare or better */
+    return p;
+  }
+  const oddsbox=$('#oddsbox'); let oddsFrom=null;
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-odds]'); if(!b)return;
+    const t=TIERS.find(x=>x[0]===b.dataset.odds), mega=t[0]==='Mega', min=mega?2:null;
+    $('#odds-title').textContent=t[0]+' pack odds';
+    $('#odds-sub').textContent=t[1]+(t[1]>1?' cards':' card')+' for '+t[2]+' coins';
+    $('#odds-card').innerHTML=RW.map(r=>'<tr data-r="'+r[0]+'" style="--w:'+r[2]+'%"><th scope="row">'+r[1]+'</th><td class="num">'+r[2]+'%</td></tr>').join('');
+    $('#odds-pack').innerHTML=[[2,'Rare or better'],[3,'Epic or better'],[4,'Legendary']].map(([k,l])=>{const p=atLeast(k,t[1],min);
+      return '<tr data-r="'+RW[k][0]+'" style="--w:'+(p*100).toFixed(1)+'%"><th scope="row">'+l+'</th><td class="num">'+pct(p)+'</td></tr>'}).join('');
+    const note=$('#odds-note'); note.hidden=!mega;
+    note.textContent=mega?'If none of the five cards is Rare or better, the last card is rolled again as Rare (60%), Epic (30%) or Legendary (10%).':'';
+    oddsFrom=b; oddsbox.showModal();
+  });
+  $('#odds-close').onclick=()=>oddsbox.close();
+  oddsbox.addEventListener('click',e=>{if(e.target===oddsbox)oddsbox.close()});
+  oddsbox.addEventListener('close',()=>{if(oddsFrom)oddsFrom.focus()});
+
+  /* ---- inventory ---- */
+  $('#index').innerHTML=THEMES.map(([id,n],k)=>'<button aria-pressed="'+(k===0)+'" data-theme="'+id+'">'+n+'</button>').join('');
+  $('#slots').innerHTML=BINDER.map((n,i)=>OWN[i]
+    ?'<div class="slot">'+(OWN[i]>1?'<span class="cnt" aria-label="'+OWN[i]+' copies">&times;'+OWN[i]+'</span>':'')+card(C('monsters',i,n,'common',CAT(i)))+'</div>'
+    :'<div class="slot empty"><div><span class="num" aria-label="Card '+(i+1)+', not collected">'+String(i+1).padStart(3,'0')+'</span></div></div>').join('');
+  $$('.filters button').forEach(b=>b.addEventListener('click',()=>$$('.filters button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+  $$('#index button').forEach(b=>b.addEventListener('click',()=>$$('#index button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+  const ask=$('#sell-ask'),conf=$('#sell-confirm');
+  $('#sell-open').onclick=()=>{ask.hidden=true;conf.hidden=false;$('#sell-yes').focus()};
+  $('#sell-no').onclick=()=>{conf.hidden=true;ask.hidden=false;$('#sell-open').focus()};
+  $('#sell-yes').onclick=()=>{conf.hidden=true;$('#sell-msg').innerHTML='<b>Sold.</b> 60 coins added.'};
+
+  /* ---- tabs ---- */
+  const tabs=$$('.tabs [role=tab]');
+  function go(id,focus){
+    tabs.forEach(t=>{const on=t.getAttribute('aria-controls')===id;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;$('#'+t.getAttribute('aria-controls')).hidden=!on;if(on&&focus)t.focus()});
+    document.body.dataset.tab=id; window.scrollTo(0,0);
+  }
+  tabs.forEach((t,k)=>{
+    t.addEventListener('click',()=>go(t.getAttribute('aria-controls')));
+    t.addEventListener('keydown',e=>{const s={ArrowRight:1,ArrowLeft:-1}[e.key];if(!s)return;e.preventDefault();go(tabs[(k+s+tabs.length)%tabs.length].getAttribute('aria-controls'),true)});
+  });
+  $$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go,true)));
+
+  /* ---- opening overlay ---- */
+  const rip=$('#rip');
+  const back='<span class="face backface">'+emblem.replace('em burst','burst')+'<span class="mark">'+logo(false)+'</span></span>';
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('[data-buy]'); if(!b)return;
+    $('#rip-title').firstChild.textContent=b.dataset.buy+' pack';
+    $('#pull').innerHTML=PULL.slice(0,+b.dataset.n).map(c=>'<button class="flip" aria-pressed="false" aria-label="Face-down card. Turn over"><span class="inner">'+back+'<span class="face front">'+card(c)+'</span></span></button>').join('');
+    rip.showModal();
+  });
+  function turn(f){f.setAttribute('aria-pressed','true');f.setAttribute('aria-label',f.querySelector('.nm').textContent+', '+f.querySelector('.tb').textContent)}
+  $('#pull').addEventListener('click',e=>{const f=e.target.closest('.flip');if(f)turn(f)});
+  $('#rip-all').onclick=()=>$$('#pull .flip').forEach(turn);
+  $('#rip-done').onclick=()=>rip.close();
+
+  /* ---- foil follows the pointer ---- */
+  document.addEventListener('pointermove',e=>{
+    const c=e.target.closest&&e.target.closest('.card'); if(!c)return;
+    const r=c.getBoundingClientRect();
+    c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(0)+'%');
+    c.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(0)+'%');
+  });
+
+  /* ---- sheet: swatches ---- */
+  $('#swatches').innerHTML=['ink','ink-2','cream','pink','cyan','yellow','orange','lime','violet','home-a','store-a','inv-a','common','uncommon','rare','epic','legendary']
+    .map(n=>'<li><i style="--c:var(--'+n+')"></i>--'+n+'</li>').join('');
+})();
+</script>
+</body>
+</html>

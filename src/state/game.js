@@ -1,17 +1,20 @@
 // Game state. Same localStorage key and shape as pack-rip.html, so a save made there loads here.
 import { useSyncExternalStore } from 'react'
 import { R, TIERS, START, PAY, WAIT, CAP, T } from '../data/game.js'
+import { loadStats, freshStats, recordPack, recordSale } from './stats.js'
 
 export const KEY = 'packrip-v2'
 
-const fresh = () => ({ coins: START, opened: 0, owned: {}, last: Date.now(), recent: [] })
+const fresh = () => ({ coins: START, opened: 0, owned: {}, last: Date.now(), recent: [], stats: freshStats() })
 
-let S = fresh()
+let S = fresh(), had = null
 try {
   const s = JSON.parse(localStorage.getItem(KEY))
-  if (s && s.owned && typeof s.coins == 'number') S = Object.assign(S, s)
+  if (s && s.owned && typeof s.coins == 'number') { had = s.stats; S = Object.assign(S, s) }
 } catch (e) {}
-if (!Array.isArray(S.recent)) S.recent = []
+S.recent = Array.isArray(S.recent) ? [...new Set(S.recent)] : [] // older saves could list one card twice
+// Old saves have no stats: build them from what the save holds. pack-rip.html keeps the field when it saves.
+S.stats = loadStats({ stats: had, recent: S.recent })
 
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)) } catch (e) {} }
 
@@ -74,7 +77,9 @@ export function openPack(t, ti) {
     S.owned[c.key] = own(c) + 1
     return { c, isNew }
   })
-  S.recent = pulls.map((p) => p.c.key).concat(S.recent.filter((k) => !pulls.some((p) => p.c.key == k))).slice(0, 7)
+  recordPack(S.stats, ti, tier.cost, pulls.map((p) => ({ key: p.c.key, ri: p.c.ri, isNew: p.isNew })))
+  const keys = [...new Set(pulls.map((p) => p.c.key))] // the same card twice in one pack is listed once
+  S.recent = keys.concat(S.recent.filter((k) => !keys.includes(k))).slice(0, 7)
   save(); emit()
   return { pulls, rs }
 }
@@ -82,6 +87,7 @@ export function openPack(t, ti) {
 export function sellAll() {
   const v = dupeValue()
   if (!v) return 0
+  recordSale(S.stats, dupeCount(), v)
   Object.keys(S.owned).forEach((k) => { if (S.owned[k] > 1) S.owned[k] = 1 })
   S.coins += v; save(); emit()
   return v
@@ -90,7 +96,7 @@ export function sellAll() {
 export function sellOne(c) {
   const n = own(c)
   if (n < 2) return
-  S.owned[c.key] = n - 1; S.coins += R[c.ri].sell; save(); emit()
+  S.owned[c.key] = n - 1; S.coins += R[c.ri].sell; recordSale(S.stats, 1, R[c.ri].sell); save(); emit()
 }
 
 export function reset() { S = fresh(); save(); emit() }

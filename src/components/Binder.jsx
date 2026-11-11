@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { R } from '../data/game.js'
 import { useGame, own, dupeValue, dupeCount, sellAll } from '../state/game.js'
 import Card from './Card.jsx'
@@ -11,11 +11,17 @@ export default function Binder({ theme, showCard }) {
   const [filter, setFilter] = useState(-1)
   const [asking, setAsking] = useState(false)
   const [sold, setSold] = useState(0)
+  const sellBtn = useRef(null), status = useRef(null), was = useRef(false)
+  // When the confirm buttons go away, put focus on what replaced them.
+  useEffect(() => {
+    if (was.current && !asking) (sellBtn.current || status.current)?.focus()
+    was.current = asking
+  }, [asking])
   const value = dupeValue(), count = dupeCount()
   const cards = filter < 0 ? theme.cards : theme.cards.filter((c) => c.ri === filter)
 
   return (
-    <div className="album">
+    <div className="sticker album paper">
       <div className="spine" aria-hidden="true"><i /><i /><i /></div>
       <div className="page">
         <div className="filters" role="group" aria-label="Show rarity">
@@ -41,17 +47,17 @@ export default function Binder({ theme, showCard }) {
           ))}
         </div>
         <div className="sell">
-          <p role="status">
+          <p role="status" ref={status} tabIndex={-1}>
             {value
               ? <><b>{count} {count === 1 ? 'duplicate' : 'duplicates'}</b> across all binders, worth {fmt(value)} coins.</>
               : sold ? <><b>Sold.</b> {fmt(sold)} coins added.</> : 'No duplicates to sell.'}
           </p>
           {value > 0 && !asking && (
-            <div className="acts"><button type="button" className="btn sec" onClick={() => setAsking(true)}>Sell duplicates</button></div>
+            <div className="acts"><button type="button" className="btn sec" ref={sellBtn} onClick={() => setAsking(true)}>Sell duplicates</button></div>
           )}
           {value > 0 && asking && (
             <div className="acts">
-              <button type="button" className="btn" autoFocus onClick={() => { setSold(sellAll()); setAsking(false) }}>Sell {count} for {fmt(value)} coins</button>
+              <button type="button" className="btn sec" autoFocus onClick={() => { setSold(sellAll()); setAsking(false) }}>Sell {count} for {fmt(value)} coins</button>
               <button type="button" className="btn sec" onClick={() => setAsking(false)}>Keep them</button>
             </div>
           )}

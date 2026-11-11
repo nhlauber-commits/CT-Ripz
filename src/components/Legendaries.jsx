@@ -24,7 +24,7 @@ export default function Legendaries({ active }) {
     if (phase !== 'rest') return
     if (still()) { settle(); return }
     setPhase('out')
-    timers.current = [setTimeout(() => setPhase('under'), 700), setTimeout(settle, 950)]
+    timers.current = [setTimeout(() => setPhase('under'), 500), setTimeout(settle, 750)]
   }
   live.current = { deal, paused, active }
 
@@ -32,28 +32,28 @@ export default function Legendaries({ active }) {
     const id = setInterval(() => {
       const l = live.current
       if (l.active && !l.paused && !hover.current && !document.hidden && !still()) l.deal()
-    }, 4500)
+    }, 3500)
     return () => { clearInterval(id); timers.current.forEach(clearTimeout) }
   }, [])
 
   const top = LEG[slots.find((s) => s.pos === 0).k]
   const hold = (v) => () => { hover.current = v }
   return (
-    <div className="plate show" onPointerEnter={hold(true)} onPointerLeave={hold(false)} onFocus={hold(true)} onBlur={hold(false)}>
+    <div className="sticker show" onPointerEnter={hold(true)} onPointerLeave={hold(false)} onFocus={hold(true)} onBlur={hold(false)}>
       <div>
         <div className="rule"><h3>Legendaries</h3></div>
-        <p className="lg-name foil-text">{top.n}</p>
+        <p className="lg-name misreg">{top.n}</p>
         <p className="lg-meta">{top.t.name}, {top.t.g[top.k]}</p>
         <p className="lg-fact">Four in every theme. 2% of pulls. Sells for 1,500 coins.</p>
         <div className="acts">
           {!still() && <button type="button" className="btn sec" aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Play' : 'Pause'}</button>}
-          <button type="button" className="btn sec" onClick={deal}>Next card</button>
+          <button type="button" className="btn" onClick={deal}>Next card</button>
         </div>
       </div>
       <div className="deck" aria-hidden="true">
         {slots.map((s) => (
           <div key={s.id} className={'dc' + (s.pos === 0 && phase !== 'rest' ? ' out' : '') + (s.pos === 0 && phase === 'under' ? ' under' : '')} data-pos={s.pos}>
-            <Card c={LEG[s.k]} />
+            <Card key={LEG[s.k].key} c={LEG[s.k]} />
           </div>
         ))}
       </div>
